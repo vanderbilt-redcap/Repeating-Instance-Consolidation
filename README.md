@@ -1,0 +1,2 @@
+# Repeating Instance Consolidation
+Take a repeating instance and consolidate the data into another form with a single instance. Can also be used to reconcile 2+ sets of repeating instruments for multiple data entry.
