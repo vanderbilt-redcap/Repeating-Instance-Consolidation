@@ -1,7 +1,7 @@
 {
 	"name": "Repeating Instance Consolidation",
 
-	"namespace": "Vanderbilt\\RepeatingInstanceCosolidation",
+	"namespace": "Vanderbilt\\RepeatingInstanceConsolidation",
 
 	"description": "Take a repeating instance and consolidate the data into another form with a single instance. Can also be used to reconcile 2+ sets of repeating instruments for multiple data entry.",
 
@@ -16,7 +16,8 @@
 	],
 
 	"permissions": [
-
+		"redcap_module_link_check_display",
+		"redcap_module_save_configuration"
 	],
 	
 	"enable-every-page-hooks-on-system-pages": false,	
@@ -39,7 +40,48 @@
 	],
 
 	"project-settings": [
-
+		{
+			"key": "input-json",
+			"name": "JSON version of settings",
+			"type": "textarea",
+			"repeatable": false
+		},
+		{
+			"key": "form-settings",
+			"name": "Forms used by this module",
+			"type": "sub_settings",
+			"repeatable": true,
+			"sub_settings": [
+				{
+					"key": "input-forms",
+					"name": "Form Name",
+					"type": "form-list",
+					"repeatable": false
+				},
+				{
+					"key": "input-types",
+					"name": "Form Type",
+					"type": "dropdown",
+					"choices": [
+						{"value": "input","name": "Multi-data Entry Form"},
+						{"value": "reconciled","name": "Reconciled Input Form"},
+						{"value": "output","name": "Combined Output Form"}
+					]
+				},
+				{
+					"key": "input-matching-fields",
+					"name": "Fields to Matching Repeating Forms",
+					"type": "field-list",
+					"repeatable": true
+				},
+				{
+					"key": "input-fields",
+					"name": "Fields to Compare",
+					"type": "field-list",
+					"repeatable": true
+				}
+			]
+		}
 	],
 
 	"system-settings": [
