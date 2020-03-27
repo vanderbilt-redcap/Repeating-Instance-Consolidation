@@ -16,6 +16,7 @@ $recordData = $module->getData($module->getProjectId(),$recordId);
 $metadata = $module->getMetadata($module->getProjectId());
 
 $combinedData = [];
+$comparisonData = [];
 $antibodiesPresent = [];
 
 $fieldList = reset($dataMapping[$module::$inputType])[$module::$dataFields];
@@ -42,11 +43,16 @@ foreach($recordData[$recordId]["repeat_instances"] as $eventId => $eventDetails)
 				$matchingValue = implode("~",$matchingValue);
 
 				foreach($formDetails[$module::$dataFields] as $fieldKey => $fieldName) {
-					## Add data to the combined array for display later
-					$combinedData[$dataType][$matchingValue][$formName][$instanceId][$fieldKey] = $instanceDetails[$fieldName];
-
-					## Also mark every antibody present, so that non-present antibodies don't have to be displayed
 					foreach($instanceDetails[$fieldName] as $rawValue => $checked) {
+						## Add data to the combined array for display later
+						$combinedData[$dataType][$matchingValue][$formName][$instanceId][$fieldKey][$rawValue] = $checked;
+
+						if($dataType == $module::$inputType) {
+							## Also add to comparison data, so unmatched data can be found later
+							$comparisonData[$matchingValue][$fieldKey][$rawValue][$checked] = 1;
+						}
+
+						## Also mark every antibody present, so that non-present antibodies don't have to be displayed
 						if($checked == 1) {
 							$antibodiesPresent[$rawValue] = true;
 						}
@@ -61,11 +67,12 @@ foreach($recordData[$recordId]["repeat_instances"] as $eventId => $eventDetails)
 foreach($recordData[$recordId] as $eventId => $eventDetails) {
 	foreach($dataMapping[$module::$outputType] as $formName => $formDetails) {
 		foreach($formDetails[$module::$dataFields] as $fieldKey => $fieldName) {
-			## Add the non-repeating data from the output to the combined data to be displayed
-			$combinedData[$module::$outputType][$formName][$fieldKey] = $eventDetails[$fieldName];
 
 			## Also mark raw values from the output form to be displayed
 			foreach($eventDetails[$fieldName] as $rawValue => $checked) {
+				## Add the non-repeating data from the output to the combined data to be displayed
+				$combinedData[$module::$outputType][$formName][$fieldKey][$rawValue] = $checked;
+
 				if($checked == 1) {
 					$antibodiesPresent[$rawValue] = true;
 				}
@@ -78,6 +85,7 @@ foreach($recordData[$recordId] as $eventId => $eventDetails) {
 ## Output the data into a table
 $outputLabelList = [];
 
+## Foreach each label value, check if antibody was ever present and only output if it was
 foreach($labelList as $fieldName => $fieldMapping) {
 	$outputLabelList[$fieldName] = [];
 
@@ -116,12 +124,19 @@ foreach($fieldList as $fieldName) {
 echo "</tr></thead>";
 echo "<tbody>";
 
-## TODO Need to find a way to sort the matching values
-## TODO What to do with the reconciled version of the data
-## TODO How to find the discrepancies between same instances
+$matchedKeys = array_keys($combinedData[$module::$inputType]);
 
+sort($matchedKeys);
 
-foreach($combinedData[$module::$inputType] as $matchingValue => $matchedDataDetails) {
+foreach($matchedKeys as $matchingValue) {
+	$doComparison = false;
+	$matchedDataDetails = $combinedData[$module::$reconciledType][$matchingValue];
+
+	if(count($matchedDataDetails) == 0) {
+		$doComparison = true;
+		$matchedDataDetails = $combinedData[$module::$inputType][$matchingValue];
+	}
+
 	foreach($matchedDataDetails as $formName => $formDetails) {
 		foreach($formDetails as $instanceId => $instanceDetails) {
 			echo "<tr><td>$formName : Instance $instanceId<br />";
@@ -134,16 +149,23 @@ foreach($combinedData[$module::$inputType] as $matchingValue => $matchedDataDeta
 
 			echo "</td>";
 
-			foreach($instanceDetails as $fieldName => $fieldData) {
-				foreach($fieldData as $rawValue => $checked) {
-					if($antibodiesPresent[$rawValue]) {
-						echo "<td>";
-						if($checked == 1) {
-							echo "X";
-						}
-						echo "</td>";
+			$fieldKey = 0;
+			foreach($outputLabelList as $fieldName => $fieldDetails) {
+				foreach($fieldDetails as $rawValue => $label) {
+					$style = "";
+					if($doComparison && count($comparisonData[$matchingValue][$fieldKey][$rawValue]) > 1) {
+						$style = "style='background-color:red'";
 					}
+
+					echo "<td $style>";
+
+					if($instanceDetails[$fieldKey][$rawValue]) {
+						echo "X";
+					}
+
+					echo "</td>";
 				}
+				$fieldKey++;
 			}
 
 			echo "</tr>";
@@ -151,7 +173,23 @@ foreach($combinedData[$module::$inputType] as $matchingValue => $matchedDataDeta
 	}
 }
 
+foreach($combinedData[$module::$outputType] as $formName => $formDetails) {
+	echo "<tr><td>$formName</td>";
+
+	$fieldKey = 0;
+	foreach($outputLabelList as $fieldName => $fieldDetails) {
+		foreach($fieldDetails as $rawValue => $label) {
+			echo "<td>";
+
+			if($formDetails[$fieldKey][$rawValue]) {
+				echo "X";
+			}
+			echo "</td>";
+		}
+		$fieldKey++;
+	}
+
+	echo "</tr>";
+}
+
 echo "</tbody></table>";
-
-echo "<pre>";var_dump($combinedData);echo "</pre>";echo "<br />";
-
