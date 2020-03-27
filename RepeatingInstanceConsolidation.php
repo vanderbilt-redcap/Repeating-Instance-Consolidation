@@ -2,6 +2,12 @@
 namespace Vanderbilt\RepeatingInstanceConsolidation;
 
 class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalModule {
+	public static $inputType = "input";
+	public static $reconciledType = "reconciled";
+	public static $outputType = "output";
+	public static $matchedFields = "matching";
+	public static $dataFields = "fields";
+
 	public function __construct() {
 		parent::__construct();
 
@@ -9,18 +15,24 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
 	}
 
 	public function refactorDropdownsToJson($newForms,$newTypes,$newFields,$newMatchingFields) {
-		$combinedJson = ["input" => [],"reconciled" => [], "output" => []];
+		$combinedJson = [
+			self::$inputType => [],
+			self::$reconciledType => [],
+			self::$outputType => []
+		];
 
 		## Combine the separate fields so they can be compared to the JSON version
 		foreach($newForms as $inputKey => $formName) {
 			$type = $newTypes[$inputKey];
 			$newRow = [];
 
-			if(in_array($type,["input","reconciled"])) {
-				$newRow = ["matching" => $newMatchingFields[$inputKey], "fields" => $newFields[$inputKey]];
+			if(in_array($type,[self::$inputType,self::$reconciledType])) {
+				$newRow = [
+					self::$matchedFields => $newMatchingFields[$inputKey],
+					self::$dataFields => $newFields[$inputKey]];
 			}
-			else if($type == "output") {
-				$newRow = ["fields" => $newFields[$inputKey]];
+			else if($type == self::$outputType) {
+				$newRow = [self::$dataFields => $newFields[$inputKey]];
 			}
 			else {
 				continue;
@@ -62,17 +74,17 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
 
 				foreach($tempJson as $type => $typeDetails) {
 					foreach($typeDetails as $formName => $formDetails) {
-						if(count($formDetails["fields"]) == 0) {
-							$formDetails["fields"] = [null];
+						if(count($formDetails[self::$dataFields]) == 0) {
+							$formDetails[self::$dataFields] = [null];
 						}
-						if(count($formDetails["matching"]) == 0) {
-							$formDetails["matching"] = [null];
+						if(count($formDetails[self::$matchedFields]) == 0) {
+							$formDetails[self::$matchedFields] = [null];
 						}
 
 						$updatedForms[] = $formName;
 						$updatedTypes[] = $type;
-						$updatedFields[] = $formDetails["fields"];
-						$updatedMatchingFields[] = $formDetails["matching"];
+						$updatedFields[] = $formDetails[self::$dataFields];
+						$updatedMatchingFields[] = $formDetails[self::$matchedFields];
 					}
 				}
 
@@ -99,7 +111,7 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
 	public function redcap_module_link_check_display( $project_id, $link ) {
 		if($link['name'] == "Reconcile Data") {
 			if(!empty($_GET['id'])) {
-				$link['url'] = $link['url']."&record=".$_GET['id'];
+				$link['url'] = $link['url']."&id=".$_GET['id'];
 			}
 			else {
 				return false;
