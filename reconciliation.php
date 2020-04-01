@@ -226,7 +226,8 @@ table *{font-family: proxima-nova, sans-serif;}
 .table-bordered td, .table-bordered th {
     border: unset !important;
 }
-.bgred{background-color: #ff00008c;}
+.bgred{background-color: #ff00008c !important;}
+.bgred .x{ background-color: #000000 !important;}
 thead{    border-bottom: 1px solid #00000073;}
 </style>
 <script type="text/javascript">
