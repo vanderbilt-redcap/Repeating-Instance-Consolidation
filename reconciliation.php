@@ -117,7 +117,7 @@ $c_antibody = 0;
 foreach($fieldList as $fieldName) {
 	if($metadata[$fieldName]["field_type"] == "checkbox") {
 		foreach($outputLabelList[$fieldName] as $rawValue => $label) {
-			echo "<th class='ca ca_".$c_antibody++."' style='transform:rotate(-90deg);height:90px'>".$label."</th>";
+			echo "<td class='ca ca_".$c_antibody++."' style='transform:rotate(-90deg);height:90px'>".$label."</td>";
 		}
 	}
 }
@@ -205,8 +205,8 @@ echo "</tbody></table>";
 tbody tr:nth-child(even) {background: #0000000a;}
 tbody tr:nth-child(odd) {background: #FFF}
 
-.initrow th.ca:nth-child(even) {background: #0000000a;}
-.initrow th.ca:nth-child(odd) {background: unset;}
+.initrow td.ca:nth-child(even) {background: #0000000a;}
+.initrow td.ca:nth-child(odd) {background: unset;}
 
 </style>
 <script type="text/javascript">
