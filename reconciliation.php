@@ -197,7 +197,7 @@ echo "</tbody></table>";
 
 ?>
 <style>
-tbody tr:nth-child(even) {background: ##0000000a;}
+tbody tr:nth-child(even) {background: #0000000a;}
 tbody tr:nth-child(odd) {background: #FFF}
 </style>
 <script type="text/javascript">
