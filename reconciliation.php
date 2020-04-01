@@ -161,7 +161,8 @@ foreach($matchedKeys as $matchingValue) {
 					if($c_column == 0){
 
 					}
-					echo "<td class='ca_$c_column++' $style>";
+					$c_column = $c_column++;
+					echo "<td class='ca_$c_column' $style>";
 
 					if($instanceDetails[$fieldKey][$rawValue]) {
 						echo "X";
