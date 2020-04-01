@@ -1,3 +1,4 @@
+<link rel="stylesheet" href="https://use.typekit.net/ikj0ive.css">
 <?php
 /**
  * Created by PhpStorm.
@@ -216,6 +217,7 @@ tbody td.ca:nth-child(even) {background: unset;}
     border-bottom-width: 0px;
     height: 98px;
 }
+table *{font-family: proxima-nova, sans-serif;}
 </style>
 <script type="text/javascript">
 
