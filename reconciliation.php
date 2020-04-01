@@ -110,14 +110,14 @@ foreach($fieldList as $fieldName) {
 	}
 }
 
-echo "</tr><tr>";
+echo "</tr><tr class='initrow'>";
 
 ## Output the antibody field list header row
 $c_antibody = 0;
 foreach($fieldList as $fieldName) {
 	if($metadata[$fieldName]["field_type"] == "checkbox") {
 		foreach($outputLabelList[$fieldName] as $rawValue => $label) {
-			echo "<th class='ca_".$c_antibody++."' style='transform:rotate(-90deg);height:90px'>".$label."</th>";
+			echo "<th class='ca ca_".$c_antibody++."' style='transform:rotate(-90deg);height:90px'>".$label."</th>";
 		}
 	}
 }
@@ -163,7 +163,7 @@ $c_column = 0;
 
 					}
 					$c_column = $fieldKey2++;
-					echo "<td class='ca_$c_column' $style>";
+					echo "<td class='ca ca_$c_column' $style>";
 
 					if($instanceDetails[$fieldKey][$rawValue]) {
 						echo "X";
@@ -204,6 +204,10 @@ echo "</tbody></table>";
 <style>
 tbody tr:nth-child(even) {background: #0000000a;}
 tbody tr:nth-child(odd) {background: #FFF}
+
+.initrow td.ca:nth-child(even) {background: unset;}
+.initrow td.ca:nth-child(odd) {background: #FFF}
+
 </style>
 <script type="text/javascript">
 
