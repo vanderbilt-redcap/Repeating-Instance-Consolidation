@@ -159,13 +159,13 @@ $c_column = 0;
 				foreach($fieldDetails as $rawValue => $label) {
 					$style = "";
 					if($doComparison && count($comparisonData[$matchingValue][$fieldKey][$rawValue]) > 1) {
-						$style = "style='background-color: #ff00008c;'";
+						$stylebgred = " bgred";
 					}
 					if($c_column == 0){
 
 					}
 					$c_column = $fieldKey2++;
-					echo "<td class='ca ca_$c_column' $style>";
+					echo "<td class='ca ca_$c_column $stylebgred'>";
 
 					if($instanceDetails[$fieldKey][$rawValue]) {
 						echo "<div class='x'></div>";
@@ -224,6 +224,8 @@ table *{font-family: proxima-nova, sans-serif;}
 .table-bordered td, .table-bordered th {
     border: unset !important;
 }
+.bgred{background-color: #ff00008c;}
+thead{    border-bottom: 1px solid #00000073;}
 </style>
 <script type="text/javascript">
 
