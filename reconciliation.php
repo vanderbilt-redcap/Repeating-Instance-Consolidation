@@ -142,7 +142,7 @@ $c_column = 0;
 	foreach($matchedDataDetails as $formName => $formDetails) {
 		
 		foreach($formDetails as $instanceId => $instanceDetails) {
-			echo "<tr><td>";
+			echo "<tr><td class='fcol'>";
 			//echo "<tr><td>$formName : Instance $instanceId<br />";
 
 			$matchedData = explode("~",$matchingValue);
@@ -150,7 +150,7 @@ $c_column = 0;
 			foreach($matchedData as $outputValue) {
 				$s = $outputValue;
 				$date = strtotime($s);
-				echo date('d/M/Y', $date);
+				echo date('d/m/Y', $date);
 				
 			}
 
@@ -235,6 +235,7 @@ thead{    border-bottom: 1px solid #00000073;}
 .table-bordered {
     border: 0px solid #dee2e6;
 }
+.fcol{font-size:12px;}
 </style>
 <script type="text/javascript">
 
