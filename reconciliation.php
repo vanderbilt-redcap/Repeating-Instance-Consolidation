@@ -203,7 +203,7 @@ echo "</tbody></table>";
 ?>
 <style>
 
-.theader{transform:rotate(-90deg);height:90px}	
+.theader{transform:rotate(-90deg);height:22px}	
 tbody tr:nth-child(even) {background: #0000000a;}
 tbody tr:nth-child(odd) {background: #FFF}
 
@@ -212,7 +212,10 @@ tbody tr:nth-child(odd) {background: #FFF}
 
 tbody td.ca:nth-child(odd) {background: #0000000a;}
 tbody td.ca:nth-child(even) {background: unset;}
-
+.table-bordered thead td, .table-bordered thead th {
+    border-bottom-width: 0px;
+    height: 98px;
+}
 </style>
 <script type="text/javascript">
 
