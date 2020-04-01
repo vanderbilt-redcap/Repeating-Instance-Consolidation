@@ -145,9 +145,9 @@ $c_column = 0;
 			//echo "<tr><td class='fcol'>";
 
 			$frmName =  str_replace("_"," ",$formName);
-			$frmName =  str_replace("recipient","",$formName);
-			$frmName =  str_replace("blood","bld",$formName);
-			$frmName =  str_replace("single","sgle",$formName);
+			$frmName =  str_replace("recipient","",$frmName);
+			$frmName =  str_replace("blood","bld",$frmName);
+			$frmName =  str_replace("single","sgle",$frmName);
 			echo "<tr><td class='fcol'>$frmName : Instance $instanceId - ";
 
 			$matchedData = explode("~",$matchingValue);
