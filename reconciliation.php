@@ -148,7 +148,10 @@ $c_column = 0;
 			$matchedData = explode("~",$matchingValue);
 
 			foreach($matchedData as $outputValue) {
-				echo "$outputValue ";
+				$s = $outputValue;
+				$date = strtotime($s);
+				echo date('d/M/Y', $date);
+				
 			}
 
 			echo "</td>";
@@ -229,6 +232,9 @@ table *{font-family: proxima-nova, sans-serif;}
 .bgred{background-color: #ff00008c !important;}
 .bgred .x{ background-color: #000000 !important;}
 thead{    border-bottom: 1px solid #00000073;}
+.table-bordered {
+    border: 0px solid #dee2e6;
+}
 </style>
 <script type="text/javascript">
 
