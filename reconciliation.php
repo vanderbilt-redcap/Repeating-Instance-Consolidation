@@ -117,7 +117,7 @@ $c_antibody = 0;
 foreach($fieldList as $fieldName) {
 	if($metadata[$fieldName]["field_type"] == "checkbox") {
 		foreach($outputLabelList[$fieldName] as $rawValue => $label) {
-			echo "<td class='ca ca_".$c_antibody++."' style='transform:rotate(-90deg);height:90px'>".$label."</td>";
+			echo "<td class='ca ca_".$c_antibody++."'><div style='transform:rotate(-90deg);height:90px'>".$label."</div></td>";
 		}
 	}
 }
