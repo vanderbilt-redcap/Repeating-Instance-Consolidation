@@ -193,3 +193,18 @@ foreach($combinedData[$module::$outputType] as $formName => $formDetails) {
 }
 
 echo "</tbody></table>";
+
+
+?>
+<style>
+tbody tr:nth-child(even) {background: #0000005}
+tbody tr:nth-child(odd) {background: #FFF}
+</style>
+<script type="text/javascript">
+
+jQuery(document).ready(function($){
+
+});
+
+</script>
+<?php
