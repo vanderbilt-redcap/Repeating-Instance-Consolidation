@@ -205,8 +205,8 @@ echo "</tbody></table>";
 tbody tr:nth-child(even) {background: #0000000a;}
 tbody tr:nth-child(odd) {background: #FFF}
 
-.initrow th.ca:nth-child(even) {background: unset;}
-.initrow th.ca:nth-child(odd) {background: #FFF}
+.initrow th.ca:nth-child(even) {background: #0000000a;}
+.initrow th.ca:nth-child(odd) {background: unset;}
 
 </style>
 <script type="text/javascript">
