@@ -148,7 +148,8 @@ $c_column = 0;
 			$frmName =  str_replace("recipient","",$frmName);
 			$frmName =  str_replace("blood","bld",$frmName);
 			$frmName =  str_replace("single","sgle",$frmName);
-			echo "<tr><td class='fcol'>$frmName : Instance $instanceId - ";
+			$frmName =  str_replace("group","grp",$frmName);
+			echo "<tr><td class='fcol'><div>$frmName : Instance $instanceId - ";
 
 			$matchedData = explode("~",$matchingValue);
 
@@ -159,7 +160,7 @@ $c_column = 0;
 				
 			}
 
-			echo "</td>";
+			echo "</div></td>";
 
 			$fieldKey = 0;
 			$fieldKey2 = 0;
@@ -241,6 +242,8 @@ thead{    border-bottom: 1px solid #00000073;}
     border: 0px solid #dee2e6;
 }
 .fcol{font-size:12px;}
+.fcol div{display: inline-block;
+    width: 329px;}
 </style>
 <script type="text/javascript">
 
