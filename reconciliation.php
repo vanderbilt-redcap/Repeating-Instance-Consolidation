@@ -152,7 +152,7 @@ $c_column = 0;
 			echo "</td>";
 
 			$fieldKey = 0;
-			$fieldKey2 = 0
+			$fieldKey2 = 0;
 			foreach($outputLabelList as $fieldName => $fieldDetails) {
 				foreach($fieldDetails as $rawValue => $label) {
 					$style = "";
