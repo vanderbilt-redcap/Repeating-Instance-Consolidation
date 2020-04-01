@@ -219,6 +219,7 @@ tbody td.ca:nth-child(even) {background: unset;}
     height: 98px;
 }
 table *{font-family: proxima-nova, sans-serif;}
+.ca{width:40px;}
 </style>
 <script type="text/javascript">
 
