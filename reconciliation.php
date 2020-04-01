@@ -168,7 +168,7 @@ $c_column = 0;
 					echo "<td class='ca ca_$c_column' $style>";
 
 					if($instanceDetails[$fieldKey][$rawValue]) {
-						echo "X";
+						echo "<div class='x'></div>";
 					}
 
 					echo "</td>";
@@ -219,7 +219,8 @@ tbody td.ca:nth-child(even) {background: unset;}
     height: 98px;
 }
 table *{font-family: proxima-nova, sans-serif;}
-.ca{width:40px;}
+.ca{width:40px;text-align: center;}
+.x{height: 19px;width: 19px;background-color: #083fbb;margin: auto;}
 </style>
 <script type="text/javascript">
 
