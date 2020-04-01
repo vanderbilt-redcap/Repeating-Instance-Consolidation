@@ -208,6 +208,9 @@ tbody tr:nth-child(odd) {background: #FFF}
 .initrow td.ca:nth-child(even) {background: #0000000a;}
 .initrow td.ca:nth-child(odd) {background: unset;}
 
+tbody td.ca:nth-child(even) {background: #0000000a;}
+tbody td.ca:nth-child(odd) {background: unset;}
+
 </style>
 <script type="text/javascript">
 
