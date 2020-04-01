@@ -152,7 +152,7 @@ $c_column = 0;
 			echo "</td>";
 
 			$fieldKey = 0;
-			
+			$fieldKey2 = 0
 			foreach($outputLabelList as $fieldName => $fieldDetails) {
 				foreach($fieldDetails as $rawValue => $label) {
 					$style = "";
@@ -162,7 +162,7 @@ $c_column = 0;
 					if($c_column == 0){
 
 					}
-					$c_column = $c_column++;
+					$c_column = $fieldKey2++;
 					echo "<td class='ca_$c_column' $style>";
 
 					if($instanceDetails[$fieldKey][$rawValue]) {
