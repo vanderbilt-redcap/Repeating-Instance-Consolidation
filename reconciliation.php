@@ -142,7 +142,8 @@ $c_column = 0;
 	foreach($matchedDataDetails as $formName => $formDetails) {
 		
 		foreach($formDetails as $instanceId => $instanceDetails) {
-			echo "<tr><td>$formName : Instance $instanceId<br />";
+			echo "<tr><td>";
+			//echo "<tr><td>$formName : Instance $instanceId<br />";
 
 			$matchedData = explode("~",$matchingValue);
 
