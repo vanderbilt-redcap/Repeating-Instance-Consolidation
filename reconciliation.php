@@ -137,8 +137,9 @@ foreach($matchedKeys as $matchingValue) {
 		$doComparison = true;
 		$matchedDataDetails = $combinedData[$module::$inputType][$matchingValue];
 	}
-
+$c_column = 0;
 	foreach($matchedDataDetails as $formName => $formDetails) {
+		
 		foreach($formDetails as $instanceId => $instanceDetails) {
 			echo "<tr><td>$formName : Instance $instanceId<br />";
 
@@ -151,7 +152,7 @@ foreach($matchedKeys as $matchingValue) {
 			echo "</td>";
 
 			$fieldKey = 0;
-			$c_column = 0;
+			
 			foreach($outputLabelList as $fieldName => $fieldDetails) {
 				foreach($fieldDetails as $rawValue => $label) {
 					$style = "";
