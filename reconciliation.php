@@ -158,7 +158,7 @@ foreach($matchedKeys as $matchingValue) {
 						$style = "style='background-color:red'";
 					}
 
-					echo "<td $style>";
+					echo "<td class='$rawValue' $style>";
 
 					if($instanceDetails[$fieldKey][$rawValue]) {
 						echo "X";
