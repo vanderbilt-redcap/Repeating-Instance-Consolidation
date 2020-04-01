@@ -143,7 +143,12 @@ $c_column = 0;
 		
 		foreach($formDetails as $instanceId => $instanceDetails) {
 			//echo "<tr><td class='fcol'>";
-			echo "<tr><td class='fcol'>$formName : Instance $instanceId - ";
+
+			$frmName = echo str_replace("_"," ",$formName);
+			$frmName = echo str_replace("recipient","",$formName);
+			$frmName = echo str_replace("blood","bld",$formName);
+			$frmName = echo str_replace("single","sgle",$formName);
+			echo "<tr><td class='fcol'>$frmName : Instance $instanceId - ";
 
 			$matchedData = explode("~",$matchingValue);
 
