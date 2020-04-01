@@ -160,6 +160,8 @@ $c_column = 0;
 					$style = "";
 					if($doComparison && count($comparisonData[$matchingValue][$fieldKey][$rawValue]) > 1) {
 						$stylebgred = " bgred";
+					} else {
+						$stylebgred = "";
 					}
 					if($c_column == 0){
 
