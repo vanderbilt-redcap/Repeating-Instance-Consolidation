@@ -151,14 +151,17 @@ foreach($matchedKeys as $matchingValue) {
 			echo "</td>";
 
 			$fieldKey = 0;
+			$c_column = 0;
 			foreach($outputLabelList as $fieldName => $fieldDetails) {
 				foreach($fieldDetails as $rawValue => $label) {
 					$style = "";
 					if($doComparison && count($comparisonData[$matchingValue][$fieldKey][$rawValue]) > 1) {
 						$style = "style='background-color:red'";
 					}
+					if($c_column == 0){
 
-					echo "<td class='$rawValue' $style>";
+					}
+					echo "<td class='ca_$c_column' $style>";
 
 					if($instanceDetails[$fieldKey][$rawValue]) {
 						echo "X";
