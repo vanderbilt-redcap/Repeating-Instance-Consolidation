@@ -159,7 +159,7 @@ $c_column = 0;
 				foreach($fieldDetails as $rawValue => $label) {
 					$style = "";
 					if($doComparison && count($comparisonData[$matchingValue][$fieldKey][$rawValue]) > 1) {
-						$style = "style='background-color:red'";
+						$style = "style='background-color: #ff00008c;'";
 					}
 					if($c_column == 0){
 
@@ -220,7 +220,10 @@ tbody td.ca:nth-child(even) {background: unset;}
 }
 table *{font-family: proxima-nova, sans-serif;}
 .ca{width:40px;text-align: center;}
-.x{height: 19px;width: 19px;background-color: #083fbb;margin: auto;}
+.x{height: 19px;width: 19px;background-color: #083fbb;margin: auto;    margin-top: 2px; margin-bottom: 2px;}
+.table-bordered td, .table-bordered th {
+    border: unset !important;
+}
 </style>
 <script type="text/javascript">
 
