@@ -21,6 +21,13 @@ $fieldList = $tableData["fields"];
 $metadata = $module->getMetadata($projectId);
 $outputLabelList = [];
 
+$labelList = [];
+foreach($fieldList as $fieldName) {
+	if($metadata[$fieldName]["field_type"] == "checkbox") {
+		$labelList[$fieldName] = $module->getChoiceLabels($fieldName,$projectId);
+	}
+}
+
 ## Foreach each label value, check if antibody was ever present and only output if it was
 foreach($labelList as $fieldName => $fieldMapping) {
 	$outputLabelList[$fieldName] = [];
@@ -29,13 +36,6 @@ foreach($labelList as $fieldName => $fieldMapping) {
 		if($antibodiesPresent[$rawValue]) {
 			$outputLabelList[$fieldName][$rawValue] = $label;
 		}
-	}
-}
-
-$labelList = [];
-foreach($fieldList as $fieldName) {
-	if($metadata[$fieldName]["field_type"] == "checkbox") {
-		$labelList[$fieldName] = $module->getChoiceLabels($fieldName,$projectId);
 	}
 }
 
