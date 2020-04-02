@@ -7,83 +7,18 @@
  * Time: 1:54 PM
  */
 
- $recordId = $_GET['id'];
+$recordId = $_GET['id'];
+$projectId = $_GET['pid'];
 
 /** @var \Vanderbilt\RepeatingInstanceConsolidation\RepeatingInstanceConsolidation $module */
-$dataMapping = $module->getProjectSetting("existing-json");
-$dataMapping = json_decode($dataMapping,true);
+$tableData = $module->getComparisonData($recordId,$projectId);
 
-$recordData = $module->getData($module->getProjectId(),$recordId);
-$metadata = $module->getMetadata($module->getProjectId());
+$combinedData = $tableData["combined"];
+$comparisonData = $tableData["comparison"];
+$antibodiesPresent = $tableData["antibodies"];
+$fieldList = $tableData["fields"];
 
-$combinedData = [];
-$comparisonData = [];
-$antibodiesPresent = [];
-
-$fieldList = reset($dataMapping[$module::$inputType])[$module::$dataFields];
-
-$labelList = [];
-foreach($fieldList as $fieldName) {
-	if($metadata[$fieldName]["field_type"] == "checkbox") {
-		$labelList[$fieldName] = $module->getChoiceLabels($fieldName,$module->getProjectId());
-	}
-}
-
-## Add instanced data to the $combinedData
-foreach($recordData[$recordId]["repeat_instances"] as $eventId => $eventDetails) {
-	foreach($dataMapping as $dataType => $mappingDetails) {
-		foreach($mappingDetails as $formName => $formDetails) {
-			foreach($eventDetails[$formName] as $instanceId => $instanceDetails) {
-				$matchingValue = [];
-				foreach($formDetails[$module::$matchedFields] as $fieldKey => $fieldName) {
-					if($instanceDetails[$fieldName] == "") {
-						continue 2;
-					}
-					$matchingValue[] = str_replace("~","",$instanceDetails[$fieldName]);
-				}
-				$matchingValue = implode("~",$matchingValue);
-
-				foreach($formDetails[$module::$dataFields] as $fieldKey => $fieldName) {
-					foreach($instanceDetails[$fieldName] as $rawValue => $checked) {
-						## Add data to the combined array for display later
-						$combinedData[$dataType][$matchingValue][$formName][$instanceId][$fieldKey][$rawValue] = $checked;
-
-						if($dataType == $module::$inputType) {
-							## Also add to comparison data, so unmatched data can be found later
-							$comparisonData[$matchingValue][$fieldKey][$rawValue][$checked] = 1;
-						}
-
-						## Also mark every antibody present, so that non-present antibodies don't have to be displayed
-						if($checked == 1) {
-							$antibodiesPresent[$rawValue] = true;
-						}
-					}
-				}
-			}
-		}
-	}
-}
-
-## Add non-instanced data to $combinedData
-foreach($recordData[$recordId] as $eventId => $eventDetails) {
-	foreach($dataMapping[$module::$outputType] as $formName => $formDetails) {
-		foreach($formDetails[$module::$dataFields] as $fieldKey => $fieldName) {
-
-			## Also mark raw values from the output form to be displayed
-			foreach($eventDetails[$fieldName] as $rawValue => $checked) {
-				## Add the non-repeating data from the output to the combined data to be displayed
-				$combinedData[$module::$outputType][$formName][$fieldKey][$rawValue] = $checked;
-
-				if($checked == 1) {
-					$antibodiesPresent[$rawValue] = true;
-				}
-			}
-
-		}
-	}
-}
-
-## Output the data into a table
+$metadata = $module->getMetadata($projectId);
 $outputLabelList = [];
 
 ## Foreach each label value, check if antibody was ever present and only output if it was
@@ -94,6 +29,13 @@ foreach($labelList as $fieldName => $fieldMapping) {
 		if($antibodiesPresent[$rawValue]) {
 			$outputLabelList[$fieldName][$rawValue] = $label;
 		}
+	}
+}
+
+$labelList = [];
+foreach($fieldList as $fieldName) {
+	if($metadata[$fieldName]["field_type"] == "checkbox") {
+		$labelList[$fieldName] = $this->getChoiceLabels($fieldName,$projectId);
 	}
 }
 

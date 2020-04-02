@@ -14,6 +14,76 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
 
 	}
 
+	public function getComparisonData($recordId, $projectId) {
+		$dataMapping = $this->getProjectSetting("existing-json",$projectId);
+		$dataMapping = json_decode($dataMapping,true);
+
+		$recordData = $this->getData($projectId,$recordId);
+
+		$fieldList = reset($dataMapping[self::$inputType])[self::$dataFields];
+
+		## Output the data into a table
+		$combinedData = [];
+		$comparisonData = [];
+		$antibodiesPresent = [];
+
+		## Add instanced data to the $combinedData
+		foreach($recordData[$recordId]["repeat_instances"] as $eventId => $eventDetails) {
+			foreach($dataMapping as $dataType => $mappingDetails) {
+				foreach($mappingDetails as $formName => $formDetails) {
+					foreach($eventDetails[$formName] as $instanceId => $instanceDetails) {
+						$matchingValue = [];
+						foreach($formDetails[self::$matchedFields] as $fieldKey => $fieldName) {
+							if($instanceDetails[$fieldName] == "") {
+								continue 2;
+							}
+							$matchingValue[] = str_replace("~","",$instanceDetails[$fieldName]);
+						}
+						$matchingValue = implode("~",$matchingValue);
+
+						foreach($formDetails[self::$dataFields] as $fieldKey => $fieldName) {
+							foreach($instanceDetails[$fieldName] as $rawValue => $checked) {
+								## Add data to the combined array for display later
+								$combinedData[$dataType][$matchingValue][$formName][$instanceId][$fieldKey][$rawValue] = $checked;
+
+								if($dataType == self::$inputType) {
+									## Also add to comparison data, so unmatched data can be found later
+									$comparisonData[$matchingValue][$fieldKey][$rawValue][$checked] = 1;
+								}
+
+								## Also mark every antibody present, so that non-present antibodies don't have to be displayed
+								if($checked == 1) {
+									$antibodiesPresent[$rawValue] = true;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+
+		## Add non-instanced data to $combinedData
+		foreach($recordData[$recordId] as $eventId => $eventDetails) {
+			foreach($dataMapping[self::$outputType] as $formName => $formDetails) {
+				foreach($formDetails[self::$dataFields] as $fieldKey => $fieldName) {
+
+					## Also mark raw values from the output form to be displayed
+					foreach($eventDetails[$fieldName] as $rawValue => $checked) {
+						## Add the non-repeating data from the output to the combined data to be displayed
+						$combinedData[self::$outputType][$formName][$fieldKey][$rawValue] = $checked;
+
+						if($checked == 1) {
+							$antibodiesPresent[$rawValue] = true;
+						}
+					}
+
+				}
+			}
+		}
+
+		return ["combined" => $combinedData, "comparison" => $comparisonData, "antibodies" => $antibodiesPresent, "fields" => $fieldList];
+	}
+
 	public function refactorDropdownsToJson($newForms,$newTypes,$newFields,$newMatchingFields) {
 		$combinedJson = [
 			self::$inputType => [],
