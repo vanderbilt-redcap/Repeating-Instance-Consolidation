@@ -35,7 +35,7 @@ foreach($labelList as $fieldName => $fieldMapping) {
 $labelList = [];
 foreach($fieldList as $fieldName) {
 	if($metadata[$fieldName]["field_type"] == "checkbox") {
-		$labelList[$fieldName] = $this->getChoiceLabels($fieldName,$projectId);
+		$labelList[$fieldName] = $module->getChoiceLabels($fieldName,$projectId);
 	}
 }
 

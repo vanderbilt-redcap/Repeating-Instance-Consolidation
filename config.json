@@ -28,6 +28,11 @@
 				"name": "Reconcile Data",
 				"icon": "report",
 				"url": "reconciliation.php"
+			},
+			{
+				"name": "Review Unreconciled Records",
+				"icon": "report",
+				"url": "report.php"
 			}
 		],
 		"control-center": [
