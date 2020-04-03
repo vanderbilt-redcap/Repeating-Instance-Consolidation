@@ -259,10 +259,17 @@ thead{    border-bottom: 1px solid #00000073;}
 <script type="text/javascript">
 
 jQuery(document).ready(function($){
-	console.log($(".x").closest("tr").css( "background-color"));
-	$(".x").parent("tr").css( "background-color","red");
-	console.log($(".x").closest("tr").css( "background-color"));
+	//console.log($(".x").closest("tr").css( "background-color"));
+	//$(".x").closest("tr").css( "background-color","red");
+	//console.log($(".x").closest("tr").css( "background-color"));
 	
+
+	$(".x").each( function( index, element ){
+		$(this).closest("tr").css("background-color","red");
+	});
+
+
+
 });
 
 </script>
