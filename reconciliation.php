@@ -259,7 +259,7 @@ thead{    border-bottom: 1px solid #00000073;}
 <script type="text/javascript">
 
 jQuery(document).ready(function($){
-
+	$( ".x" ).closest( "tr" ).css( "background-color", "red !important" );
 });
 
 </script>
