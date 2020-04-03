@@ -104,7 +104,7 @@ echo "<table class='table-bordered'><thead><tr><th rowspan='2'>Form/Instance</th
 ## Output the field label table headers
 foreach($fieldList as $fieldName) {
 	if($metadata[$fieldName]["field_type"] == "checkbox") {
-		echo "<th colspan='".count($outputLabelList[$fieldName])."'>".$metadata[$fieldName]["field_label"]."</th>";
+		echo "<th class='hdrnum' colspan='".count($outputLabelList[$fieldName])."'>".$metadata[$fieldName]["field_label"]."</th>";
 	}
 	else {
 		echo "<th rowspan='2'>".$metadata[$fieldName]["field_label"]."</th>";
@@ -261,6 +261,11 @@ thead{    border-bottom: 1px solid #00000073;}
 jQuery(document).ready(function($){
 	$(".bgred").parent().css( "background-color","rgba(255, 0, 0, 0.18)");
 
+	$(".hdrnum").each(function( index, element ){
+		//var p = $(this).last();
+		var offset = $(this).offset();
+		console.log( "left: " + offset.left + ", top: " + offset.top );
+	});
 });
 
 </script>
