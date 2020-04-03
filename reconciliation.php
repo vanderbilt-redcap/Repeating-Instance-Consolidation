@@ -156,7 +156,7 @@ $c_column = 0;
 			foreach($matchedData as $outputValue) {
 				$s = $outputValue;
 				$date = strtotime($s);
-				echo date('d/m/Y', $date);
+				echo date('m/d/y', $date);
 				
 			}
 
@@ -216,12 +216,23 @@ echo "</tbody></table>";
 ?>
 <style>
 
-.theader{transform:rotate(-90deg);height:22px}	
+.theader{transform: rotate(-90deg);
+    height: 20px;
+    display: inherit;
+    position: absolute;
+    width: 0px;
+    /* padding: 4px; */
+    margin-top: 33px;}	
 tbody tr:nth-child(even) {background: #0000000a;}
 tbody tr:nth-child(odd) {background: #FFF}
 
+.initrow{    position: relative;}
 .initrow td.ca:nth-child(even) {background: #0000000a;}
 .initrow td.ca:nth-child(odd) {background: unset;}
+
+.initrow td.ca {
+    padding: 16px;
+}
 
 tbody td.ca:nth-child(odd) {background: #0000000a;}
 tbody td.ca:nth-child(even) {background: unset;}
