@@ -226,38 +226,27 @@ echo "</tbody></table>";
 	tbody tr:nth-child(even) {background: #0000000a;}
 	tbody tr:nth-child(odd) {background: #ffffff52;}
 
-	.hdrback:nth-child(even) {background: unset;}
-	.hdrback:nth-child(odd) {background: #5555551c;}
+	.hdrback:nth-child(even) {background-color: unset;}
+	.hdrback:nth-child(odd) {background-color: #5555551c;}
 
 .initrow{    position: relative;}
 .initrow td.ca:nth-child(even) {background: #0000000a;}
 .initrow td.ca:nth-child(odd) {background: unset;}
 
-.initrow td.ca {
-    padding: 16px;
-}
-
+.initrow td.ca {padding: 16px;}
 tbody td.ca:nth-child(odd) {background: #0000000a;}
 tbody td.ca:nth-child(even) {background: unset;}
-.table-bordered thead td, .table-bordered thead th {
-    border-bottom-width: 0px;
-    height: 98px;
-}
+.table-bordered thead td, .table-bordered thead th {border-bottom-width: 0px;height: 98px;}
 table *{font-family: proxima-nova, sans-serif;}
 .ca{width:40px;text-align: center;}
 .x{height: 19px;width: 19px;background-color: #083fbb;margin: auto;    margin-top: 2px; margin-bottom: 2px;}
-.table-bordered td, .table-bordered th {
-    border: unset !important;
-}
+.table-bordered td, .table-bordered th {border: unset !important;}
 .bgred{background-color: #ff00008c !important;}
 .bgred .x{ background-color: #000000 !important;}
 thead{    border-bottom: 1px solid #00000073;}
-.table-bordered {
-    border: 0px solid #dee2e6;
-}
+.table-bordered {border: 0px solid #dee2e6;}
 .fcol{font-size:12px;}
-.fcol div{display: inline-block;
-    width: 329px;}
+.fcol div{display: inline-block;width: 329px;}
 </style>
 <script type="text/javascript">
 
