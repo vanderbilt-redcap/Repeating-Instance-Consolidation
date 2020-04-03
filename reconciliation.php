@@ -226,8 +226,8 @@ echo "</tbody></table>";
 	tbody tr:nth-child(even) {background: #0000000a;}
 	tbody tr:nth-child(odd) {background: #ffffff52;}
 
-	.hdrback:nth-child(even) {background-color: unset;}
-	.hdrback:nth-child(odd) {background-color: #5555551c;}
+	div.hdrback:nth-child(even) {background-color: unset;}
+	div.hdrback:nth-child(odd) {background-color: #5555551c;}
 
 .initrow{    position: relative;}
 .initrow td.ca:nth-child(even) {background: #0000000a;}
