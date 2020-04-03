@@ -226,8 +226,7 @@ echo "</tbody></table>";
 	tbody tr:nth-child(even) {background: #0000000a;}
 	tbody tr:nth-child(odd) {background: #ffffff52;}
 
-	div.hdrback:nth-child(even) {background-color: unset;}
-	div.hdrback:nth-child(odd) {background-color: #5555551c;}
+	.todd {background-color: #5555551c;}
 
 .initrow{    position: relative;}
 .initrow td.ca:nth-child(even) {background: #0000000a;}
@@ -257,7 +256,7 @@ jQuery(document).ready(function($){
 		//var p = $(this).last();
 		var addtclass = "";
 		if(index%2 == 1){
-			addtclass = " odd";
+			addtclass = " todd";
 		}
 		var offset = $(this).offset();
 		var fcolwidth = $(".wdgmctable>thead>tr>th:first-of-type").width();
