@@ -265,7 +265,7 @@ jQuery(document).ready(function($){
 		//var p = $(this).last();
 		var offset = $(this).offset();
 		console.log( "left: " + offset.left + ", top: " + offset.top );
-		$(this).before("<div class='hdrback' style='position:relative; left:" + offset.left + "; top:" + offset.top + "; height:40px; width:40px;'></div>");
+		$(this).before("<div class='hdrback' style='position:relative; left:" + offset.left + "px; top:" + offset.top + "px; height:40px; width:40px;    background-color: #555555;'></div>");
 	});
 });
 
