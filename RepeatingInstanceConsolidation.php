@@ -22,16 +22,23 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
 
 		$fieldList = reset($dataMapping[self::$inputType])[self::$dataFields];
 
+		## Manually set order so that reconciliation can be set first for comparison data
+		$dataTypeOrder = [self::$reconciledType,self::$inputType,self::$reconciledType];
+
 		## Output the data into a table
 		$combinedData = [];
 		$comparisonData = [];
 		$antibodiesPresent = [];
+		$reconciledTests = [];
 
 		## Add instanced data to the $combinedData
 		foreach($recordData[$recordId]["repeat_instances"] as $eventId => $eventDetails) {
-			foreach($dataMapping as $dataType => $mappingDetails) {
+			foreach($dataTypeOrder as $dataType) {
+				$mappingDetails = $dataMapping[$dataType];
 				foreach($mappingDetails as $formName => $formDetails) {
 					foreach($eventDetails[$formName] as $instanceId => $instanceDetails) {
+						## Pull all the data from matching fields so that instances can be
+						## matched between any input forms and also any reconciled data
 						$matchingValue = [];
 						foreach($formDetails[self::$matchedFields] as $fieldKey => $fieldName) {
 							if($instanceDetails[$fieldName] == "") {
@@ -43,17 +50,26 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
 
 						foreach($formDetails[self::$dataFields] as $fieldKey => $fieldName) {
 							foreach($instanceDetails[$fieldName] as $rawValue => $checked) {
-								## Add data to the combined array for display later
-								$combinedData[$dataType][$matchingValue][$formName][$instanceId][$fieldKey][$rawValue] = $checked;
+								## For raw input data, only add to comparison and combined data if no reconciled data exists
+								## All reconciled data should be added however
+								if(($dataType == self::$inputType
+										&& !array_key_exists($matchingValue,$reconciledTests))
+										|| $dataType == self::$reconciledType) {
+									## Add data to the combined array for display later
+									$combinedData[$dataType][$matchingValue][$formName][$instanceId][$fieldKey][$rawValue] = $checked;
 
-								if($dataType == self::$inputType) {
 									## Also add to comparison data, so unmatched data can be found later
 									$comparisonData[$matchingValue][$fieldKey][$rawValue][$checked] = 1;
+
+									## Also mark every antibody present, so that non-present antibodies don't have to be displayed
+									if($checked == 1) {
+										$antibodiesPresent[$rawValue] = true;
+									}
 								}
 
-								## Also mark every antibody present, so that non-present antibodies don't have to be displayed
-								if($checked == 1) {
-									$antibodiesPresent[$rawValue] = true;
+								## Track tests that have been reconciled
+								if($dataType == self::$reconciledType) {
+									$reconciledTests[$matchingValue] = 1;
 								}
 							}
 						}
@@ -76,7 +92,6 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
 							$antibodiesPresent[$rawValue] = true;
 						}
 					}
-
 				}
 			}
 		}
