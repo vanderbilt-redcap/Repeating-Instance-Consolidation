@@ -265,7 +265,7 @@ jQuery(document).ready(function($){
 		//var p = $(this).last();
 		var offset = $(this).offset();
 		var fcolwidth = $(".wdgmctable>thead>tr>th:first-of-type").width();
-		$(this).before("<div class='hdrback' style='position:absolute; left:" + (offset.left-fcolwidth+24) + "px; top:" + offset.top + "px; height:40px; width:"+$(this).width()+"px;    background-color: #555555;'></div>");
+		$(this).before("<div class='hdrback' style='position:absolute; left:" + (offset.left-fcolwidth+24) + "px; top:" + offset.top + "px; height:"+$(this).height()+"px; width:"+$(this).width()+"px;    background-color: #555555;'></div>");
 	});
 });
 
