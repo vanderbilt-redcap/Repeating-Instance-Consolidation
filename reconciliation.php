@@ -243,6 +243,7 @@ table *{font-family: proxima-nova, sans-serif;}
 .bgred{background-color: #ff00008c !important;}
 .bgred .x{ background-color: #000000 !important;}
 thead{    border-bottom: 1px solid #00000073;}
+thead th{    font-weight: 700;}
 .table-bordered {border: 0px solid #dee2e6;}
 .fcol{font-size:12px;}
 .fcol div{display: inline-block;width: 329px;}
@@ -255,7 +256,7 @@ jQuery(document).ready(function($){
 	$(".hdrnum").each(function( index, element ){
 		//var p = $(this).last();
 		var addtclass = "";
-		if(index%2 == 1){
+		if(index%2 == 0){
 			addtclass = " todd";
 		}
 		var offset = $(this).offset();
