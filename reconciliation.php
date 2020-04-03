@@ -99,7 +99,7 @@ foreach($labelList as $fieldName => $fieldMapping) {
 
 require_once \ExternalModules\ExternalModules::getProjectHeaderPath();
 
-echo "<table class='table-bordered'><thead><tr><th rowspan='2'>Form/Instance</th>";
+echo "<table class='table-bordered wdgmctable'><thead><tr><th rowspan='2'>Form/Instance</th>";
 
 ## Output the field label table headers
 foreach($fieldList as $fieldName) {
