@@ -255,11 +255,18 @@ jQuery(document).ready(function($){
 
 	$(".hdrnum").each(function( index, element ){
 		//var p = $(this).last();
-		console.log(this+" - "+index%2);
+		var addtclass = "";
+		if(index%2 == 1){
+			addtclass = " odd";
+		}
 		var offset = $(this).offset();
 		var fcolwidth = $(".wdgmctable>thead>tr>th:first-of-type").width();
-		$(this).before("<div class='hdrback' style='position:absolute; left:" + (offset.left-fcolwidth+20) + "px; top:0px; height:"+$(".wdgmctable").height()+"px; width:"+$(this).width()+"px; z-index: -1;'></div>");
+		$(this).before("<div class='hdrback "+addtclass+"' style='position:absolute; left:" + (offset.left-fcolwidth+20) + "px; top:0px; height:"+$(".wdgmctable").height()+"px; width:"+$(this).width()+"px; z-index: -1;'></div>");
 	});
 });
 
 </script>
+
+
+
+
