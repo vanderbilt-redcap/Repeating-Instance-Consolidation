@@ -260,13 +260,11 @@ thead{    border-bottom: 1px solid #00000073;}
 
 jQuery(document).ready(function($){
 	//console.log($(".x").closest("tr").css( "background-color"));
-	//$(".x").closest("tr").css( "background-color","red");
+	$(".bgred").parent().css( "background-color","red");
 	//console.log($(".x").closest("tr").css( "background-color"));
 	
 
-	$(".x").each( function( index, element ){
-		$(this).closest("tr").css("background-color","red");
-	});
+
 
 
 
