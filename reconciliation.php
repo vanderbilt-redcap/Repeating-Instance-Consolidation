@@ -99,7 +99,7 @@ foreach($labelList as $fieldName => $fieldMapping) {
 
 require_once \ExternalModules\ExternalModules::getProjectHeaderPath();
 
-echo "<table class='table-bordered wdgmctable'><thead><tr><th rowspan='2'>Form/Instance</th>";
+echo "<table class='table-bordered wdgmctable' style='    z-index: 0;position: absolute;'><thead><tr><th rowspan='2'>Form/Instance</th>";
 
 ## Output the field label table headers
 foreach($fieldList as $fieldName) {
@@ -224,7 +224,7 @@ echo "</tbody></table>";
     /* padding: 4px; */
     margin-top: 33px;}	
 tbody tr:nth-child(even) {background: #0000000a;}
-tbody tr:nth-child(odd) {background: #FFF}
+tbody tr:nth-child(odd) {background: #ffffff52;}
 
 .initrow{    position: relative;}
 .initrow td.ca:nth-child(even) {background: #0000000a;}
@@ -265,7 +265,7 @@ jQuery(document).ready(function($){
 		//var p = $(this).last();
 		var offset = $(this).offset();
 		var fcolwidth = $(".wdgmctable>thead>tr>th:first-of-type").width();
-		$(this).before("<div class='hdrback' style='position:absolute; left:" + (offset.left-fcolwidth+24) + "px; top:" + offset.top + "px; height:"+$(".wdgmctable").height()+"px; width:"+$(this).width()+"px;    background-color: #555555;'></div>");
+		$(this).before("<div class='hdrback' style='position:absolute; left:" + (offset.left-fcolwidth+24) + "px; top:" + offset.top + "px; height:"+$(".wdgmctable").height()+"px; width:"+$(this).width()+"px;    background-color: #5555551c; z-index: -1;'></div>");
 	});
 });
 
