@@ -223,8 +223,11 @@ echo "</tbody></table>";
     width: 0px;
     /* padding: 4px; */
     margin-top: 33px;}	
-tbody tr:nth-child(even) {background: #0000000a;}
-tbody tr:nth-child(odd) {background: #ffffff52;}
+	tbody tr:nth-child(even) {background: #0000000a;}
+	tbody tr:nth-child(odd) {background: #ffffff52;}
+
+	.hdrback:nth-child(even) {background: unset;}
+	.hdrback:nth-child(odd) {background: #5555551c;}
 
 .initrow{    position: relative;}
 .initrow td.ca:nth-child(even) {background: #0000000a;}
@@ -265,7 +268,7 @@ jQuery(document).ready(function($){
 		//var p = $(this).last();
 		var offset = $(this).offset();
 		var fcolwidth = $(".wdgmctable>thead>tr>th:first-of-type").width();
-		$(this).before("<div class='hdrback' style='position:absolute; left:" + (offset.left-fcolwidth+24) + "px; top:" + offset.top + "px; height:"+$(".wdgmctable").height()+"px; width:"+$(this).width()+"px;    background-color: #5555551c; z-index: -1;'></div>");
+		$(this).before("<div class='hdrback' style='position:absolute; left:" + (offset.left-fcolwidth+20) + "px; top:0px; height:"+$(".wdgmctable").height()+"px; width:"+$(this).width()+"px; z-index: -1;'></div>");
 	});
 });
 
