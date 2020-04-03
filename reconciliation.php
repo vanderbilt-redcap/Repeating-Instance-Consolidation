@@ -264,8 +264,8 @@ jQuery(document).ready(function($){
 	$(".hdrnum").each(function( index, element ){
 		//var p = $(this).last();
 		var offset = $(this).offset();
-		
-		$(this).before("<div class='hdrback' style='position:absolute; left:" + offset.left + "px; top:" + offset.top + "px; height:40px; width:"+$(this).width()+"px;    background-color: #555555;'></div>");
+		var fcolwidth = $(".wdgmctable>thead>tr>th:first-of-type").width();
+		$(this).before("<div class='hdrback' style='position:absolute; left:" + (offset.left-fcolwidth) + "px; top:" + offset.top + "px; height:40px; width:"+$(this).width()+"px;    background-color: #555555;'></div>");
 	});
 });
 
