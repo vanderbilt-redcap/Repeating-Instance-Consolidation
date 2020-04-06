@@ -221,7 +221,7 @@ echo "</tbody></table>";
 ?>
 <div class='tooltip2'></div>
 <style>
-.tooltip2 {
+.tooltipReconcile {
     margin:10px;
     padding:12px;
     border:2px solid #666;
@@ -291,7 +291,7 @@ jQuery(document).ready(function($){
 function showBox(ebox){
 
 		console.log(ebox);
-        $('.tooltip2').fadeIn().css(({ left:ebox.pageX, top: ebox.pageY }));
+        $('.tooltipReconcile').fadeIn().css(({ left:ebox.pageX, top: ebox.pageY }));
     }
 
 </script>
