@@ -183,7 +183,7 @@ $gettra = 0;
 					$doShowbox = "";
 					if($instanceDetails[$fieldKey][$rawValue]) {
 						if($stylebgred == ' bgred'){
-							$doShowbox = " onclick='showBox(\".".str_replace(' ','',$frmName.$instanceId).">.ca_$c_column\")'";
+							$doShowbox = " onclick='showBox(\".".str_replace(' ','',$frmName.$instanceId)." .ca_$c_column\")'";
 						}
 						echo "<div class='x' ".$doShowbox."></div>";
 					}
