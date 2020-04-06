@@ -224,9 +224,8 @@ echo "</tbody></table>";
 .tooltipReconcile {
     margin:10px;
     padding:12px;
-    border:2px solid #666;
-    width:60px;
-	height:60px;
+    width: 320px;
+    height: 243px;
     position: absolute;
     display: none;
 	background-image:url(/modules/repeatingInstanceConsolidation_v9.9.9/DDE.png);
@@ -290,7 +289,7 @@ jQuery(document).ready(function($){
 });
 function showBox(ebox){
 
-		console.log(ebox);
+		//console.log(ebox);
         $('.tooltipReconcile').fadeIn().css(({ left:ebox.pageX, top: ebox.pageY }));
     }
 
