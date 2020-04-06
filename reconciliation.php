@@ -290,7 +290,7 @@ jQuery(document).ready(function($){
 function showBox(ebox){
 
 		console.log(ebox);
-		var offseta = $(ebox).offset();
+		var offseta = $(ebox+" .x").offset();
 		console.log(offseta);
         $('.tooltipReconcile').fadeIn().css("left",offseta.left).css("top",offseta.top);
     }
