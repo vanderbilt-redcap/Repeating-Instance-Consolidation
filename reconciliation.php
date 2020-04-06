@@ -265,10 +265,7 @@ thead th{    font-weight: 700;}
 <script type="text/javascript">
 
 jQuery(document).ready(function($){
-	function showBox(e){
-		console.log(266);
-        $('.tooltip').fadeIn().css(({ left: e.pageX, top: e.pageY }));
-    }
+
 	$(".bgred").parent().css( "background-color","rgba(255, 0, 0, 0.18)");
 
 	$(".hdrnum").each(function( index, element ){
@@ -289,6 +286,10 @@ jQuery(document).ready(function($){
 	});
 	//$('.bgred .x').click(showBox);
 });
+function showBox(e){
+		console.log(266);
+        $('.tooltip').fadeIn().css(({ left: e.pageX, top: e.pageY }));
+    }
 
 </script>
 
