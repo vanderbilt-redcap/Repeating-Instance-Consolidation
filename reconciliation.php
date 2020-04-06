@@ -286,6 +286,8 @@ jQuery(document).ready(function($){
 		//$(this).before("<div class='hdrback "+addtclass+"' style='position:absolute; left:" + (offset.left) + "px; top:0px; height:"+$(".wdgmctable").height()+"px; width:"+$(this).width()+"px; z-index: -1;'></div>");
 	});
 	//$('.bgred .x').click(showBox);
+
+});
 	function showBox(ebox){
 
 		console.log(ebox+" .x");
@@ -293,8 +295,6 @@ jQuery(document).ready(function($){
 		console.log(offseta);
         $('.tooltipReconcile').fadeIn().css("left",offseta.left).css("top",offseta.top);
     }
-});
-
 
 </script>
 
