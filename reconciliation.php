@@ -289,8 +289,9 @@ jQuery(document).ready(function($){
 	//$('.bgred .x').click(showBox);
 });
 function showBox(ebox){
-		console.log(ebox);
-        $('.tooltip').fadeIn().css(({ left:ebox.pageX, top: eboxe.pageY }));
+
+		//console.log(ebox);
+        $('.tooltip').fadeIn().css(({ left:ebox.pageX, top: ebox.pageY }));
     }
 
 </script>
