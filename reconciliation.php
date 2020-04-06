@@ -289,9 +289,9 @@ jQuery(document).ready(function($){
 });
 function showBox(ebox){
 
-		//console.log(ebox);
-		var offset = $(ebox).offset();
-        $('.tooltipReconcile').fadeIn().css("left",offset.left).css("top",offset.top);
+		console.log(ebox);
+		var offseta = $(ebox).offset();
+        $('.tooltipReconcile').fadeIn().css("left",offseta.left).css("top",offseta.top);
     }
 
 </script>
