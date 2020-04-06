@@ -214,8 +214,19 @@ foreach($combinedData[$module::$outputType] as $formName => $formDetails) {
 echo "</tbody></table>";
 
 ?>
+<div class='tooltip'></div>
 <style>
+.tooltip {
+    margin:10px;
+    padding:12px;
+    border:2px solid #666;
+    width:60px;
+	height:60px;
+    position: absolute;
+    display: none;
+	background-image:url(DDE.png);
 
+}
 .theader{transform: rotate(-90deg);
     height: 20px;
     display: inherit;
@@ -251,6 +262,9 @@ thead th{    font-weight: 700;}
 <script type="text/javascript">
 
 jQuery(document).ready(function($){
+	function showBox(e){
+        $('.tooltip').fadeIn().css(({ left: e.pageX, top: e.pageY }));
+    }
 	$(".bgred").parent().css( "background-color","rgba(255, 0, 0, 0.18)");
 
 	$(".hdrnum").each(function( index, element ){
@@ -269,6 +283,7 @@ jQuery(document).ready(function($){
 		$(this).before("<div class='hdrback "+addtclass+"' style='position:absolute; left:" + (offset.left-fcolwidth) + "px; top:0px; height:"+$(".wdgmctable").height()+"px; width:"+($(".m"+index).width()+addtwidth)+"px; z-index: -1;'></div>");
 		//$(this).before("<div class='hdrback "+addtclass+"' style='position:absolute; left:" + (offset.left) + "px; top:0px; height:"+$(".wdgmctable").height()+"px; width:"+$(this).width()+"px; z-index: -1;'></div>");
 	});
+	$('.bgred').click(showBox);
 });
 
 </script>
