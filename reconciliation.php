@@ -261,7 +261,7 @@ jQuery(document).ready(function($){
 			addtclass = " todd";
 		}
 		if(index == 0){
-			addtwidth = $(".ca_0").width();
+			addtwidth = $(".ca_0:first-of-type").width();
 		}
 		console.log(addtwidth);
 		var offset = $(this).offset();
