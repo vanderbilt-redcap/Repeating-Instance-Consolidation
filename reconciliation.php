@@ -291,7 +291,7 @@ function showBox(ebox){
 
 		//console.log(ebox);
 		var offset = $(ebox).offset();
-        $('.tooltipReconcile').fadeIn().css(({ left:offset.left, top: offset.top }));
+        $('.tooltipReconcile').fadeIn().css("left",offset.left).css("top",offset.top);
     }
 
 </script>
