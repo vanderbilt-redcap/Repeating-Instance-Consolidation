@@ -183,7 +183,7 @@ $gettra = 0;
 					$doShowbox = "";
 					if($instanceDetails[$fieldKey][$rawValue]) {
 						if($stylebgred == ' bgred'){
-							$doShowbox = " onclick='showBox(\"".str_replace(' ','',$frmName.$instanceId)."\")'";
+							$doShowbox = " onclick='showBox(\".".str_replace(' ','',$frmName.$instanceId).">.$c_column\")'";
 						}
 						echo "<div class='x' ".$doShowbox."></div>";
 					}
@@ -288,8 +288,8 @@ jQuery(document).ready(function($){
 	});
 	//$('.bgred .x').click(showBox);
 });
-function showBox(e){
-		console.log(e);
+function showBox(ebox){
+		console.log("."+ebox+"");
         $('.tooltip').fadeIn().css(({ left: e.pageX, top: e.pageY }));
     }
 
