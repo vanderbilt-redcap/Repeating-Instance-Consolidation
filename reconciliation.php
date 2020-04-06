@@ -194,9 +194,9 @@ $c_column = 0;
 		}
 	}
 }
-
+var $gettr = 0;
 foreach($combinedData[$module::$outputType] as $formName => $formDetails) {
-	echo "<tr><td>$formName</td>";
+	echo "<tr class='tr_".$gettr."'><td>$formName</td>";
 
 	$fieldKey = 0;
 	foreach($outputLabelList as $fieldName => $fieldDetails) {
