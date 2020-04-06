@@ -263,6 +263,7 @@ thead th{    font-weight: 700;}
 
 jQuery(document).ready(function($){
 	function showBox(e){
+		console.log(266);
         $('.tooltip').fadeIn().css(({ left: e.pageX, top: e.pageY }));
     }
 	$(".bgred").parent().css( "background-color","rgba(255, 0, 0, 0.18)");
