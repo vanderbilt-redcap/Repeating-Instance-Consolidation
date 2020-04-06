@@ -194,7 +194,7 @@ $c_column = 0;
 		}
 	}
 }
-var $gettr = 0;
+$gettr = 0;
 foreach($combinedData[$module::$outputType] as $formName => $formDetails) {
 	echo "<tr class='tr_".$gettr."'><td>$formName</td>";
 
