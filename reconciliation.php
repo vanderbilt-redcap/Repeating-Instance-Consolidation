@@ -219,7 +219,7 @@ foreach($combinedData[$module::$outputType] as $formName => $formDetails) {
 echo "</tbody></table>";
 
 ?>
-<div class='tooltip2'></div>
+<div class='tooltipReconcile'></div>
 <style>
 .tooltipReconcile {
     margin:10px;
