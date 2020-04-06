@@ -291,7 +291,7 @@ jQuery(document).ready(function($){
 	function showBox(ebox){
 
 		console.log(ebox+" .x");
-		var offseta = $(ebox+" .x").offset();
+		var offseta = $("tr_"+ebox+" .x").offset();
 		console.log(offseta);
         $('.tooltipReconcile').fadeIn().css("left",offseta.left).css("top",offseta.top);
     }
