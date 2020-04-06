@@ -224,7 +224,7 @@ echo "</tbody></table>";
 	height:60px;
     position: absolute;
     display: none;
-	background-image:url(DDE.png);
+	background-image:url(/modules/repeatingInstanceConsolidation_v9.9.9/DDE.png);
 
 }
 .theader{transform: rotate(-90deg);
