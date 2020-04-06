@@ -183,7 +183,7 @@ $gettra = 0;
 					$doShowbox = "";
 					if($instanceDetails[$fieldKey][$rawValue]) {
 						if($stylebgred == ' bgred'){
-							$doShowbox = " onclick='showBox(\".".str_replace(' ','',$frmName.$instanceId)." .ca_$c_column\")'";
+							$doShowbox = " onclick='showBox(\".tr_".str_replace(' ','',$frmName.$instanceId)." .ca_$c_column\")'";
 						}
 						echo "<div class='x' ".$doShowbox."></div>";
 					}
@@ -291,7 +291,7 @@ jQuery(document).ready(function($){
 	function showBox(ebox){
 
 		console.log(ebox+" .x");
-		var offseta = $("tr_"+ebox+" .x").offset();
+		var offseta = $(ebox+" .x").offset();
 		console.log(offseta);
         $('.tooltipReconcile').fadeIn().css("left",offseta.left).css("top",offseta.top);
     }
