@@ -177,9 +177,12 @@ $c_column = 0;
 					}
 					$c_column = $fieldKey2++;
 					echo "<td class='ca ca_$c_column $stylebgred'>";
-
+					$doShowbox = "";
 					if($instanceDetails[$fieldKey][$rawValue]) {
-						echo "<div class='x'></div>";
+						if($stylebgred == ' bgred'){
+							$doShowbox = " onclick='showBox'";
+						}
+						echo "<div class='x' ".$doShowbox."></div>";
 					}
 
 					echo "</td>";
@@ -284,7 +287,7 @@ jQuery(document).ready(function($){
 		$(this).before("<div class='hdrback "+addtclass+"' style='position:absolute; left:" + (offset.left-fcolwidth) + "px; top:0px; height:"+$(".wdgmctable").height()+"px; width:"+($(".m"+index).width()+addtwidth)+"px; z-index: -1;'></div>");
 		//$(this).before("<div class='hdrback "+addtclass+"' style='position:absolute; left:" + (offset.left) + "px; top:0px; height:"+$(".wdgmctable").height()+"px; width:"+$(this).width()+"px; z-index: -1;'></div>");
 	});
-	$('.bgred .x').click(showBox);
+	//$('.bgred .x').click(showBox);
 });
 
 </script>
