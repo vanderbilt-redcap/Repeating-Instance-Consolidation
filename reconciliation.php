@@ -139,9 +139,10 @@ foreach($matchedKeys as $matchingValue) {
 		$matchedDataDetails = $combinedData[$module::$inputType][$matchingValue];
 	}
 $c_column = 0;
+$gettr = 0;
+$gettra = 0;
 	foreach($matchedDataDetails as $formName => $formDetails) {
-		$gettr = 0;
-		$gettra = 0;
+
 		foreach($formDetails as $instanceId => $instanceDetails) {
 			//echo "<tr><td class='fcol'>";
 
