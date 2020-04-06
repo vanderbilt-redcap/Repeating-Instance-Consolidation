@@ -182,7 +182,7 @@ $c_column = 0;
 					$doShowbox = "";
 					if($instanceDetails[$fieldKey][$rawValue]) {
 						if($stylebgred == ' bgred'){
-							$doShowbox = " onclick='showBox(\"".tr_$gettra++."\")'";
+							//$doShowbox = " onclick='showBox(\"".tr_$gettra++."\")'";
 						}
 						echo "<div class='x' ".$doShowbox."></div>";
 					}
