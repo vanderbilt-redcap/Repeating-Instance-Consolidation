@@ -219,9 +219,9 @@ foreach($combinedData[$module::$outputType] as $formName => $formDetails) {
 echo "</tbody></table>";
 
 ?>
-<div class='tooltip'></div>
+<div class='tooltip2'></div>
 <style>
-.tooltip {
+.tooltip2 {
     margin:10px;
     padding:12px;
     border:2px solid #666;
