@@ -41,12 +41,12 @@ foreach($labelList as $fieldName => $fieldMapping) {
 
 require_once \ExternalModules\ExternalModules::getProjectHeaderPath();
 
-echo "<table class='table-bordered'><thead><tr><th rowspan='2'>Form/Instance</th>";
-
+echo "<table class='table-bordered wdgmctable' style='    z-index: 0;position: absolute;'><thead><tr><th rowspan='2'>Form/Instance</th>";
+$hh_column = 0;
 ## Output the field label table headers
 foreach($fieldList as $fieldName) {
 	if($metadata[$fieldName]["field_type"] == "checkbox") {
-		echo "<th colspan='".count($outputLabelList[$fieldName])."'>".$metadata[$fieldName]["field_label"]."</th>";
+		echo "<th class='hdrnum m".$hh_column++."' colspan='".(count($outputLabelList[$fieldName])-1)."'>".$metadata[$fieldName]["field_label"]."</th>";
 	}
 	else {
 		echo "<th rowspan='2'>".$metadata[$fieldName]["field_label"]."</th>";
@@ -98,7 +98,7 @@ foreach($matchedKeys as $matchingValue) {
 			foreach($matchedData as $outputValue) {
 				$s = $outputValue;
 				$date = strtotime($s);
-				echo date('d/m/Y', $date);
+				echo date('m/d/y', $date);
 				
 			}
 
@@ -158,39 +158,63 @@ echo "</tbody></table>";
 ?>
 <style>
 
-.theader{transform:rotate(-90deg);height:22px}	
-tbody tr:nth-child(even) {background: #0000000a;}
-tbody tr:nth-child(odd) {background: #FFF}
+.theader{transform: rotate(-90deg);
+    height: 20px;
+    display: inherit;
+    position: absolute;
+    width: 0px;
+    /* padding: 4px; */
+    margin-top: 33px;}	
+	tbody tr:nth-child(even) {background: #0000000a;}
+	tbody tr:nth-child(odd) {background: #ffffff52;}
 
+	.todd {background-color: #5555551c;}
+
+.initrow{    position: relative;}
 .initrow td.ca:nth-child(even) {background: #0000000a;}
 .initrow td.ca:nth-child(odd) {background: unset;}
 
+.initrow td.ca {padding: 16px;}
 tbody td.ca:nth-child(odd) {background: #0000000a;}
 tbody td.ca:nth-child(even) {background: unset;}
-.table-bordered thead td, .table-bordered thead th {
-    border-bottom-width: 0px;
-    height: 98px;
-}
+.table-bordered thead td, .table-bordered thead th {border-bottom-width: 0px;height: 98px;}
 table *{font-family: proxima-nova, sans-serif;}
 .ca{width:40px;text-align: center;}
 .x{height: 19px;width: 19px;background-color: #083fbb;margin: auto;    margin-top: 2px; margin-bottom: 2px;}
-.table-bordered td, .table-bordered th {
-    border: unset !important;
-}
+.table-bordered td, .table-bordered th {border: unset !important;}
 .bgred{background-color: #ff00008c !important;}
 .bgred .x{ background-color: #000000 !important;}
 thead{    border-bottom: 1px solid #00000073;}
-.table-bordered {
-    border: 0px solid #dee2e6;
-}
+thead th{    font-weight: 700;}
+.table-bordered {border: 0px solid #dee2e6;}
 .fcol{font-size:12px;}
-.fcol div{display: inline-block;
-    width: 329px;}
+.fcol div{display: inline-block;width: 329px;}
 </style>
 <script type="text/javascript">
 
 jQuery(document).ready(function($){
+	$(".bgred").parent().css( "background-color","rgba(255, 0, 0, 0.18)");
 
+	$(".hdrnum").each(function( index, element ){
+		//var p = $(this).last();
+		var addtclass = "";
+		var addtwidth = "";
+		if(index%2 == 0){
+			addtclass = " todd";
+		}
+		if(index == 0){
+			addtwidth = 32;
+		}
+		console.log(addtwidth);
+		var offset = $(this).offset();
+		var fcolwidth = $(".wdgmctable>thead>tr>th:first-of-type").width();
+		$(this).before("<div class='hdrback "+addtclass+"' style='position:absolute; left:" + (offset.left-fcolwidth) + "px; top:0px; height:"+$(".wdgmctable").height()+"px; width:"+($(".m"+index).width()+addtwidth)+"px; z-index: -1;'></div>");
+		//$(this).before("<div class='hdrback "+addtclass+"' style='position:absolute; left:" + (offset.left) + "px; top:0px; height:"+$(".wdgmctable").height()+"px; width:"+$(this).width()+"px; z-index: -1;'></div>");
+	});
 });
 
 </script>
+
+
+
+
