@@ -291,7 +291,7 @@ jQuery(document).ready(function($){
 function showBox(ebox){
 
 		console.log(ebox);
-        $('.tooltip').fadeIn().css(({ left:ebox.pageX, top: ebox.pageY }));
+        $('.tooltip2').fadeIn().css(({ left:ebox.pageX, top: ebox.pageY }));
     }
 
 </script>
