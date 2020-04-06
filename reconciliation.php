@@ -290,7 +290,8 @@ jQuery(document).ready(function($){
 function showBox(ebox){
 
 		//console.log(ebox);
-        $('.tooltipReconcile').fadeIn().css(({ left:ebox.pageX, top: ebox.pageY }));
+		var offset = $(ebox).offset();
+        $('.tooltipReconcile').fadeIn().css(({ left:offset.left, top: offset.top }));
     }
 
 </script>
