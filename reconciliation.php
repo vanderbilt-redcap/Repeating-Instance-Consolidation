@@ -100,11 +100,11 @@ foreach($labelList as $fieldName => $fieldMapping) {
 require_once \ExternalModules\ExternalModules::getProjectHeaderPath();
 
 echo "<table class='table-bordered wdgmctable' style='    z-index: 0;position: absolute;'><thead><tr><th rowspan='2'>Form/Instance</th>";
-
+$hh_column = 0;
 ## Output the field label table headers
 foreach($fieldList as $fieldName) {
 	if($metadata[$fieldName]["field_type"] == "checkbox") {
-		echo "<th class='hdrnum' colspan='".count($outputLabelList[$fieldName])."'>".$metadata[$fieldName]["field_label"]."</th>";
+		echo "<th class='hdrnum m".$hh_column++."' colspan='".count($outputLabelList[$fieldName])."'>".$metadata[$fieldName]["field_label"]."</th>";
 	}
 	else {
 		echo "<th rowspan='2'>".$metadata[$fieldName]["field_label"]."</th>";
