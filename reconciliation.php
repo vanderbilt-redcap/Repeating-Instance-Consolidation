@@ -152,7 +152,7 @@ $gettra = 0;
 			$frmName =  str_replace("single","sgle",$frmName);
 			$frmName =  str_replace("group","grp",$frmName);
 			//$gettra = $gettr++;
-			echo "<tr class='tr_".$gettr++."'><td class='fcol'><div>$frmName : Instance $instanceId - ";
+			echo "<tr class='tr_".str_replace(' ','',$frmName)."'><td class='fcol'><div>$frmName : Instance $instanceId - ";
 
 			$matchedData = explode("~",$matchingValue);
 
