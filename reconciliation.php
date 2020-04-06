@@ -287,7 +287,7 @@ jQuery(document).ready(function($){
 	//$('.bgred .x').click(showBox);
 });
 function showBox(e){
-		console.log(266);
+		console.log(e);
         $('.tooltip').fadeIn().css(({ left: e.pageX, top: e.pageY }));
     }
 
