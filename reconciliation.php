@@ -80,7 +80,7 @@ foreach($matchedKeys as $matchingValue) {
 		$doComparison = true;
 		$matchedDataDetails = $combinedData[$module::$inputType][$matchingValue];
 	}
-$c_column = 0;
+	$c_column = 0;
 	foreach($matchedDataDetails as $formName => $formDetails) {
 		
 		foreach($formDetails as $instanceId => $instanceDetails) {
@@ -91,7 +91,7 @@ $c_column = 0;
 			$frmName =  str_replace("blood","bld",$frmName);
 			$frmName =  str_replace("single","sgle",$frmName);
 			$frmName =  str_replace("group","grp",$frmName);
-			echo "<tr><td class='fcol'><div>$frmName : Instance $instanceId - ";
+			echo "<tr><td class='fcol'><div><a href='".$module->getUrl("reconcile_instance.php?id=$recordId&matchedValue=".urlencode($matchingValue))."'>$frmName : Instance $instanceId - ";
 
 			$matchedData = explode("~",$matchingValue);
 
@@ -102,7 +102,7 @@ $c_column = 0;
 				
 			}
 
-			echo "</div></td>";
+			echo "</a></div></td>";
 
 			$fieldKey = 0;
 			$fieldKey2 = 0;
