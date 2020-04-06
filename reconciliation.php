@@ -256,12 +256,16 @@ jQuery(document).ready(function($){
 	$(".hdrnum").each(function( index, element ){
 		//var p = $(this).last();
 		var addtclass = "";
+		var addtwidth = "";
 		if(index%2 == 0){
 			addtclass = " todd";
 		}
+		if(index == 0){
+			addtwidth = $(".ca_0").width();
+		}
 		var offset = $(this).offset();
 		var fcolwidth = $(".wdgmctable>thead>tr>th:first-of-type").width();
-		$(this).before("<div class='hdrback "+addtclass+"' style='position:absolute; left:" + (offset.left-fcolwidth) + "px; top:0px; height:"+$(".wdgmctable").height()+"px; width:"+$(".m"+index).width()+"px; z-index: -1;'></div>");
+		$(this).before("<div class='hdrback "+addtclass+"' style='position:absolute; left:" + (offset.left-fcolwidth) + "px; top:0px; height:"+$(".wdgmctable").height()+"px; width:"+($(".m"+index).width()+addtwidth)+"px; z-index: -1;'></div>");
 		//$(this).before("<div class='hdrback "+addtclass+"' style='position:absolute; left:" + (offset.left) + "px; top:0px; height:"+$(".wdgmctable").height()+"px; width:"+$(this).width()+"px; z-index: -1;'></div>");
 	});
 });
