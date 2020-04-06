@@ -140,7 +140,7 @@ foreach($matchedKeys as $matchingValue) {
 	}
 $c_column = 0;
 	foreach($matchedDataDetails as $formName => $formDetails) {
-		$gettr = 0;
+		$gettr = 1;
 		foreach($formDetails as $instanceId => $instanceDetails) {
 			//echo "<tr><td class='fcol'>";
 
@@ -149,8 +149,8 @@ $c_column = 0;
 			$frmName =  str_replace("blood","bld",$frmName);
 			$frmName =  str_replace("single","sgle",$frmName);
 			$frmName =  str_replace("group","grp",$frmName);
-			$gettr = $gettr++;
-			echo "<tr class='tr_".$gettr."'><td class='fcol'><div>$frmName : Instance $instanceId - ";
+			$gettra = $gettr++;
+			echo "<tr class='tr_".$gettra."'><td class='fcol'><div>$frmName : Instance $instanceId - ";
 
 			$matchedData = explode("~",$matchingValue);
 
@@ -181,7 +181,7 @@ $c_column = 0;
 					$doShowbox = "";
 					if($instanceDetails[$fieldKey][$rawValue]) {
 						if($stylebgred == ' bgred'){
-							$doShowbox = " onclick='showBox(\".tr_$gettr\")'";
+							$doShowbox = " onclick='showBox(\".tr_$gettra\")'";
 						}
 						echo "<div class='x' ".$doShowbox."></div>";
 					}
