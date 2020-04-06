@@ -180,7 +180,7 @@ $c_column = 0;
 					$doShowbox = "";
 					if($instanceDetails[$fieldKey][$rawValue]) {
 						if($stylebgred == ' bgred'){
-							$doShowbox = " onclick='showBox'";
+							$doShowbox = " onclick='showBox()'";
 						}
 						echo "<div class='x' ".$doShowbox."></div>";
 					}
