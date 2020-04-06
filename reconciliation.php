@@ -263,6 +263,7 @@ jQuery(document).ready(function($){
 		if(index == 0){
 			addtwidth = $(".ca_0").width();
 		}
+		console.log(addtwidth);
 		var offset = $(this).offset();
 		var fcolwidth = $(".wdgmctable>thead>tr>th:first-of-type").width();
 		$(this).before("<div class='hdrback "+addtclass+"' style='position:absolute; left:" + (offset.left-fcolwidth) + "px; top:0px; height:"+$(".wdgmctable").height()+"px; width:"+($(".m"+index).width()+addtwidth)+"px; z-index: -1;'></div>");
