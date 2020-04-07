@@ -81,8 +81,10 @@ foreach($matchedKeys as $matchingValue) {
 		$matchedDataDetails = $combinedData[$module::$inputType][$matchingValue];
 	}
 	$c_column = 0;
+	$gettr = 0;
+	$gettra = 0;
 	foreach($matchedDataDetails as $formName => $formDetails) {
-		
+
 		foreach($formDetails as $instanceId => $instanceDetails) {
 			//echo "<tr><td class='fcol'>";
 
@@ -91,7 +93,8 @@ foreach($matchedKeys as $matchingValue) {
 			$frmName =  str_replace("blood","bld",$frmName);
 			$frmName =  str_replace("single","sgle",$frmName);
 			$frmName =  str_replace("group","grp",$frmName);
-			echo "<tr><td class='fcol'><div><a href='".$module->getUrl("reconcile_instance.php?id=$recordId&matchedValue=".urlencode($matchingValue))."'>$frmName : Instance $instanceId - ";
+			//$gettra = $gettr++;
+			echo "<tr class='tr_".str_replace(' ','',$frmName.$instanceId)."'><td class='fcol'><div><a href='".$module->getUrl("reconcile_instance.php?id=$recordId&matchedValue=".urlencode($matchingValue))."'>$frmName : Instance $instanceId - ";
 
 			$matchedData = explode("~",$matchingValue);
 
@@ -119,9 +122,12 @@ foreach($matchedKeys as $matchingValue) {
 					}
 					$c_column = $fieldKey2++;
 					echo "<td class='ca ca_$c_column $stylebgred'>";
-
+					$doShowbox = "";
 					if($instanceDetails[$fieldKey][$rawValue]) {
-						echo "<div class='x'></div>";
+						if($stylebgred == ' bgred'){
+							$doShowbox = " onclick='showBox(\".tr_".str_replace(' ','',$frmName.$instanceId)." .ca_$c_column\")'";
+						}
+						echo "<div class='x' ".$doShowbox."></div>";
 					}
 
 					echo "</td>";
@@ -133,7 +139,6 @@ foreach($matchedKeys as $matchingValue) {
 		}
 	}
 }
-
 foreach($combinedData[$module::$outputType] as $formName => $formDetails) {
 	echo "<tr><td>$formName</td>";
 
@@ -156,8 +161,18 @@ foreach($combinedData[$module::$outputType] as $formName => $formDetails) {
 echo "</tbody></table>";
 
 ?>
+<div class='tooltipReconcile'></div>
 <style>
+.tooltipReconcile {
+    margin:10px;
+    padding:12px;
+    width: 320px;
+    height: 243px;
+    position: absolute;
+    display: none;
+	background-image:url(/modules/repeatingInstanceConsolidation_v9.9.9/DDE.png);
 
+}
 .theader{transform: rotate(-90deg);
     height: 20px;
     display: inherit;
@@ -184,6 +199,7 @@ table *{font-family: proxima-nova, sans-serif;}
 .table-bordered td, .table-bordered th {border: unset !important;}
 .bgred{background-color: #ff00008c !important;}
 .bgred .x{ background-color: #000000 !important;}
+.bgred .x:hover{cursor:hand;}
 thead{    border-bottom: 1px solid #00000073;}
 thead th{    font-weight: 700;}
 .table-bordered {border: 0px solid #dee2e6;}
@@ -193,6 +209,7 @@ thead th{    font-weight: 700;}
 <script type="text/javascript">
 
 jQuery(document).ready(function($){
+
 	$(".bgred").parent().css( "background-color","rgba(255, 0, 0, 0.18)");
 
 	$(".hdrnum").each(function( index, element ){
@@ -211,7 +228,22 @@ jQuery(document).ready(function($){
 		$(this).before("<div class='hdrback "+addtclass+"' style='position:absolute; left:" + (offset.left-fcolwidth) + "px; top:0px; height:"+$(".wdgmctable").height()+"px; width:"+($(".m"+index).width()+addtwidth)+"px; z-index: -1;'></div>");
 		//$(this).before("<div class='hdrback "+addtclass+"' style='position:absolute; left:" + (offset.left) + "px; top:0px; height:"+$(".wdgmctable").height()+"px; width:"+$(this).width()+"px; z-index: -1;'></div>");
 	});
+	//$('.bgred .x').click(showBox);
+	//$('.tooltipReconcile').click($(this).fadeOut());
+	$( ".tooltipReconcile" ).click(function() {
+		$( ".tooltipReconcile" ).fadeOut( "fast", function() {
+			// Animation complete.
+		});
+	});
 });
+	function showBox(ebox){
+
+		console.log(ebox+" .x");
+		var offseta = $(ebox+" .x").offset();
+		console.log(offseta);
+        $('.tooltipReconcile').fadeIn().css("left",offseta.left-301).css("top",offseta.top-46);
+	}
+	
 
 </script>
 
