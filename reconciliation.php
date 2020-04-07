@@ -263,6 +263,14 @@ thead th{    font-weight: 700;}
 .table-bordered {border: 0px solid #dee2e6;}
 .fcol{font-size:12px;}
 .fcol div{display: inline-block;width: 329px;}
+A:visited {
+     font-family: proxima-nova, sans-serif !important; 
+     font-size: 12px !important; 
+}
+A:link {
+     font-family: proxima-nova, sans-serif !important; 
+     font-size: 12px !important; 
+}
 </style>
 <script type="text/javascript">
 
