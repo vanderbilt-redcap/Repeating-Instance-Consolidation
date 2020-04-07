@@ -286,7 +286,7 @@ jQuery(document).ready(function($){
 		//$(this).before("<div class='hdrback "+addtclass+"' style='position:absolute; left:" + (offset.left) + "px; top:0px; height:"+$(".wdgmctable").height()+"px; width:"+$(this).width()+"px; z-index: -1;'></div>");
 	});
 	//$('.bgred .x').click(showBox);
-
+	$('.tooltipReconcile').click($('.tooltipReconcile').fadeOut());
 });
 	function showBox(ebox){
 
@@ -294,7 +294,8 @@ jQuery(document).ready(function($){
 		var offseta = $(ebox+" .x").offset();
 		console.log(offseta);
         $('.tooltipReconcile').fadeIn().css("left",offseta.left-301).css("top",offseta.top-46);
-    }
+	}
+	
 
 </script>
 
