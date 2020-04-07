@@ -257,6 +257,7 @@ table *{font-family: proxima-nova, sans-serif;}
 .table-bordered td, .table-bordered th {border: unset !important;}
 .bgred{background-color: #ff00008c !important;}
 .bgred .x{ background-color: #000000 !important;}
+.bgred .x:hover{cursor:hand;}
 thead{    border-bottom: 1px solid #00000073;}
 thead th{    font-weight: 700;}
 .table-bordered {border: 0px solid #dee2e6;}
@@ -286,7 +287,7 @@ jQuery(document).ready(function($){
 		//$(this).before("<div class='hdrback "+addtclass+"' style='position:absolute; left:" + (offset.left) + "px; top:0px; height:"+$(".wdgmctable").height()+"px; width:"+$(this).width()+"px; z-index: -1;'></div>");
 	});
 	//$('.bgred .x').click(showBox);
-	$('.tooltipReconcile').click($(this).fadeOut());
+	//$('.tooltipReconcile').click($(this).fadeOut());
 });
 	function showBox(ebox){
 
