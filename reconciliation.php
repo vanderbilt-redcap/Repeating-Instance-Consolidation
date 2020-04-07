@@ -293,7 +293,7 @@ jQuery(document).ready(function($){
 		console.log(ebox+" .x");
 		var offseta = $(ebox+" .x").offset();
 		console.log(offseta);
-        $('.tooltipReconcile').fadeIn().css("left",offseta.left).css("top",offseta.top);
+        $('.tooltipReconcile').fadeIn().css("left",offseta.left-301).css("top",offseta.top-46);
     }
 
 </script>
