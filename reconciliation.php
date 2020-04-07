@@ -288,6 +288,11 @@ jQuery(document).ready(function($){
 	});
 	//$('.bgred .x').click(showBox);
 	//$('.tooltipReconcile').click($(this).fadeOut());
+	$( ".tooltipReconcile" ).click(function() {
+		$( ".tooltipReconcile" ).fadeOut( "fast", function() {
+			// Animation complete.
+		});
+	});
 });
 	function showBox(ebox){
 
