@@ -131,6 +131,50 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
 		return $combinedJson;
 	}
 
+	public function redcap_save_record( $project_id, $record, $instrument, $event_id, $group_id, $survey_hash = NULL, $response_id = NULL, $repeat_instance = 1 ) {
+		$formsToCheck = $this->getProjectSetting("input-forms",$project_id);
+		$formTypes = $this->getProjectSetting("input-types",$project_id);
+		$fieldList = $this->getProjectSetting("input-fields",$project_id);
+
+		$thisType = false;
+		$outputFields = [];
+		foreach($formsToCheck as $thisKey => $thisForm) {
+			if($thisForm == $instrument) {
+				$thisType = $formTypes[$thisKey];
+			}
+
+			if($formTypes[$thisKey] == self::$outputType) {
+				$outputFields = $fieldList[$thisKey];
+			}
+		}
+
+		## Only run the comparison save hook if on an input form
+		if($thisType != self::$inputType) {
+			return;
+		}
+
+		$combinedData = $this->getComparisonData($record,$project_id);
+		$newData = [];
+
+		## Comparison data function already incorporates confirmed tests
+		foreach($combinedData["antibodies"] as $rawValue => $checked) {
+			## Don't worry about "None" or "Pending" as those don't need to be in unacceptable list
+			if($checked && $rawValue != "0" && $rawValue != "P") {
+				foreach($outputFields as $thisField) {
+					## Find the field that has this rawValue and save
+					$checkValues = $this->getChoiceLabels($thisField,$project_id);
+
+					if(array_key_exists($rawValue,$checkValues)) {
+						$newData[$thisField][$rawValue] = 1;
+					}
+				}
+			}
+		}
+
+		## Save the unacceptable antigen list any time a new matched value is found
+		$this->saveData($project_id,$record,$event_id,$newData);
+	}
+
 	public function redcap_module_save_configuration( $project_id ) {
 		$oldJson = $this->getProjectSetting('existing-json');
 		$newJson = $this->getProjectSetting('input-json');

@@ -17,7 +17,8 @@
 
 	"permissions": [
 		"redcap_module_link_check_display",
-		"redcap_module_save_configuration"
+		"redcap_module_save_configuration",
+		"redcap_save_record"
 	],
 	
 	"enable-every-page-hooks-on-system-pages": false,	
