@@ -158,7 +158,7 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
 
 		## Comparison data function already incorporates confirmed tests
 		foreach($combinedData["antibodies"] as $rawValue => $checked) {
-			## Don't worry about "None" or "Pending" as those don't need to be in unacceptable list
+			## Don't worry about "None" or "Pending" as they get set/unset later
 			if($checked && $rawValue != "0" && $rawValue != "P") {
 				foreach($outputFields as $thisField) {
 					## Find the field that has this rawValue and save
@@ -168,6 +168,18 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
 						$newData[$thisField][$rawValue] = 1;
 					}
 				}
+			}
+		}
+
+		## Run through all fields again and set/unset "None" as needed
+		foreach($outputFields as $thisField) {
+			if(array_key_exists($thisField,$newData) && count($newData[$thisField]) > 0) {
+				## Uncheck "None" if not needed
+				$newData[$thisField]["0"] = 0;
+			}
+			else {
+				## Check "None" if no data being added to this field
+				$newData[$thisField]["0"] = 1;
 			}
 		}
 
