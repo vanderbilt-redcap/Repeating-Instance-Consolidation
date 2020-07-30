@@ -19,6 +19,8 @@ $questionableRecords = [];
 $needsReconciliationRecords = [];
 $unreconciledRecords = [];
 
+## TODO What to do with records that have only one entry for a given test date?
+
 foreach($records as $thisRecord) {
 	$comparisonData = $module->getComparisonData($thisRecord,$module->getProjectId())["comparison"];
 	$confirmedAntibodies = [];
@@ -30,7 +32,7 @@ foreach($records as $thisRecord) {
 				if(count($checkedList) > 1) {
 					$questionableAntibodies[$fieldKey][$rawValue] = 1;
 				}
-				else if(array_key_exists(1,$checkedList)) {
+				else if(array_key_exists(1,$checkedList) && ($checkedList[1] > 1)) {
 					$confirmedAntibodies[$fieldKey][$rawValue] = 1;
 				}
 			}

@@ -23,12 +23,13 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
 		$fieldList = reset($dataMapping[self::$inputType])[self::$dataFields];
 
 		## Manually set order so that reconciliation can be set first for comparison data
-		$dataTypeOrder = [self::$reconciledType,self::$inputType,self::$reconciledType];
+		$dataTypeOrder = [self::$reconciledType,self::$inputType];
 
 		## Output the data into a table
 		$combinedData = [];
 		$comparisonData = [];
 		$antibodiesPresent = [];
+		$antibodiesConfirmed = [];
 		$reconciledTests = [];
 
 		## Add instanced data to the $combinedData
@@ -58,12 +59,27 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
 									## Add data to the combined array for display later
 									$combinedData[$dataType][$matchingValue][$formName][$instanceId][$fieldKey][$rawValue] = $checked;
 
+
 									## Also add to comparison data, so unmatched data can be found later
-									$comparisonData[$matchingValue][$fieldKey][$rawValue][$checked] = 1;
+									if(!is_array($comparisonData[$matchingValue][$fieldKey][$rawValue])) {
+										$comparisonData[$matchingValue][$fieldKey][$rawValue] = [];
+									}
+
+									if(array_key_exists($checked,$comparisonData[$matchingValue][$fieldKey][$rawValue])) {
+										$comparisonData[$matchingValue][$fieldKey][$rawValue][$checked]++;
+									}
+									else {
+										$comparisonData[$matchingValue][$fieldKey][$rawValue][$checked] = 1;
+									}
 
 									## Also mark every antibody present, so that non-present antibodies don't have to be displayed
 									if($checked == 1) {
 										$antibodiesPresent[$rawValue] = true;
+
+										## If test is reconciled, any antibodies count as confirmed
+										if($dataType == self::$reconciledType) {
+											$antibodiesConfirmed[$rawValue] = true;
+										}
 									}
 								}
 
@@ -90,13 +106,32 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
 
 						if($checked == 1) {
 							$antibodiesPresent[$rawValue] = true;
+							$antibodiesConfirmed[$rawValue] = true;
 						}
 					}
 				}
 			}
 		}
 
-		return ["combined" => $combinedData, "comparison" => $comparisonData, "antibodies" => $antibodiesPresent, "fields" => $fieldList];
+		## TODO What to do with records with only one data entry for a given test date?
+
+		## Parse the comparison data to find new confirmed antibodies
+		foreach($antibodiesPresent as $rawValue => $alwaysTrue) {
+			## Previously confirmed
+			if($antibodiesConfirmed[$rawValue]) continue;
+
+			foreach($comparisonData as $matchingValue => $dateDetails) {
+				foreach($dateDetails as $fieldKey => $fieldDetails) {
+					## Check that no conflicts for this test and that at least 2 entries show the antibody
+					if(count($fieldDetails[$rawValue]) == 1 && $fieldDetails[$rawValue][1] >= 2) {
+						$antibodiesConfirmed[$rawValue] = true;
+						continue 3;
+					}
+				}
+			}
+		}
+
+		return ["combined" => $combinedData, "comparison" => $comparisonData, "antibodies" => $antibodiesPresent, "confirmed" => $antibodiesConfirmed, "fields" => $fieldList];
 	}
 
 	public function refactorDropdownsToJson($newForms,$newTypes,$newFields,$newMatchingFields) {
@@ -157,7 +192,7 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
 		$newData = [];
 
 		## Comparison data function already incorporates confirmed tests
-		foreach($combinedData["antibodies"] as $rawValue => $checked) {
+		foreach($combinedData["confirmed"] as $rawValue => $checked) {
 			## Don't worry about "None" or "Pending" as they get set/unset later
 			if($checked && $rawValue != "0" && $rawValue != "P") {
 				foreach($outputFields as $thisField) {
