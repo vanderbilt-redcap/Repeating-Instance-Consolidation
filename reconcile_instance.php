@@ -11,10 +11,9 @@ $projectId = $_GET['pid'];
 $matchingValue = $_GET['matchedValue'];
 
 /** @var \Vanderbilt\RepeatingInstanceConsolidation\RepeatingInstanceConsolidation $module */
-$dataMapping = $module->getProjectSetting("existing-json",$projectId);
-$dataMapping = json_decode($dataMapping,true);
+$dataMapping = $module->getDataMapping($projectId);
 
-$comparisonData = $module->getComparisonData($recordId,$projectId);
+$comparisonData = $module->getComparisonData($projectId,$recordId);
 $matchingValues = explode("~",$matchingValue);
 $instanceData = [];
 $existingRecordData = $module->getData($projectId,$recordId);
@@ -23,10 +22,13 @@ $instanceToStart = false;
 $eventToStart = false;
 
 foreach($dataMapping[$module::$reconciledType] as $thisForm => $formDetails) {
+	## For this new instance's data, start by importing the matching values
 	foreach($formDetails[$module::$matchedFields] as $fieldKey => $matchedField) {
 		$instanceData[$matchedField] = $matchingValues[$fieldKey];
 	}
 
+	## Go through the comparison data for this matching value and create a raw value for each
+	## checkbox checked on at least one input form
 	foreach($comparisonData["comparison"][$matchingValue] as $fieldKey => $fieldDetails) {
 		$fieldData = [];
 		foreach($fieldDetails as $rawValue => $rawData) {

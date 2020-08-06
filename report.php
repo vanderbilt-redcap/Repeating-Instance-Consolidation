@@ -22,7 +22,7 @@ $unreconciledRecords = [];
 ## TODO What to do with records that have only one entry for a given test date?
 
 foreach($records as $thisRecord) {
-	$comparisonData = $module->getComparisonData($thisRecord,$module->getProjectId())["comparison"];
+	$comparisonData = $module->getComparisonData($module->getProjectId(),$thisRecord)["comparison"];
 	$confirmedAntibodies = [];
 	$questionableAntibodies = [];
 

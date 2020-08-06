@@ -7,11 +7,14 @@
  * Time: 1:54 PM
  */
 
+/** @var \Vanderbilt\RepeatingInstanceConsolidation\RepeatingInstanceConsolidation $module */
+## Save any provided reconciliation data
+$module->saveReconciliationData();
+
 $recordId = $_GET['id'];
 $projectId = $_GET['pid'];
 
-/** @var \Vanderbilt\RepeatingInstanceConsolidation\RepeatingInstanceConsolidation $module */
-$tableData = $module->getComparisonData($recordId,$projectId);
+$tableData = $module->getComparisonData($projectId,$recordId);
 
 $combinedData = $tableData["combined"];
 $comparisonData = $tableData["comparison"];
@@ -28,6 +31,8 @@ foreach($fieldList as $fieldName) {
 	}
 }
 
+## TODO Add the non-reconciled data, but hide it by default, so reconciliation can be done even if a record is created
+
 ## Foreach each label value, check if antibody was ever present and only output if it was
 foreach($labelList as $fieldName => $fieldMapping) {
 	$outputLabelList[$fieldName] = [];
@@ -41,12 +46,13 @@ foreach($labelList as $fieldName => $fieldMapping) {
 
 require_once \ExternalModules\ExternalModules::getProjectHeaderPath();
 
+echo "<form method='POST'>";
 echo "<table class='table-bordered wdgmctable' style='    z-index: 0;position: absolute;'><thead><tr><th rowspan='2'>Form/Instance</th>";
 $hh_column = 0;
 ## Output the field label table headers
 foreach($fieldList as $fieldName) {
 	if($metadata[$fieldName]["field_type"] == "checkbox") {
-		echo "<th class='hdrnum m".$hh_column++."' colspan='".(count($outputLabelList[$fieldName])-1)."'>".$metadata[$fieldName]["field_label"]."</th>";
+		echo "<th class='hdrnum m".$hh_column++."' colspan='".count($outputLabelList[$fieldName])."'>".$metadata[$fieldName]["field_label"]."</th>";
 	}
 	else {
 		echo "<th rowspan='2'>".$metadata[$fieldName]["field_label"]."</th>";
@@ -68,7 +74,10 @@ foreach($fieldList as $fieldName) {
 echo "</tr></thead>";
 echo "<tbody>";
 
-$matchedKeys = array_keys($combinedData[$module::$inputType]);
+## TODO Add link to "Manually reconcile" (send to instance for test date with no data)
+## TODO Add button to save current unacceptable antigen list
+
+$matchedKeys = array_merge(array_keys($combinedData[$module::$inputType]),(array_key_exists($module::$reconciledType,$combinedData) ? array_keys($combinedData[$module::$reconciledType]) : []));
 
 sort($matchedKeys);
 
@@ -93,19 +102,28 @@ foreach($matchedKeys as $matchingValue) {
 			$frmName =  str_replace("blood","bld",$frmName);
 			$frmName =  str_replace("single","sgle",$frmName);
 			$frmName =  str_replace("group","grp",$frmName);
-			//$gettra = $gettr++;
-			echo "<tr class='tr_".str_replace(' ','',$frmName.$instanceId)."'><td class='fcol'><div><a href='".$module->getUrl("reconcile_instance.php?id=$recordId&matchedValue=".urlencode($matchingValue))."'>$frmName : Instance $instanceId - ";
 
 			$matchedData = explode("~",$matchingValue);
+			$matchingString = "$frmName : Instance $instanceId - ";
 
 			foreach($matchedData as $outputValue) {
 				$s = $outputValue;
 				$date = strtotime($s);
-				echo date('m/d/y', $date);
-				
-			}
+				$matchingString .= date('m/d/y', $date);
 
-			echo "</a></div></td>";
+			}
+			//$gettra = $gettr++;
+			echo "<tr class='tr_".str_replace(' ','',$frmName.$instanceId)."'><td class='fcol'><div>";
+
+			if($doComparison) {
+				echo "<a href='".APP_PATH_WEBROOT."DataEntry/?pid=".$projectId."&id=".$recordId."&page=".$frmName."&instance=".$instanceId."'>";
+				echo $matchingString;
+				echo "</a>";
+			}
+			else {
+				echo "<b>".$matchingString."</b>";
+			}
+			echo "</div></td>";
 
 			$fieldKey = 0;
 			$fieldKey2 = 0;
@@ -114,7 +132,10 @@ foreach($matchedKeys as $matchingValue) {
 					$style = "";
 					if($doComparison && count($comparisonData[$matchingValue][$fieldKey][$rawValue]) > 1) {
 						$stylebgred = " bgred";
-					} else {
+					} else if(array_sum($comparisonData[$matchingValue][$fieldKey][$rawValue]) <= 1) {
+						$stylebgred = " bggreen";
+					}
+					else {
 						$stylebgred = "";
 					}
 					if($c_column == 0){
@@ -123,17 +144,31 @@ foreach($matchedKeys as $matchingValue) {
 					$c_column = $fieldKey2++;
 					echo "<td class='ca ca_$c_column $stylebgred'>";
 					$doShowbox = "";
-					if($instanceDetails[$fieldKey][$rawValue]) {
-						if($stylebgred == ' bgred'){
-							$doShowbox = " onclick='showBox(\".tr_".str_replace(' ','',$frmName.$instanceId)." .ca_$c_column\")'";
-						}
-						echo "<div class='x' ".$doShowbox."></div>";
+					if($stylebgred == ' bgred'){
+						$doShowbox = " onclick='toggleAntigen($(this),\".match_$matchingValue\",\".ca_$c_column\");'";
 					}
+
+					$startClass = "o";
+					if($instanceDetails[$fieldKey][$rawValue]) {
+						$startClass = "x";
+					}
+					echo "<div class='$startClass match_$matchingValue' ".$doShowbox.">
+						<input type='hidden' name='$matchingValue|".$rawValue."[]' value='' />
+					</div>";
 
 					echo "</td>";
 				}
 				$fieldKey++;
 			}
+
+			echo "<td>";
+			if($doComparison) {
+
+//				echo "<a href='".$module->getUrl("reconcile_instance.php?id=$recordId&matchedValue=".urlencode($matchingValue))."'>";
+//				echo $matchingString;
+//				echo "</a>";
+			}
+			echo "</td>";
 
 			echo "</tr>";
 		}
@@ -145,7 +180,7 @@ foreach($combinedData[$module::$outputType] as $formName => $formDetails) {
 	$fieldKey = 0;
 	foreach($outputLabelList as $fieldName => $fieldDetails) {
 		foreach($fieldDetails as $rawValue => $label) {
-			echo "<td>";
+			echo "<td style='text-align:center'>";
 
 			if($formDetails[$fieldKey][$rawValue]) {
 				echo "X";
@@ -158,7 +193,10 @@ foreach($combinedData[$module::$outputType] as $formName => $formDetails) {
 	echo "</tr>";
 }
 
+echo "<tr><td><div style='padding-top:10px'><input type='submit' value='Save Reconciliation' /></div></td></tr>";
 echo "</tbody></table>";
+echo "</form>";
+echo "* <b>bold</b> indicates already reconciled data";
 
 ?>
 <div class='tooltipReconcile'></div>
@@ -194,12 +232,17 @@ tbody td.ca:nth-child(odd) {background: #0000000a;}
 tbody td.ca:nth-child(even) {background: unset;}
 .table-bordered thead td, .table-bordered thead th {border-bottom-width: 0px;height: 98px;}
 table *{font-family: proxima-nova, sans-serif;}
-.ca{width:40px;text-align: center;}
+.ca{
+	width:40px;
+	margin: auto;
+}
 .x{height: 19px;width: 19px;background-color: #083fbb;margin: auto;    margin-top: 2px; margin-bottom: 2px;}
+.o{height: 19px;width: 19px;margin: auto;    margin-top: 2px; margin-bottom: 2px;}
 .table-bordered td, .table-bordered th {border: unset !important;}
 .bgred{background-color: #ff00008c !important;}
 .bgred .x{ background-color: #000000 !important;}
 .bgred .x:hover{cursor:hand;}
+.bggreen{background-color: #00ff008c !important;}
 thead{    border-bottom: 1px solid #00000073;}
 thead th{    font-weight: 700;}
 .table-bordered {border: 0px solid #dee2e6;}
@@ -211,21 +254,15 @@ thead th{    font-weight: 700;}
 jQuery(document).ready(function($){
 
 	$(".bgred").parent().css( "background-color","rgba(255, 0, 0, 0.18)");
+	$(".bggreen").parent().css( "background-color","rgba(0, 255, 0, 0.18)");
 
 	$(".hdrnum").each(function( index, element ){
-		//var p = $(this).last();
-		var addtclass = "";
-		var addtwidth = "";
 		if(index%2 == 0){
-			addtclass = " todd";
+			$(this).addClass("todd");
 		}
-		if(index == 0){
-			addtwidth = 32;
-		}
-		console.log(addtwidth);
-		var offset = $(this).offset();
-		var fcolwidth = $(".wdgmctable>thead>tr>th:first-of-type").width();
-		$(this).before("<div class='hdrback "+addtclass+"' style='position:absolute; left:" + (offset.left-fcolwidth) + "px; top:0px; height:"+$(".wdgmctable").height()+"px; width:"+($(".m"+index).width()+addtwidth)+"px; z-index: -1;'></div>");
+		$(this).addClass("hdrback");
+		$(this).css("padding-left","10px");
+		$(this).css("padding-right","10px");
 		//$(this).before("<div class='hdrback "+addtclass+"' style='position:absolute; left:" + (offset.left) + "px; top:0px; height:"+$(".wdgmctable").height()+"px; width:"+$(this).width()+"px; z-index: -1;'></div>");
 	});
 	//$('.bgred .x').click(showBox);
@@ -243,7 +280,29 @@ jQuery(document).ready(function($){
 		console.log(offseta);
         $('.tooltipReconcile').fadeIn().css("left",offseta.left-301).css("top",offseta.top-46);
 	}
-	
+
+	function toggleAntigen(clickedCell,matchingClass,columnClass) {
+		var curClass = false;
+		if(clickedCell.hasClass("x")) {
+			curClass = true;
+		}
+
+		$(columnClass).each(function() {
+			var matchedCell = $(this).find(matchingClass);
+			if(matchedCell.length > 0) {
+				if(curClass) {
+					matchedCell.removeClass("x");
+					matchedCell.addClass("o");
+					matchedCell.find("input").val("0");
+				}
+				else {
+					matchedCell.removeClass("o");
+					matchedCell.addClass("x");
+					matchedCell.find("input").val("1");
+				}
+			}
+		});
+	}
 
 </script>
 
