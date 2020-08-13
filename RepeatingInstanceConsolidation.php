@@ -385,7 +385,15 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
 				$outputFields = $fieldList[$thisKey];
 			}
 		}
-
+		$recordIdFieldName = $this->framework->getRecordIdField();
+		$fields = $this->framework->getFieldNames($instrument);
+		$instanceData = \REDCap::getData($this->getProjectId(), 'json', [$record], array_merge([$recordIdFieldName],$fields));
+//		error_log("TIN: ".var_export($recordData,true));
+		foreach($instanceData as $instanceDetails) {
+			if($instanceDetails["redcap_repeat_instance"] == $repeat_instance) {
+				## Code to only check changes from this instace
+			}
+		}
 		## Only run the comparison save hook if on an input form
 		if($thisType != self::$inputType) {
 			return;

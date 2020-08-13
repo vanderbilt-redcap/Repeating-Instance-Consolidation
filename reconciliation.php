@@ -44,8 +44,18 @@ foreach($labelList as $fieldName => $fieldMapping) {
 	}
 }
 
-require_once \ExternalModules\ExternalModules::getProjectHeaderPath();
+//require_once \ExternalModules\ExternalModules::getProjectHeaderPath();
+?>
+<link rel="stylesheet" type="text/css" href="<?=APP_PATH_WEBPACK?>css/bundle.css">
+<link rel="stylesheet" type="text/css" href="<?=APP_PATH_CSS?>style.css">
 
+<script src="<?=APP_PATH_WEBPACK?>js/bundle.js"></script>
+<script src="<?=APP_PATH_JS?>base.js"></script>
+
+<div class="container-fluid mainwindow">
+	<div class="row">
+		<div class="col-12">
+<?php
 echo "<form method='POST'>";
 echo "<table class='table-bordered wdgmctable' style='    z-index: 0;position: absolute;'><thead><tr><th rowspan='2'>Form/Instance</th>";
 $hh_column = 0;
@@ -113,7 +123,7 @@ foreach($matchedKeys as $matchingValue) {
 
 			}
 			//$gettra = $gettr++;
-			echo "<tr class='tr_".str_replace(' ','',$frmName.$instanceId)."'><td class='fcol'><div>";
+			echo "<tr class='tr_".str_replace(' ','',$frmName.$instanceId)."'><td class='fcol tfirst-column'><div >";
 
 			if($doComparison) {
 				echo "<a href='".APP_PATH_WEBROOT."DataEntry/?pid=".$projectId."&id=".$recordId."&page=".$frmName."&instance=".$instanceId."'>";
@@ -175,7 +185,7 @@ foreach($matchedKeys as $matchingValue) {
 	}
 }
 foreach($combinedData[$module::$outputType] as $formName => $formDetails) {
-	echo "<tr><td>$formName</td>";
+	echo "<tr><td class='tfirst-column'>$formName</td>";
 
 	$fieldKey = 0;
 	foreach($outputLabelList as $fieldName => $fieldDetails) {
@@ -199,17 +209,14 @@ echo "</form>";
 echo "* <b>bold</b> indicates already reconciled data";
 
 ?>
-<div class='tooltipReconcile'></div>
+</div>
+</div>
+</div>
 <style>
-.tooltipReconcile {
-    margin:10px;
-    padding:12px;
-    width: 320px;
-    height: 243px;
-    position: absolute;
-    display: none;
-	background-image:url(/modules/repeatingInstanceConsolidation_v9.9.9/DDE.png);
-
+.tfirst-column {
+	display: table-cell;
+	vertical-align: inherit;
+	z-index: 2;
 }
 .theader{transform: rotate(-90deg);
     height: 20px;
@@ -265,21 +272,7 @@ jQuery(document).ready(function($){
 		$(this).css("padding-right","10px");
 		//$(this).before("<div class='hdrback "+addtclass+"' style='position:absolute; left:" + (offset.left) + "px; top:0px; height:"+$(".wdgmctable").height()+"px; width:"+$(this).width()+"px; z-index: -1;'></div>");
 	});
-	//$('.bgred .x').click(showBox);
-	//$('.tooltipReconcile').click($(this).fadeOut());
-	$( ".tooltipReconcile" ).click(function() {
-		$( ".tooltipReconcile" ).fadeOut( "fast", function() {
-			// Animation complete.
-		});
-	});
 });
-	function showBox(ebox){
-
-		console.log(ebox+" .x");
-		var offseta = $(ebox+" .x").offset();
-		console.log(offseta);
-        $('.tooltipReconcile').fadeIn().css("left",offseta.left-301).css("top",offseta.top-46);
-	}
 
 	function toggleAntigen(clickedCell,matchingClass,columnClass) {
 		var curClass = false;
@@ -305,7 +298,3 @@ jQuery(document).ready(function($){
 	}
 
 </script>
-
-
-
-
