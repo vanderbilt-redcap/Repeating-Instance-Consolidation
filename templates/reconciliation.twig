@@ -1,0 +1,29 @@
+{% extends "base.twig" %}
+
+{% if title %}
+	{% block title %}{{ title }}{% endblock %}
+{% endif %}
+
+{% block content %}
+<form method='POST'>
+	<table class='table-bordered wdgmctable'>
+		<thead>
+			<tr><th rowspan='2'>Form/Instance</th>
+			{% for col,fieldName in fieldList %}
+			    <th class="hdrnum m{{ col }} hdrback" colspan="{{ fieldDetails[col]|length }}">{{ fieldName }}</th>
+			{% endfor %}
+            </tr>
+            <tr class="initrow">
+                {% for col,fieldName in fieldList %}
+                    {% for checkLabel in fieldDetails[col] %}
+                        <td class="ca ca_{{ col }}"><div class="thead"></div><div class="ca_val">{{ checkLabel }}</div></td>
+                    {% endfor %}
+                {% endfor %}
+            </tr>
+		</thead>
+		<tbody>
+
+		</tbody>
+	</table>
+</form>
+{% endblock %}

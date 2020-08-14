@@ -1,4 +1,3 @@
-<link rel="stylesheet" href="https://use.typekit.net/ikj0ive.css">
 <?php
 /**
  * Created by PhpStorm.
@@ -33,6 +32,9 @@ foreach($fieldList as $fieldName) {
 
 ## TODO Add the non-reconciled data, but hide it by default, so reconciliation can be done even if a record is created
 
+$outputHeaders = [];
+$outputHeadersCheckboxes = [];
+
 ## Foreach each label value, check if antibody was ever present and only output if it was
 foreach($labelList as $fieldName => $fieldMapping) {
 	$outputLabelList[$fieldName] = [];
@@ -42,12 +44,53 @@ foreach($labelList as $fieldName => $fieldMapping) {
 			$outputLabelList[$fieldName][$rawValue] = $label;
 		}
 	}
+	if($metadata[$fieldName]["field_type"] == "checkbox") {
+		$outputHeaders[] = $metadata[$fieldName]["field_label"];
+
+		$checkValues = [];
+
+		foreach($outputLabelList[$fieldName] as $rawValue => $label) {
+			$checkValues[] = $label;
+		}
+
+		$outputHeadersCheckboxes[] = $checkValues;
+	}
 }
+
+$matchedKeys = array_merge(array_keys($combinedData[$module::$inputType]),(array_key_exists($module::$reconciledType,$combinedData) ? array_keys($combinedData[$module::$reconciledType]) : []));
+
+sort($matchedKeys);
+
+foreach($matchedKeys as $matchingValue) {
+	if(count($matchedDataDetails) == 0) {
+		$doComparison = true;
+		$matchedDataDetails = $combinedData[$module::$inputType][$matchingValue];
+	}
+	$c_column = 0;
+	$gettr = 0;
+	$gettra = 0;
+	foreach($matchedDataDetails as $formName => $formDetails) {
+		foreach($formDetails as $instanceId => $instanceDetails) {
+
+		}
+	}
+}
+
+$twigLoader = new Twig_Loader_Filesystem(__DIR__."/templates");
+$twig = new Twig_Environment($twigLoader);
+
+$renderVars = ["fieldList" => $outputHeaders, "fieldDetails" => $outputHeadersCheckboxes];
+
+$html = $twig->render("reconciliation.twig",$renderVars);
+
+echo $html;
+die();
 
 //require_once \ExternalModules\ExternalModules::getProjectHeaderPath();
 ?>
 <link rel="stylesheet" type="text/css" href="<?=APP_PATH_WEBPACK?>css/bundle.css">
 <link rel="stylesheet" type="text/css" href="<?=APP_PATH_CSS?>style.css">
+<link rel="stylesheet" type="text/css" href="<?=REP_INSTANCE_MODULE_CSS_PATH?>">
 
 <script src="<?=APP_PATH_WEBPACK?>js/bundle.js"></script>
 <script src="<?=APP_PATH_JS?>base.js"></script>
@@ -212,50 +255,6 @@ echo "* <b>bold</b> indicates already reconciled data";
 </div>
 </div>
 </div>
-<style>
-.tfirst-column {
-	display: table-cell;
-	vertical-align: inherit;
-	z-index: 2;
-}
-.theader{transform: rotate(-90deg);
-    height: 20px;
-    display: inherit;
-    position: absolute;
-    width: 0px;
-    /* padding: 4px; */
-    margin-top: 33px;}	
-	tbody tr:nth-child(even) {background: #0000000a;}
-	tbody tr:nth-child(odd) {background: #ffffff52;}
-
-	.todd {background-color: #5555551c;}
-
-.initrow{    position: relative;}
-.initrow td.ca:nth-child(even) {background: #0000000a;}
-.initrow td.ca:nth-child(odd) {background: unset;}
-
-.initrow td.ca {padding: 16px;}
-tbody td.ca:nth-child(odd) {background: #0000000a;}
-tbody td.ca:nth-child(even) {background: unset;}
-.table-bordered thead td, .table-bordered thead th {border-bottom-width: 0px;height: 98px;}
-table *{font-family: proxima-nova, sans-serif;}
-.ca{
-	width:40px;
-	margin: auto;
-}
-.x{height: 19px;width: 19px;background-color: #083fbb;margin: auto;    margin-top: 2px; margin-bottom: 2px;}
-.o{height: 19px;width: 19px;margin: auto;    margin-top: 2px; margin-bottom: 2px;}
-.table-bordered td, .table-bordered th {border: unset !important;}
-.bgred{background-color: #ff00008c !important;}
-.bgred .x{ background-color: #000000 !important;}
-.bgred .x:hover{cursor:hand;}
-.bggreen{background-color: #00ff008c !important;}
-thead{    border-bottom: 1px solid #00000073;}
-thead th{    font-weight: 700;}
-.table-bordered {border: 0px solid #dee2e6;}
-.fcol{font-size:12px;}
-.fcol div{display: inline-block;width: 329px;}
-</style>
 <script type="text/javascript">
 
 jQuery(document).ready(function($){

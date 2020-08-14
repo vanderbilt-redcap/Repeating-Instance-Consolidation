@@ -14,7 +14,8 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
 	public function __construct() {
 		parent::__construct();
 
-
+		include_once(__DIR__."/vendor/autoload.php");
+		define("REP_INSTANCE_MODULE_CSS_PATH",$this->getUrl("css/style.css"));
 	}
 
 	## Cache the pulling and decoding of the data mapping
