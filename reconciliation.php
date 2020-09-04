@@ -1,4 +1,3 @@
-<link rel="stylesheet" href="https://use.typekit.net/ikj0ive.css">
 <?php
 /**
  * Created by PhpStorm.
@@ -7,84 +6,34 @@
  * Time: 1:54 PM
  */
 
- $recordId = $_GET['id'];
-
 /** @var \Vanderbilt\RepeatingInstanceConsolidation\RepeatingInstanceConsolidation $module */
-$dataMapping = $module->getProjectSetting("existing-json");
-$dataMapping = json_decode($dataMapping,true);
+## Save any provided reconciliation data
+$module->saveReconciliationData();
 
-$recordData = $module->getData($module->getProjectId(),$recordId);
-$metadata = $module->getMetadata($module->getProjectId());
+$recordId = $_GET['id'];
+$projectId = $_GET['pid'];
 
-$combinedData = [];
-$comparisonData = [];
-$antibodiesPresent = [];
+$tableData = $module->getComparisonData($projectId,$recordId);
 
-$fieldList = reset($dataMapping[$module::$inputType])[$module::$dataFields];
+$combinedData = $tableData["combined"];
+$comparisonData = $tableData["comparison"];
+$antibodiesPresent = $tableData["antibodies"];
+$fieldList = $tableData["fields"];
+
+$metadata = $module->getMetadata($projectId);
+$outputLabelList = [];
 
 $labelList = [];
 foreach($fieldList as $fieldName) {
 	if($metadata[$fieldName]["field_type"] == "checkbox") {
-		$labelList[$fieldName] = $module->getChoiceLabels($fieldName,$module->getProjectId());
+		$labelList[$fieldName] = $module->getChoiceLabels($fieldName,$projectId);
 	}
 }
 
-## Add instanced data to the $combinedData
-foreach($recordData[$recordId]["repeat_instances"] as $eventId => $eventDetails) {
-	foreach($dataMapping as $dataType => $mappingDetails) {
-		foreach($mappingDetails as $formName => $formDetails) {
-			foreach($eventDetails[$formName] as $instanceId => $instanceDetails) {
-				$matchingValue = [];
-				foreach($formDetails[$module::$matchedFields] as $fieldKey => $fieldName) {
-					if($instanceDetails[$fieldName] == "") {
-						continue 2;
-					}
-					$matchingValue[] = str_replace("~","",$instanceDetails[$fieldName]);
-				}
-				$matchingValue = implode("~",$matchingValue);
+## TODO Add the non-reconciled data, but hide it by default, so reconciliation can be done even if a record is created
 
-				foreach($formDetails[$module::$dataFields] as $fieldKey => $fieldName) {
-					foreach($instanceDetails[$fieldName] as $rawValue => $checked) {
-						## Add data to the combined array for display later
-						$combinedData[$dataType][$matchingValue][$formName][$instanceId][$fieldKey][$rawValue] = $checked;
-
-						if($dataType == $module::$inputType) {
-							## Also add to comparison data, so unmatched data can be found later
-							$comparisonData[$matchingValue][$fieldKey][$rawValue][$checked] = 1;
-						}
-
-						## Also mark every antibody present, so that non-present antibodies don't have to be displayed
-						if($checked == 1) {
-							$antibodiesPresent[$rawValue] = true;
-						}
-					}
-				}
-			}
-		}
-	}
-}
-
-## Add non-instanced data to $combinedData
-foreach($recordData[$recordId] as $eventId => $eventDetails) {
-	foreach($dataMapping[$module::$outputType] as $formName => $formDetails) {
-		foreach($formDetails[$module::$dataFields] as $fieldKey => $fieldName) {
-
-			## Also mark raw values from the output form to be displayed
-			foreach($eventDetails[$fieldName] as $rawValue => $checked) {
-				## Add the non-repeating data from the output to the combined data to be displayed
-				$combinedData[$module::$outputType][$formName][$fieldKey][$rawValue] = $checked;
-
-				if($checked == 1) {
-					$antibodiesPresent[$rawValue] = true;
-				}
-			}
-
-		}
-	}
-}
-
-## Output the data into a table
-$outputLabelList = [];
+$outputHeaders = [];
+$outputHeadersCheckboxes = [];
 
 ## Foreach each label value, check if antibody was ever present and only output if it was
 foreach($labelList as $fieldName => $fieldMapping) {
@@ -95,224 +44,115 @@ foreach($labelList as $fieldName => $fieldMapping) {
 			$outputLabelList[$fieldName][$rawValue] = $label;
 		}
 	}
-}
-
-require_once \ExternalModules\ExternalModules::getProjectHeaderPath();
-
-echo "<table class='table-bordered wdgmctable' style='    z-index: 0;position: absolute;'><thead><tr><th rowspan='2'>Form/Instance</th>";
-$hh_column = 0;
-## Output the field label table headers
-foreach($fieldList as $fieldName) {
 	if($metadata[$fieldName]["field_type"] == "checkbox") {
-		echo "<th class='hdrnum m".$hh_column++."' colspan='".(count($outputLabelList[$fieldName])-1)."'>".$metadata[$fieldName]["field_label"]."</th>";
-	}
-	else {
-		echo "<th rowspan='2'>".$metadata[$fieldName]["field_label"]."</th>";
-	}
-}
+		$outputHeaders[] = $metadata[$fieldName]["field_label"];
 
-echo "</tr><tr class='initrow'>";
+		$checkValues = [];
 
-## Output the antibody field list header row
-$c_antibody = 0;
-foreach($fieldList as $fieldName) {
-	if($metadata[$fieldName]["field_type"] == "checkbox") {
 		foreach($outputLabelList[$fieldName] as $rawValue => $label) {
-			echo "<td class='ca ca_".$c_antibody++."'><div class='theader' style=''>".$label."</div></td>";
+			$checkValues[] = $label;
 		}
+
+		$outputHeadersCheckboxes[] = $checkValues;
 	}
 }
 
-echo "</tr></thead>";
-echo "<tbody>";
+$matchedKeys = array_merge(array_keys($combinedData[$module::$inputType]),(array_key_exists($module::$reconciledType,$combinedData) ? array_keys($combinedData[$module::$reconciledType]) : []));
 
-$matchedKeys = array_keys($combinedData[$module::$inputType]);
-
+$matchedKeys = array_unique($matchedKeys);
 sort($matchedKeys);
+$outputDetails = [];
 
+## Pull data for
 foreach($matchedKeys as $matchingValue) {
+	$matchedData = explode("~",$matchingValue);
+	$matchingString = "";
+
+	foreach($matchedData as $outputValue) {
+		$s = $outputValue;
+		$date = strtotime($s);
+		$matchingString .= date('m/d/y', $date);
+	}
+
 	$doComparison = false;
 	$matchedDataDetails = $combinedData[$module::$reconciledType][$matchingValue];
-
 	if(count($matchedDataDetails) == 0) {
 		$doComparison = true;
 		$matchedDataDetails = $combinedData[$module::$inputType][$matchingValue];
 	}
-$c_column = 0;
-$gettr = 0;
-$gettra = 0;
-	foreach($matchedDataDetails as $formName => $formDetails) {
+	else {
+		$matchedDataDetails = array_merge($matchedDataDetails,$combinedData[$module::$inputType][$matchingValue]);
+	}
 
-		foreach($formDetails as $instanceId => $instanceDetails) {
-			//echo "<tr><td class='fcol'>";
+	$wasReconciled = array_key_exists($matchingValue,$combinedData[$module::$reconciledType]);
 
-			$frmName =  str_replace("_"," ",$formName);
-			$frmName =  str_replace("recipient","",$frmName);
-			$frmName =  str_replace("blood","bld",$frmName);
-			$frmName =  str_replace("single","sgle",$frmName);
-			$frmName =  str_replace("group","grp",$frmName);
-			//$gettra = $gettr++;
-			echo "<tr class='tr_".str_replace(' ','',$frmName.$instanceId)."'><td class='fcol'><div>$frmName : Instance $instanceId - ";
+	foreach([$module::$reconciledType,$module::$inputType] as $thisType) {
+		$matchedDataDetails = $combinedData[$thisType][$matchingValue];
 
-			$matchedData = explode("~",$matchingValue);
+		foreach($matchedDataDetails as $formName => $formDetails) {
+			foreach($formDetails as $instanceId => $instanceDetails) {
+	//			$frmName =  str_replace("_"," ",$formName);
+	//			$frmName =  str_replace("recipient","",$frmName);
+	//			$frmName =  str_replace("blood","bld",$frmName);
+	//			$frmName =  str_replace("single","sgle",$frmName);
+	//			$frmName =  str_replace("group","grp",$frmName);
 
-			foreach($matchedData as $outputValue) {
-				$s = $outputValue;
-				$date = strtotime($s);
-				echo date('m/d/y', $date);
-				
-			}
+				$outputRow = [
+					"type" => $thisType,
+					"form" => $formName,
+					"instance" => $instanceId,
+					"record" => $recordId,
+					"reconciled" => $wasReconciled,
+					"start-hidden" => ($wasReconciled && $thisType == $module::$inputType),
+					"matched-string" => $matchingString,
+					"matched-value" => $matchingValue,
+					"data" => []
+				];
 
-			echo "</div></td>";
-
-			$fieldKey = 0;
-			$fieldKey2 = 0;
-			foreach($outputLabelList as $fieldName => $fieldDetails) {
-				foreach($fieldDetails as $rawValue => $label) {
-					$style = "";
-					if($doComparison && count($comparisonData[$matchingValue][$fieldKey][$rawValue]) > 1) {
-						$stylebgred = " bgred";
-					} else {
-						$stylebgred = "";
+				$fieldKey = 0;
+				foreach($outputLabelList as $fieldName => $fieldDetails) {
+					foreach($fieldDetails as $rawValue => $label) {
+						$outputRow["data"][$fieldKey][$rawValue] = [
+							"issue" => (count($comparisonData[$matchingValue][$fieldKey][$rawValue]) > 1),
+							"value" => $instanceDetails[$fieldKey][$rawValue],
+							"unmatched" => array_sum($comparisonData[$matchingValue][$fieldKey][$rawValue]) <= 1
+						];
 					}
-					if($c_column == 0){
-
-					}
-					$c_column = $fieldKey2++;
-					echo "<td class='ca ca_$c_column $stylebgred'>";
-					$doShowbox = "";
-					if($instanceDetails[$fieldKey][$rawValue]) {
-						if($stylebgred == ' bgred'){
-							$doShowbox = " onclick='showBox(\".tr_".str_replace(' ','',$frmName.$instanceId)." .ca_$c_column\")'";
-						}
-						echo "<div class='x' ".$doShowbox."></div>";
-					}
-
-					echo "</td>";
+					$fieldKey++;
 				}
-				$fieldKey++;
-			}
 
-			echo "</tr>";
+				$outputDetails[] = $outputRow;
+			}
 		}
 	}
 }
-foreach($combinedData[$module::$outputType] as $formName => $formDetails) {
-	echo "<tr><td>$formName</td>";
 
+$unacceptableList = [];
+
+## Pull unacceptable antigen list
+foreach($combinedData[$module::$outputType] as $formName => $formDetails) {
 	$fieldKey = 0;
 	foreach($outputLabelList as $fieldName => $fieldDetails) {
 		foreach($fieldDetails as $rawValue => $label) {
-			echo "<td>";
-
+			$unacceptableList[$fieldKey][$rawValue] = 0;
 			if($formDetails[$fieldKey][$rawValue]) {
-				echo "X";
+				$unacceptableList[$fieldKey][$rawValue] = 1;
 			}
-			echo "</td>";
 		}
 		$fieldKey++;
 	}
-
-	echo "</tr>";
 }
 
-echo "</tbody></table>";
+$twigLoader = new Twig_Loader_Filesystem(__DIR__."/templates");
+$twig = new Twig_Environment($twigLoader);
 
-?>
-<div class='tooltipReconcile'></div>
-<style>
-.tooltipReconcile {
-    margin:10px;
-    padding:12px;
-    width: 320px;
-    height: 243px;
-    position: absolute;
-    display: none;
-	background-image:url(/modules/repeatingInstanceConsolidation_v9.9.9/DDE.png);
+$renderVars = [
+	"fieldList" => $outputHeaders,
+	"fieldDetails" => $outputHeadersCheckboxes,
+	"outputData" => $outputDetails,
+	"unacceptableList" => $unacceptableList
+];
 
-}
-.theader{transform: rotate(-90deg);
-    height: 20px;
-    display: inherit;
-    position: absolute;
-    width: 0px;
-    /* padding: 4px; */
-    margin-top: 33px;}	
-	tbody tr:nth-child(even) {background: #0000000a;}
-	tbody tr:nth-child(odd) {background: #ffffff52;}
+$html = $twig->render("reconciliation.twig",$renderVars);
 
-	.todd {background-color: #5555551c;}
-
-.initrow{    position: relative;}
-.initrow td.ca:nth-child(even) {background: #0000000a;}
-.initrow td.ca:nth-child(odd) {background: unset;}
-
-.initrow td.ca {padding: 16px;}
-tbody td.ca:nth-child(odd) {background: #0000000a;}
-tbody td.ca:nth-child(even) {background: unset;}
-.table-bordered thead td, .table-bordered thead th {border-bottom-width: 0px;height: 98px;}
-table *{font-family: proxima-nova, sans-serif;}
-.ca{width:40px;text-align: center;}
-.x{height: 19px;width: 19px;background-color: #083fbb;margin: auto;    margin-top: 2px; margin-bottom: 2px;}
-.table-bordered td, .table-bordered th {border: unset !important;}
-.bgred{background-color: #ff00008c !important;}
-.bgred .x{ background-color: #000000 !important;}
-.bgred .x:hover{cursor:hand;}
-thead{    border-bottom: 1px solid #00000073;}
-thead th{    font-weight: 700;}
-.table-bordered {border: 0px solid #dee2e6;}
-.fcol{font-size:12px;}
-.fcol div{display: inline-block;width: 329px;}
-.fcol a:visited {
-     font-family: proxima-nova, sans-serif !important; 
-     font-size: 12px !important; 
-}
-.fcol a:link {
-     font-family: proxima-nova, sans-serif !important; 
-     font-size: 12px !important; 
-}
-</style>
-<script type="text/javascript">
-
-jQuery(document).ready(function($){
-
-	$(".bgred").parent().css( "background-color","rgba(255, 0, 0, 0.18)");
-
-	$(".hdrnum").each(function( index, element ){
-		//var p = $(this).last();
-		var addtclass = "";
-		var addtwidth = "";
-		if(index%2 == 0){
-			addtclass = " todd";
-		}
-		if(index == 0){
-			addtwidth = 32;
-		}
-		console.log(addtwidth);
-		var offset = $(this).offset();
-		var fcolwidth = $(".wdgmctable>thead>tr>th:first-of-type").width();
-		$(this).before("<div class='hdrback "+addtclass+"' style='position:absolute; left:" + (offset.left-fcolwidth) + "px; top:0px; height:"+$(".wdgmctable").height()+"px; width:"+($(".m"+index).width()+addtwidth)+"px; z-index: -1;'></div>");
-		//$(this).before("<div class='hdrback "+addtclass+"' style='position:absolute; left:" + (offset.left) + "px; top:0px; height:"+$(".wdgmctable").height()+"px; width:"+$(this).width()+"px; z-index: -1;'></div>");
-	});
-	//$('.bgred .x').click(showBox);
-	//$('.tooltipReconcile').click($(this).fadeOut());
-	$( ".tooltipReconcile" ).click(function() {
-		$( ".tooltipReconcile" ).fadeOut( "fast", function() {
-			// Animation complete.
-		});
-	});
-});
-	function showBox(ebox){
-
-		console.log(ebox+" .x");
-		var offseta = $(ebox+" .x").offset();
-		console.log(offseta);
-        $('.tooltipReconcile').fadeIn().css("left",offseta.left-301).css("top",offseta.top-46);
-	}
-	
-
-</script>
-
-
-
-
+echo $html;

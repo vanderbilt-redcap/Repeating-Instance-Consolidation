@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    {% block head %}
+        <link rel="stylesheet" href="https://use.typekit.net/ikj0ive.css">
+        <link rel="stylesheet" type="text/css" href="{{ constant("APP_PATH_WEBPACK") }}css/bundle.css">
+        <link rel="stylesheet" type="text/css" href="{{ constant("APP_PATH_CSS") }}style.css">
+        <link rel="stylesheet" type="text/css" href="{{ constant("REP_INSTANCE_MODULE_CSS_PATH") }}">
+
+        <script src="{{ constant("APP_PATH_WEBPACK") }}js/bundle.js"></script>
+        <script src="{{ constant("APP_PATH_JS") }}base.js"></script>
+
+        <title>{% block title %}Repeating Instance Reconciliation{%  endblock %}</title>
+    {% endblock %}
+</head>
+<body>
+<div class="container-fluid mainwindow">
+    <div class="row">
+        <div class="col-12">
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -15,9 +15,12 @@
 		}
 	],
 
+	"framework-version": 5,
+
 	"permissions": [
 		"redcap_module_link_check_display",
-		"redcap_module_save_configuration"
+		"redcap_module_save_configuration",
+		"redcap_save_record"
 	],
 	
 	"enable-every-page-hooks-on-system-pages": false,	
@@ -28,6 +31,11 @@
 				"name": "Reconcile Data",
 				"icon": "report",
 				"url": "reconciliation.php"
+			},
+			{
+				"name": "Review Unreconciled Records",
+				"icon": "report",
+				"url": "report.php"
 			}
 		],
 		"control-center": [
