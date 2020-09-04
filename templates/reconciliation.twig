@@ -27,7 +27,7 @@
 		</thead>
 		<tbody>
 		{% for row,rowDetails in outputData %}
-			<tr z-index="10" class="tableRow">
+			<tr z-index="10" class="tableRow{{ rowDetails["start-hidden"] ? " hidden" : "" }}">
 			{% if rowDetails["reconciled"] %}
 				<td class="firstcol"><b>{{ rowDetails["form"] }} Instance {{ rowDetails["instance"] }}: {{ rowDetails["matched-string"] }}</b></td>
 			{% else %}
@@ -44,7 +44,8 @@
 				{% endfor %}
 			</tr>
 		{% endfor %}
-		{#<tfoot>#}
+		</tbody>
+		<tfoot>
 			<tr>
 				<td class="firstcol">Unacceptable List</td>
 				{% for fieldKey,fieldData in unacceptableList %}
@@ -57,8 +58,7 @@
 					{% endfor %}
 				{% endfor %}
 			</tr>
-		{#</tfoot>#}
-		</tbody>
+		</tfoot>
 	</table>
 	<div style="margin-left:10px;margin-top:5px">
 		<input type='submit' value='Save Reconciliation' />
@@ -86,7 +86,7 @@
 			},
 			fixedHeader: true,
 			scrollX: true,
-			scrollY: window.innerHeight - 220,
+			scrollY: window.innerHeight - 260,
 			fixedFooter: true,
 			paging:   false,
 			ordering: false,

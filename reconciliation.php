@@ -30,8 +30,6 @@ foreach($fieldList as $fieldName) {
 	}
 }
 
-## TODO Add the non-reconciled data, but hide it by default, so reconciliation can be done even if a record is created
-
 $outputHeaders = [];
 $outputHeadersCheckboxes = [];
 
