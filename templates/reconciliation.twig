@@ -8,7 +8,11 @@
 <form method='POST'>
 	<table class='table-bordered wdgmctable'>
 		<thead>
-			<tr><th rowspan='2'>Form/Instance</th>
+			<tr>
+				<th rowspan='2'>
+					Form/Instance<br /><br />
+					<div style="font-weight:normal">* <b>bold</b> indicates already reconciled data</div>
+				</th>
 			{% for col,fieldName in fieldList %}
 			    <th class="hdrnum m{{ col }} hdrback" colspan="{{ fieldDetails[col]|length }}">{{ fieldName }}</th>
 			{% endfor %}
@@ -16,14 +20,110 @@
             <tr class="initrow">
                 {% for col,fieldName in fieldList %}
                     {% for checkLabel in fieldDetails[col] %}
-                        <td class="ca ca_{{ col }}"><div class="thead"></div><div class="ca_val">{{ checkLabel }}</div></td>
+                        <td class="head ca ca_{{ col }}"><div class="thead"></div><div class="ca_val">{{ checkLabel }}</div></td>
                     {% endfor %}
                 {% endfor %}
             </tr>
 		</thead>
 		<tbody>
-
+		{% for row,rowDetails in outputData %}
+			<tr z-index="10" class="tableRow">
+			{% if rowDetails["reconciled"] %}
+				<td class="firstcol"><b>{{ rowDetails["form"] }} Instance {{ rowDetails["instance"] }}: {{ rowDetails["matched-string"] }}</b></td>
+			{% else %}
+				<td class="firstcol"><a href="">{{ rowDetails["form"] }} Instance {{ rowDetails["instance"] }}: {{ rowDetails["matched-string"] }}</a></td>
+			{% endif %}
+				{% for fieldKey,fieldData in rowDetails["data"] %}
+					{% for rawValue,rawData in fieldData %}
+						<td class="ca ca_{{ rawValue }}{{ rawData["issue"] ? " bgred" : "" }}{{ rawData["unmatched"] ? " bggreen" : "" }}">
+							<div class="{{ rawData["value"] ? "x" : "o" }} match_{{ rowDetails["matched-value"] }}" {{ rawData["issue"] ? ("onclick=\"toggleAntigen($(this),'.match_" ~ rowDetails["matched-value"] ~ "','.ca_" ~ rawValue ~ "');\"")|raw : "" }}>
+								<input type="hidden" name="{{ rowDetails["matched-value"] }}|{{ rawValue }}[]" />
+							</div>
+						</td>
+					{% endfor %}
+				{% endfor %}
+			</tr>
+		{% endfor %}
+		{#<tfoot>#}
+			<tr>
+				<td class="firstcol">Unacceptable List</td>
+				{% for fieldKey,fieldData in unacceptableList %}
+					{% for rawValue,isChecked in fieldData %}
+						<td class="ca">
+							<div class="{{ isChecked == 1 ? "x" : "o" }}">
+								<input type="hidden" name="unacceptable-{{ rawValue }}" />
+							</div>
+						</td>
+					{% endfor %}
+				{% endfor %}
+			</tr>
+		{#</tfoot>#}
 		</tbody>
 	</table>
+	<div style="margin-left:10px;margin-top:5px">
+		<input type='submit' value='Save Reconciliation' />
+	</div>
 </form>
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		$(".bgred").parent().addClass("bgred");
+		$(".bggreen").parent().addClass("bggreen");
+
+		$(".hdrnum").each(function( index, element ){
+			if(index%2 == 0){
+				$(this).addClass("todd");
+			}
+			$(this).addClass("hdrback");
+			$(this).css("padding-left","10px");
+			$(this).css("padding-right","10px");
+			//$(this).before("<div class='hdrback "+addtclass+"' style='position:absolute; left:" + (offset.left) + "px; top:0px; height:"+$(".wdgmctable").height()+"px; width:"+$(this).width()+"px; z-index: -1;'></div>");
+		});
+
+		$(".wdgmctable").DataTable({
+			fixedColumns: {
+				leftColumns: 1
+			},
+			fixedHeader: true,
+			scrollX: true,
+			scrollY: window.innerHeight - 220,
+			fixedFooter: true,
+			paging:   false,
+			ordering: false,
+			info:     false,
+			searching:  false,
+			orderClasses: false
+		});
+
+		$("tr.odd").removeClass("odd");
+		$("tr.even").removeClass("even");
+
+		$('.dataTables_scrollBody thead tr').css({visibility:'collapse'});
+	});
+
+	function toggleAntigen(clickedCell,matchingClass,columnClass) {
+		var curClass = false;
+		if(clickedCell.hasClass("x")) {
+			curClass = true;
+		}
+		console.log("Has curClass" + curClass);
+
+		$(columnClass).each(function() {
+			var matchedCell = $(this).find(matchingClass);
+			console.log(matchedCell);
+			if(matchedCell.length > 0) {
+				if(curClass) {
+					matchedCell.removeClass("x");
+					matchedCell.addClass("o");
+					matchedCell.find("input").val("0");
+				}
+				else {
+					matchedCell.removeClass("o");
+					matchedCell.addClass("x");
+					matchedCell.find("input").val("1");
+				}
+			}
+		});
+	}
+</script>
 {% endblock %}

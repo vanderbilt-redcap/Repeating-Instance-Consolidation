@@ -73,15 +73,14 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
 
 						foreach($formDetails[self::$dataFields] as $fieldKey => $fieldName) {
 							foreach($instanceDetails[$fieldName] as $rawValue => $checked) {
-								## For raw input data, only add to comparison and combined data if no reconciled data exists
+								## Add data to the combined array for display later
+								$combinedData[$dataType][$matchingValue][$formName][$instanceId][$fieldKey][$rawValue] = $checked;
+
+								## For raw input data, only add to comparison data if no reconciled data exists
 								## All reconciled data should be added however
 								if(($dataType == self::$inputType
 										&& !array_key_exists($matchingValue,$reconciledTests))
 										|| $dataType == self::$reconciledType) {
-									## Add data to the combined array for display later
-									$combinedData[$dataType][$matchingValue][$formName][$instanceId][$fieldKey][$rawValue] = $checked;
-
-
 									## Also add to comparison data, so unmatched data can be found later
 									if(!is_array($comparisonData[$matchingValue][$fieldKey][$rawValue])) {
 										$comparisonData[$matchingValue][$fieldKey][$rawValue] = [];
