@@ -72,29 +72,18 @@ foreach($matchedKeys as $matchingValue) {
 		$matchingString .= date('m/d/y', $date);
 	}
 
-	$doComparison = false;
-	$matchedDataDetails = $combinedData[$module::$reconciledType][$matchingValue];
-	if(count($matchedDataDetails) == 0) {
-		$doComparison = true;
-		$matchedDataDetails = $combinedData[$module::$inputType][$matchingValue];
-	}
-	else {
-		$matchedDataDetails = array_merge($matchedDataDetails,$combinedData[$module::$inputType][$matchingValue]);
-	}
-
 	$wasReconciled = array_key_exists($matchingValue,$combinedData[$module::$reconciledType]);
 
 	foreach([$module::$reconciledType,$module::$inputType] as $thisType) {
 		$matchedDataDetails = $combinedData[$thisType][$matchingValue];
 
+		$mismatchedValues = false;
+		if($thisType == $module::$inputType) {
+			$mismatchedValues = $module->getMismatchedValues($matchedDataDetails);
+		}
+
 		foreach($matchedDataDetails as $formName => $formDetails) {
 			foreach($formDetails as $instanceId => $instanceDetails) {
-	//			$frmName =  str_replace("_"," ",$formName);
-	//			$frmName =  str_replace("recipient","",$frmName);
-	//			$frmName =  str_replace("blood","bld",$frmName);
-	//			$frmName =  str_replace("single","sgle",$frmName);
-	//			$frmName =  str_replace("group","grp",$frmName);
-
 				$outputRow = [
 					"type" => $thisType,
 					"form" => $formName,
@@ -111,7 +100,7 @@ foreach($matchedKeys as $matchingValue) {
 				foreach($outputLabelList as $fieldName => $fieldDetails) {
 					foreach($fieldDetails as $rawValue => $label) {
 						$outputRow["data"][$fieldKey][$rawValue] = [
-							"issue" => (count($comparisonData[$matchingValue][$fieldKey][$rawValue]) > 1),
+							"issue" => ($mismatchedValues && $mismatchedValues[$fieldKey][$rawValue]),
 							"value" => $instanceDetails[$fieldKey][$rawValue],
 							"unmatched" => array_sum($comparisonData[$matchingValue][$fieldKey][$rawValue]) <= 1
 						];

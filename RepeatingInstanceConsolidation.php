@@ -37,6 +37,32 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
 		return self::$recordData[$projectId][$record];
 	}
 
+	public function getMismatchedValues($matchingData) {
+		$fieldValueChecked = [];
+		$mismatchedValues = [];
+
+		foreach($matchingData as $formName => $formDetails) {
+			foreach($formDetails as $instanceId => $instanceDetails) {
+				foreach($instanceDetails as $fieldKey => $fieldDetails) {
+					foreach($fieldDetails as $rawValue => $isChecked) {
+						if(!array_key_exists($fieldKey,$fieldValueChecked)) {
+							$fieldValueChecked[$fieldKey] = [];
+						}
+
+						if(!array_key_exists($rawValue,$fieldValueChecked[$fieldKey])) {
+							$fieldValueChecked[$fieldKey][$rawValue] = $isChecked;
+						}
+						else if($fieldValueChecked[$fieldKey][$rawValue] != $isChecked) {
+							$mismatchedValues[$fieldKey][$rawValue] = 1;
+						}
+					}
+				}
+			}
+		}
+
+		return $mismatchedValues;
+	}
+
 	public function getComparisonData($projectId, $recordId) {
 		$dataMapping = $this->getDataMapping($projectId);
 

@@ -31,6 +31,12 @@ td.firstcol {
     width:400px;
 }
 
+td.head div.dataTables_sizing div.thead {
+    height:0;
+}
+td.head div.dataTables_sizing div.ca_val {
+    margin:auto;
+}
 tr.tableRow.bgred:nth-child(odd) td.firstcol {background-color: #f7d1d1;z-index:16;}
 tr.tableRow.bgred:nth-child(even) td.firstcol {background-color: #ffd1d1;z-index:16;}
 tr.tableRow.bggreen:nth-child(odd) td.firstcol {background-color: #d1f7d1;z-index:16;}
