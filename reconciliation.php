@@ -83,6 +83,8 @@ foreach($matchedKeys as $matchingValue) {
 		}
 
 		foreach($matchedDataDetails as $formName => $formDetails) {
+			$formName = str_replace("_"," ",$formName);
+
 			foreach($formDetails as $instanceId => $instanceDetails) {
 				$outputRow = [
 					"type" => $thisType,

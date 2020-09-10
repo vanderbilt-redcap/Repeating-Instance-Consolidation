@@ -27,9 +27,13 @@
 		</thead>
 		<tbody>
 		{% for row,rowDetails in outputData %}
-			<tr z-index="10" class="tableRow{{ rowDetails["start-hidden"] ? " hidden" : "" }}">
+			<tr z-index="10" class="tableRow{{ rowDetails["start-hidden"] ? " start-hidden hidden" : "" }} matched_{{ rowDetails["matched-value"] }}">
 			{% if rowDetails["reconciled"] %}
-				<td class="firstcol"><b>{{ rowDetails["form"] }} Instance {{ rowDetails["instance"] }}: {{ rowDetails["matched-string"] }}</b></td>
+				{% if rowDetails["start-hidden"] %}
+					<td class="firstcol" style="padding-left:20px"><b>-{{ rowDetails["form"] }} Instance {{ rowDetails["instance"] }}: {{ rowDetails["matched-string"] }}</b></td>
+				{% else %}
+					<td class="firstcol"><b>{{ rowDetails["form"] }} Instance {{ rowDetails["instance"] }}: {{ rowDetails["matched-string"] }}</b> <button onclick="toggleHiddenRows('matched_{{ rowDetails["matched-value"] }}',$(this));return false;">+</button></td>
+				{% endif %}
 			{% else %}
 				<td class="firstcol"><a href="">{{ rowDetails["form"] }} Instance {{ rowDetails["instance"] }}: {{ rowDetails["matched-string"] }}</a></td>
 			{% endif %}
@@ -124,6 +128,18 @@
 				}
 			}
 		});
+	}
+
+	function toggleHiddenRows(matchedClass,button) {
+		var rowsToToggle = $("."+ matchedClass + ".start-hidden");
+		if(rowsToToggle.hasClass("hidden")) {
+			rowsToToggle.removeClass("hidden");
+			button.html("-");
+		}
+		else {
+			rowsToToggle.addClass("hidden");
+			button.html("+");
+		}
 	}
 </script>
 {% endblock %}

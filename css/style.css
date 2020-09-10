@@ -28,7 +28,7 @@ td.head div.thead {
     width:35px;
 }
 td.firstcol {
-    width:400px;
+    min-width:400px;
 }
 
 td.head div.dataTables_sizing div.thead {
