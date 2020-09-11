@@ -271,12 +271,15 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
 		}
 
 		if(count($newRecordData) > 0) {
-		echo "<pre>";var_dump($newRecordData);echo "</pre>";echo "<br />";
+//		echo "<pre>";var_dump($newRecordData);echo "</pre>";echo "<br />";
 			$results = \REDCap::saveData($projectId,"array",[$recordId => ["repeat_instances" => [$eventId => $newRecordData]]]);
 
 			if(count($results["errors"]) > 0) {
 				echo "<pre>";var_dump($results);echo "</pre>";echo "<br />";
 			}
+
+			## Remove record caches so that the new table is up to date after these changes
+			unset(self::$recordData[$projectId][$recordId]);
 		}
 	}
 
@@ -330,7 +333,7 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
 		return ($maxInstance + 1);
 	}
 
-	## Look through the input data tha matches the matchingValue and find all the checkboxes
+	## Look through the input data that matches the matchingValue and find all the checkboxes
 	## that are checked on any input form (or only those that match
 	public function findMatchedInputData($projectId,$recordId,$matchingValue,$confirmedOnly = false) {
 		$matchedData = [];
