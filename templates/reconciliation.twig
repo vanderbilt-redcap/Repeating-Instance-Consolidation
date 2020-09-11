@@ -52,7 +52,7 @@
 				<td></td>
 			{% else %}
 				<td class="firstcol">
-					<a href="">
+					<a target="_blank" href="{{ constant("APP_PATH_WEBROOT") }}DataEntry/index.php?pid={{ rowDetails["pid"] }}&page={{ rowDetails["form_full"] }}&id={{ rowDetails["record"] }}&event_id={{ rowDetails["event"] }}&instance={{ rowDetails["instance"] }}">
 						{{ rowDetails["form"] }} Instance {{ rowDetails["instance"] }}: {{ rowDetails["matched-string"] }}
 					</a>
 				</td>
@@ -92,6 +92,7 @@
 	</table>
 	<div style="margin-left:10px;margin-top:5px">
 		<input type='submit' value='Save Reconciliation' />
+		<button style="margin-left:20px" onclick="window.location='{{ reportUrl }}';return false;">Return to Report</button>
 	</div>
 </form>
 

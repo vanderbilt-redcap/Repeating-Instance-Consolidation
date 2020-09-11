@@ -12,6 +12,7 @@ $module->saveReconciliationData();
 
 $recordId = $_GET['id'];
 $projectId = $_GET['pid'];
+$eventId = $module->getFirstEventId($projectId);
 
 $tableData = $module->getComparisonData($projectId,$recordId);
 
@@ -83,14 +84,17 @@ foreach($matchedKeys as $matchingValue) {
 		}
 
 		foreach($matchedDataDetails as $formName => $formDetails) {
-			$formName = str_replace("_"," ",$formName);
+			$cleanFormName = str_replace("_"," ",$formName);
 
 			foreach($formDetails as $instanceId => $instanceDetails) {
 				$outputRow = [
 					"type" => $thisType,
-					"form" => $formName,
+					"form" => $cleanFormName,
+					"form_full" => $formName,
 					"instance" => $instanceId,
 					"record" => $recordId,
+					"pid" => $projectId,
+					"event" => $eventId,
 					"reconciled" => $wasReconciled,
 					"start-hidden" => ($wasReconciled && $thisType == $module::$inputType),
 					"matched-string" => $matchingString,
@@ -132,6 +136,8 @@ foreach($combinedData[$module::$outputType] as $formName => $formDetails) {
 	}
 }
 
+$reportUrl = $module->getUrl("report.php");
+
 $twigLoader = new Twig_Loader_Filesystem(__DIR__."/templates");
 $twig = new Twig_Environment($twigLoader);
 
@@ -139,7 +145,8 @@ $renderVars = [
 	"fieldList" => $outputHeaders,
 	"fieldDetails" => $outputHeadersCheckboxes,
 	"outputData" => $outputDetails,
-	"unacceptableList" => $unacceptableList
+	"unacceptableList" => $unacceptableList,
+	"reportUrl" => $reportUrl
 ];
 
 $html = $twig->render("reconciliation.twig",$renderVars);

@@ -63,17 +63,17 @@ foreach($records as $thisRecord) {
 
 echo "<h3>Records with questionable antibodies</h3>";
 foreach($questionableRecords as $thisRecord) {
-	echo "<a href='".$module->getUrl("reconciliation.php?id=".$thisRecord)."'>Record ".$thisRecord."<br />";
+	echo "<a href='".$module->getUrl("reconciliation.php?id=".$thisRecord)."'>Record ".$thisRecord."</a><br />";
 }
 
 echo "<br /><br />";
 echo "<h3>Records with conflicts</h3>";
 foreach($needsReconciliationRecords as $thisRecord) {
-	echo "<a href='".$module->getUrl("reconciliation.php?id=".$thisRecord)."'>Record ".$thisRecord."<br />";
+	echo "<a href='".$module->getUrl("reconciliation.php?id=".$thisRecord)."'>Record ".$thisRecord."</a><br />";
 }
 
 echo "<br /><br />";
 echo "<h3>Records with un-reviewed tests</h3>";
 foreach($unreconciledRecords as $thisRecord) {
-	echo "<a href='".$module->getUrl("reconciliation.php?id=".$thisRecord)."'>Record ".$thisRecord."<br />";
+	echo "<a href='".$module->getUrl("reconciliation.php?id=".$thisRecord)."'>Record ".$thisRecord."</a><br />";
 }
