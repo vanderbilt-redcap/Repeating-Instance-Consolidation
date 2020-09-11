@@ -13,14 +13,24 @@
 					Form/Instance<br /><br />
 					<div style="font-weight:normal">* <b>bold</b> indicates already reconciled data</div>
 				</th>
+				<th></th>
 			{% for col,fieldName in fieldList %}
-			    <th class="hdrnum m{{ col }} hdrback" colspan="{{ fieldDetails[col]|length }}">{{ fieldName }}</th>
+			    <th class="hdrnum m{{ col }} hdrback" colspan="{{ fieldDetails[col]|length }}">
+			        {{ fieldName }}
+			    </th>
 			{% endfor %}
             </tr>
             <tr class="initrow">
+	            <td class="head ca">
+		            <div class="thead"></div>
+		            <div class="ca_val">Accept_Test</div>
+	            </td>
                 {% for col,fieldName in fieldList %}
                     {% for checkLabel in fieldDetails[col] %}
-                        <td class="head ca ca_{{ col }}"><div class="thead"></div><div class="ca_val">{{ checkLabel }}</div></td>
+                        <td class="head ca ca_{{ col }}">
+                            <div class="thead"></div>
+                            <div class="ca_val">{{ checkLabel }}</div>
+                        </td>
                     {% endfor %}
                 {% endfor %}
             </tr>
@@ -30,12 +40,28 @@
 			<tr z-index="10" class="tableRow{{ rowDetails["start-hidden"] ? " start-hidden hidden" : "" }} matched_{{ rowDetails["matched-value"] }}">
 			{% if rowDetails["reconciled"] %}
 				{% if rowDetails["start-hidden"] %}
-					<td class="firstcol" style="padding-left:20px"><b>-{{ rowDetails["form"] }} Instance {{ rowDetails["instance"] }}: {{ rowDetails["matched-string"] }}</b></td>
+					<td class="firstcol" style="padding-left:20px">
+						<b>-{{ rowDetails["form"] }} Instance {{ rowDetails["instance"] }}: {{ rowDetails["matched-string"] }}</b>
+					</td>
 				{% else %}
-					<td class="firstcol"><b>{{ rowDetails["form"] }} Instance {{ rowDetails["instance"] }}: {{ rowDetails["matched-string"] }}</b> <button onclick="toggleHiddenRows('matched_{{ rowDetails["matched-value"] }}',$(this));return false;">+</button></td>
+					<td class="firstcol">
+						<b>{{ rowDetails["form"] }} Instance {{ rowDetails["instance"] }}: {{ rowDetails["matched-string"] }}</b>
+						<button onclick="toggleHiddenRows('matched_{{ rowDetails["matched-value"] }}',$(this));return false;">+</button>
+					</td>
 				{% endif %}
+				<td></td>
 			{% else %}
-				<td class="firstcol"><a href="">{{ rowDetails["form"] }} Instance {{ rowDetails["instance"] }}: {{ rowDetails["matched-string"] }}</a></td>
+				<td class="firstcol">
+					<a href="">
+						{{ rowDetails["form"] }} Instance {{ rowDetails["instance"] }}: {{ rowDetails["matched-string"] }}
+					</a>
+				</td>
+				<td>
+					<input type="checkbox" onclick="acceptAction(this,'{{ rowDetails["matched-value"] }}');"
+						class="accept_{{ rowDetails["matched-value"] }}"
+						name="accept_{{ rowDetails["matched-value"] }}"
+						value="{{ rowDetails["matched-value"] }}"/>
+				</td>
 			{% endif %}
 				{% for fieldKey,fieldData in rowDetails["data"] %}
 					{% for rawValue,rawData in fieldData %}
@@ -71,7 +97,11 @@
 
 <script type="text/javascript">
 	$(document).ready(function() {
-		$(".bgred").parent().addClass("bgred");
+		var unmatchedRows = $(".bgred").parent();
+
+		unmatchedRows.addClass("bgred");
+		unmatchedRows.find("input[type='checkbox']").hide();
+
 		$(".bggreen").parent().addClass("bggreen");
 
 		$(".hdrnum").each(function( index, element ){
@@ -140,6 +170,13 @@
 			rowsToToggle.addClass("hidden");
 			button.html("+");
 		}
+	}
+
+	function acceptAction(checkedBox, matchedValue) {
+		var checkedValue = $(checkedBox).prop("checked");
+		$(".accept_" + matchedValue).each(function() {
+			$(this).prop("checked",checkedValue);
+		});
 	}
 </script>
 {% endblock %}

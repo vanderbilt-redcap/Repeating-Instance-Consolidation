@@ -199,7 +199,35 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
 
 		## $_POST data from reconciliation form is passed in matchValue|rawValue => [postedValues] form
 		foreach($_POST as $postField => $postValue) {
-			if(strpos($postField,"|") !== false) {
+			if(substr($postField,0,7) == "accept_") {
+				## Create reconciled instances for accepted matching tests
+				$matchingValue = $postValue;
+
+				$matchedInstances = $this->findMatchingInstances($projectId,$recordId,$matchingValue,self::$reconciledType);
+
+				foreach($dataMapping[self::$reconciledType] as $formName => $formDetails) {
+					## Only take action if this reconciled instance doesn't exist yet
+					if(!array_key_exists($formName,$matchedInstances)) {
+						if(!array_key_exists($formName,$newInstance)) {
+							$newInstance[$formName] = $this->findNextInstance($projectId,$recordId,$formName);
+						}
+
+						$matchingValues = explode("~",$matchingValue);
+
+						## Add the matched instance data
+						$newRecordData[$formName][$newInstance[$formName]] = $this->findMatchedInputData($projectId,$recordId,$matchingValue,true);
+
+						## Add the matching data fields too
+						foreach($formDetails[self::$matchedFields] as $fieldKey => $thisField) {
+							$newRecordData[$formName][$newInstance[$formName]][$thisField] = $matchingValues[$fieldKey];
+						}
+
+						## Increment the new instance for the next matching value
+						$newInstance[$formName]++;
+					}
+				}
+			}
+			else if(strpos($postField,"|") !== false) {
 				$nonBlankValue = false;
 				foreach($postValue as $thisValue) {
 					if($thisValue !== "") {
