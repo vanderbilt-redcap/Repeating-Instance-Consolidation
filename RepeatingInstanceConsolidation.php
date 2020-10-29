@@ -306,6 +306,8 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
 				echo "<pre>";var_dump($results);echo "</pre>";echo "<br />";
 			}
 
+			$this->updateUnacceptableAntigenList($projectId,$recordId);
+
 			## Remove record caches so that the new table is up to date after these changes
 			unset(self::$recordData[$projectId][$recordId]);
 		}
@@ -425,6 +427,10 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
 	}
 
 	public function redcap_save_record( $project_id, $record, $instrument, $event_id, $group_id, $survey_hash = NULL, $response_id = NULL, $repeat_instance = 1 ) {
+		$this->updateUnacceptableAntigenList($project_id,$record,$instrument,$event_id,$repeat_instance);
+	}
+
+	public function updateUnacceptableAntigenList($project_id,$record,$instrument = false,$event_id = false,$repeat_instance = false) {
 		$formsToCheck = $this->getProjectSetting("input-forms",$project_id);
 		$formTypes = $this->getProjectSetting("input-types",$project_id);
 		$fieldList = $this->getProjectSetting("input-fields",$project_id);
@@ -443,22 +449,30 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
 			}
 		}
 		$recordIdFieldName = $this->framework->getRecordIdField();
+
 		$fields = $this->framework->getFieldNames($instrument);
 		$instanceData = \REDCap::getData($this->getProjectId(), 'json', [$record], array_merge([$recordIdFieldName],$fields));
 //		error_log("TIN: ".var_export($recordData,true));
-		foreach($instanceData as $instanceDetails) {
-			if($instanceDetails["redcap_repeat_instance"] == $repeat_instance) {
-				## Code to only check changes from this instace
+
+		if($instrument) {
+			foreach($instanceData as $instanceDetails) {
+				if($instanceDetails["redcap_repeat_instance"] == $repeat_instance) {
+					## Code to only check changes from this instance
+				}
 			}
 		}
+		else if(!$event_id) {
+			$event_id = $this->getFirstEventId($project_id);
+		}
+
 		## Only run the comparison save hook if on an input form
-		if($thisType != self::$inputType) {
+		if($thisType != self::$inputType && $instrument) {
 			return;
 		}
 
 		$combinedData = $this->getComparisonData($project_id,$record);
 		$newData = [];
-
+//		echo "<br /><pre>";var_dump($combinedData);echo "</pre><br />";
 		## Comparison data function already incorporates confirmed tests
 		foreach($combinedData["confirmed"] as $rawValue => $checked) {
 			## Don't worry about "None" or "Pending" as they get set/unset later
