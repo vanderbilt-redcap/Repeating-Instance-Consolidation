@@ -567,6 +567,14 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
 	}
 
 	public function redcap_module_link_check_display( $project_id, $link ) {
+		$restrictedUsers = $this->getProjectSetting("users-to-access");
+
+		if(count($restrictedUsers) > 0 && reset($restrictedUsers) != "") {
+			if(!in_array(USERID,$restrictedUsers)) {
+				return false;
+			}
+		}
+
 		if($link['name'] == "Reconcile Data") {
 			if(!empty($_GET['id'])) {
 				$link['url'] = $link['url']."&id=".$_GET['id'];

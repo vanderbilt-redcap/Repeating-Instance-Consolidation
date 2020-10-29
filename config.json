@@ -49,6 +49,12 @@
 
 	"project-settings": [
 		{
+			"key": "users-to-access",
+			"name": "Users to Access Report",
+			"type": "user-list",
+			"repeatable": true
+		},
+		{
 			"key": "input-json",
 			"name": "JSON version of settings",
 			"type": "textarea",

@@ -11,7 +11,7 @@
 require_once \ExternalModules\ExternalModules::getProjectHeaderPath();
 
 $startTime = microtime(true);
-$recordData = REDCap::getData(["project_id" => $module->getProjectId(),"fields" => [REDCap::getRecordIdField(),"rec_name","rec_dob"]]);
+$recordData = REDCap::getData(["project_id" => $module->getProjectId(),"fields" => [REDCap::getRecordIdField(),"rec_name","rec_dob","rec_id"]]);
 
 $records = array_keys($recordData);
 
@@ -26,7 +26,7 @@ $recordDisplay = [];
 ## TODO What to do with records that have only one entry for a given test date?
 
 foreach($records as $thisRecord) {
-	$recordDisplay[$thisRecord] = $thisRecord.": ".reset($recordData[$thisRecord])["rec_name"]." - ".
+	$recordDisplay[$thisRecord] = reset($recordData[$thisRecord])["rec_id"].": ".reset($recordData[$thisRecord])["rec_name"]." - ".
 			reset($recordData[$thisRecord])["rec_dob"];
 
 	$comparisonData = $module->getComparisonData($module->getProjectId(),$thisRecord);
