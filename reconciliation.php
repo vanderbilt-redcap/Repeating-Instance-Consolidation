@@ -21,6 +21,10 @@ $comparisonData = $tableData["comparison"];
 $antibodiesPresent = $tableData["antibodies"];
 $fieldList = $tableData["fields"];
 
+$displayData = reset(reset($module->getData($projectId,$recordId)));
+
+$displayString = $displayData["rec_id"].": ".$displayData["rec_name"]." - ".$displayData["rec_dob"];
+
 $metadata = $module->getMetadata($projectId);
 $outputLabelList = [];
 
@@ -146,7 +150,8 @@ $renderVars = [
 	"fieldDetails" => $outputHeadersCheckboxes,
 	"outputData" => $outputDetails,
 	"unacceptableList" => $unacceptableList,
-	"reportUrl" => $reportUrl
+	"reportUrl" => $reportUrl,
+	"displayName" => $displayString
 ];
 
 $html = $twig->render("reconciliation.twig",$renderVars);
