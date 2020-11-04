@@ -35,9 +35,9 @@
                     {% endfor %}
                 {% endfor %}
             </tr>
-			<tr>
+			<tr class="toprow">
 				<td class="firstcol">Unacceptable List</td>
-				<td></td>
+				<td class="first"></td>
 				{% for fieldKey,fieldData in unacceptableList %}
 					{% for rawValue,isChecked in fieldData %}
 						<td class="ca">
@@ -70,7 +70,7 @@
 						{{ rowDetails["form"] }} Instance {{ rowDetails["instance"] }}: {{ rowDetails["matched-string"] }}
 					</a>
 				</td>
-				<td>
+				<td class="first">
 					<input type="checkbox" onclick="acceptAction(this,'{{ rowDetails["matched-value"] }}');"
 						class="accept_{{ rowDetails["matched-value"] }}"
 						name="accept_{{ rowDetails["matched-value"] }}"
