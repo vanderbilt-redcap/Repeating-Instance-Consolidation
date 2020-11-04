@@ -35,6 +35,19 @@
                     {% endfor %}
                 {% endfor %}
             </tr>
+			<tr>
+				<td class="firstcol">Unacceptable List</td>
+				<td></td>
+				{% for fieldKey,fieldData in unacceptableList %}
+					{% for rawValue,isChecked in fieldData %}
+						<td class="ca">
+							<div class="{{ isChecked == 1 ? "x" : "o" }}">
+								<input type="hidden" name="unacceptable-{{ rawValue }}" />
+							</div>
+						</td>
+					{% endfor %}
+				{% endfor %}
+			</tr>
 		</thead>
 		<tbody>
 		{% for row,rowDetails in outputData %}
@@ -77,19 +90,6 @@
 		{% endfor %}
 		</tbody>
 		<tfoot>
-			<tr>
-				<td class="firstcol">Unacceptable List</td>
-				<td></td>
-				{% for fieldKey,fieldData in unacceptableList %}
-					{% for rawValue,isChecked in fieldData %}
-						<td class="ca">
-							<div class="{{ isChecked == 1 ? "x" : "o" }}">
-								<input type="hidden" name="unacceptable-{{ rawValue }}" />
-							</div>
-						</td>
-					{% endfor %}
-				{% endfor %}
-			</tr>
 		</tfoot>
 	</table>
 	<div style="margin-left:10px;margin-top:5px">
