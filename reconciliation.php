@@ -43,9 +43,10 @@ foreach($labelList as $fieldName => $fieldMapping) {
 	$outputLabelList[$fieldName] = [];
 
 	foreach($fieldMapping as $rawValue => $label) {
-		if($antibodiesPresent[$rawValue]) {
+		## Leaving if statement present to allow filtering again in future if needed
+//		if($antibodiesPresent[$rawValue]) {
 			$outputLabelList[$fieldName][$rawValue] = $label;
-		}
+//		}
 	}
 	if($metadata[$fieldName]["field_type"] == "checkbox") {
 		$outputHeaders[] = $metadata[$fieldName]["field_label"];

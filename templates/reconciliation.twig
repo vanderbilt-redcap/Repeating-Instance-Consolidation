@@ -9,26 +9,26 @@
 	<table class='table-bordered wdgmctable'>
 		<thead>
 			<tr>
-				<th rowspan='2'>
+				<th rowspan='2' class="bordercol">
 					<h3>{{ displayName }}</h3>
 					Form/Instance<br /><br />
 					<div style="font-weight:normal">* <b>bold</b> indicates already reconciled data</div>
 				</th>
-				<th></th>
+				<th class="bordercol"></th>
 			{% for col,fieldName in fieldList %}
-			    <th class="hdrnum m{{ col }} hdrback" colspan="{{ fieldDetails[col]|length }}">
+			    <th class="bordercol hdrnum m{{ col }} hdrback" colspan="{{ fieldDetails[col]|length }}">
 			        {{ fieldName }}
 			    </th>
 			{% endfor %}
             </tr>
             <tr class="initrow">
-	            <td class="head ca">
+	            <td class="head bordercol ca">
 		            <div class="thead"></div>
 		            <div class="ca_val">Accept_Test</div>
 	            </td>
                 {% for col,fieldName in fieldList %}
                     {% for checkLabel in fieldDetails[col] %}
-                        <td class="head ca ca_{{ col }}">
+                        <td class="head bordercol ca ca_{{ col }}">
                             <div class="thead"></div>
                             <div class="ca_val">{{ checkLabel }}</div>
                         </td>
@@ -36,11 +36,11 @@
                 {% endfor %}
             </tr>
 			<tr class="toprow">
-				<td class="firstcol">Unacceptable List</td>
-				<td class="first"></td>
+				<td class="firstcol bordercol">Unacceptable List</td>
+				<td class="bordercol"></td>
 				{% for fieldKey,fieldData in unacceptableList %}
 					{% for rawValue,isChecked in fieldData %}
-						<td class="ca">
+						<td class="bordercol ca">
 							<div class="{{ isChecked == 1 ? "x" : "o" }}">
 								<input type="hidden" name="unacceptable-{{ rawValue }}" />
 							</div>
@@ -54,23 +54,23 @@
 			<tr z-index="10" class="tableRow{{ rowDetails["start-hidden"] ? " start-hidden hidden" : "" }} matched_{{ rowDetails["matched-value"] }}">
 			{% if rowDetails["reconciled"] %}
 				{% if rowDetails["start-hidden"] %}
-					<td class="firstcol" style="padding-left:20px">
+					<td class="firstcol bordercol" style="padding-left:20px">
 						<b>-{{ rowDetails["form"] }} Instance {{ rowDetails["instance"] }}: {{ rowDetails["matched-string"] }}</b>
 					</td>
 				{% else %}
-					<td class="firstcol">
+					<td class="firstcol bordercol">
 						<b>{{ rowDetails["form"] }} Instance {{ rowDetails["instance"] }}: {{ rowDetails["matched-string"] }}</b>
 						<button onclick="toggleHiddenRows('matched_{{ rowDetails["matched-value"] }}',$(this));return false;">+</button>
 					</td>
 				{% endif %}
-				<td></td>
+				<td class="bordercol"></td>
 			{% else %}
-				<td class="firstcol">
+				<td class="firstcol bordercol">
 					<a target="_blank" href="{{ constant("APP_PATH_WEBROOT") }}DataEntry/index.php?pid={{ rowDetails["pid"] }}&page={{ rowDetails["form_full"] }}&id={{ rowDetails["record"] }}&event_id={{ rowDetails["event"] }}&instance={{ rowDetails["instance"] }}">
 						{{ rowDetails["form"] }} Instance {{ rowDetails["instance"] }}: {{ rowDetails["matched-string"] }}
 					</a>
 				</td>
-				<td class="first">
+				<td class="bordercol">
 					<input type="checkbox" onclick="acceptAction(this,'{{ rowDetails["matched-value"] }}');"
 						class="accept_{{ rowDetails["matched-value"] }}"
 						name="accept_{{ rowDetails["matched-value"] }}"
@@ -79,8 +79,8 @@
 			{% endif %}
 				{% for fieldKey,fieldData in rowDetails["data"] %}
 					{% for rawValue,rawData in fieldData %}
-						<td class="ca ca_{{ rawValue }}{{ rawData["issue"] ? " bgred" : "" }}{{ rawData["unmatched"] ? " bggreen" : "" }}">
-							<div class="{{ rawData["value"] ? "x" : "o" }} match_{{ rowDetails["matched-value"] }}" {{ rawData["issue"] ? ("onclick=\"toggleAntigen($(this),'.match_" ~ rowDetails["matched-value"] ~ "','.ca_" ~ rawValue ~ "');\"")|raw : "" }}>
+						<td class="bordercol ca ca_{{ rawValue }}{{ rawData["issue"] ? " bgred" : "" }}{{ rawData["unmatched"] ? " bggreen" : "" }}">
+							<div class="{{ rawData["value"] ? "x" : "o" }} match_{{ rowDetails["matched-value"] }}" onclick="toggleAntigen($(this),'.match_{{ rowDetails["matched-value"] }}','.ca_{{ rawValue }}','{{ rawData["issue"] }}');">
 								<input type="hidden" name="{{ rowDetails["matched-value"] }}|{{ rawValue }}[]" />
 							</div>
 						</td>
@@ -92,7 +92,7 @@
 		<tfoot>
 		</tfoot>
 	</table>
-	<div style="margin-left:10px;margin-top:5px">
+	<div style="margin-left:10px;margin-top:35px">
 		<input type='submit' value='Save Reconciliation' />
 		<button style="margin-left:20px" onclick="window.location='{{ reportUrl }}';return false;">Return to Report</button>
 	</div>
@@ -138,16 +138,19 @@
 		$('.dataTables_scrollBody thead tr').css({visibility:'collapse'});
 	});
 
-	function toggleAntigen(clickedCell,matchingClass,columnClass) {
-		var curClass = false;
+	function toggleAntigen(clickedCell,matchingClass,columnClass,hasIssue) {
+		let curClass = false;
+		let curChange = false;
 		if(clickedCell.hasClass("x")) {
 			curClass = true;
 		}
-		console.log("Has curClass" + curClass);
+		if(clickedCell.parent().hasClass("changed") && hasIssue == "") {
+			curChange = true;
+		}
 
 		$(columnClass).each(function() {
-			var matchedCell = $(this).find(matchingClass);
-			console.log(matchedCell);
+			let matchedCell = $(this).find(matchingClass);
+
 			if(matchedCell.length > 0) {
 				if(curClass) {
 					matchedCell.removeClass("x");
@@ -158,6 +161,13 @@
 					matchedCell.removeClass("o");
 					matchedCell.addClass("x");
 					matchedCell.find("input").val("1");
+				}
+
+				if(curChange) {
+					matchedCell.parent().removeClass("changed");
+				}
+				else {
+					matchedCell.parent().addClass("changed");
 				}
 			}
 		});
