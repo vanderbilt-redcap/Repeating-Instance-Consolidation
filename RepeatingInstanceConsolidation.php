@@ -63,7 +63,7 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
 		return $mismatchedValues;
 	}
 
-	public function getComparisonData($projectId, $recordId) {
+	public function getComparisonData($projectId, $recordId, $matchingValues = false) {
 		$dataMapping = $this->getDataMapping($projectId);
 
 		$recordData = $this->getData($projectId,$recordId);
@@ -123,8 +123,9 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
 									if($checked == 1) {
 										$antibodiesPresent[$rawValue] = true;
 
-										## If test is reconciled, any antibodies count as confirmed
-										if($dataType == self::$reconciledType) {
+										## If test is reconciled, and matching value is included in the list
+										## any antibodies count as confirmed
+										if($dataType == self::$reconciledType && (!$matchingValues || in_array($matchingValue,$matchingValues))) {
 											$antibodiesConfirmed[$rawValue] = true;
 										}
 									}
@@ -170,7 +171,8 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
 			foreach($comparisonData as $matchingValue => $dateDetails) {
 				foreach($dateDetails as $fieldKey => $fieldDetails) {
 					## Check that no conflicts for this test and that at least 2 entries show the antibody
-					if(count($fieldDetails[$rawValue]) == 1 && $fieldDetails[$rawValue][1] >= 2) {
+					if(count($fieldDetails[$rawValue]) == 1 && $fieldDetails[$rawValue][1] >= 2
+							&& (!$matchingValues || in_array($matchingValue,$matchingValues))) {
 						$antibodiesConfirmed[$rawValue] = true;
 						continue 3;
 					}
@@ -195,6 +197,7 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
 		$recordData = $recordData[$recordId]["repeat_instances"][$eventId];
 		$newRecordData = [];
 		$matchedValues = [];
+		$updatedTests = [];
 		$newInstance = [];
 
 		## $_POST data from reconciliation form is passed in matchValue|rawValue => [postedValues] form
@@ -202,6 +205,8 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
 			if(substr($postField,0,7) == "accept_") {
 				## Create reconciled instances for accepted matching tests
 				$matchingValue = $postValue;
+
+				$updatedTests[$matchingValue] = 1;
 
 				$matchedInstances = $this->findMatchingInstances($projectId,$recordId,$matchingValue,self::$reconciledType);
 
@@ -240,6 +245,8 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
 				if($nonBlankValue === false) continue;
 
 				list($matchingValue,$rawValue) = explode("|",$postField);
+
+				$updatedTests[$matchingValue] = 1;
 
 				## Don't do anything with "0" => None and "P" => Pending values
 				if($rawValue == "0" || $rawValue == "P") continue;
@@ -297,7 +304,8 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
 				}
 			}
 		}
-
+		## TODO Need to track which tests had updates saved to pass into unacceptable update list
+		## TODO This isn't working right now
 		if(count($newRecordData) > 0) {
 //		echo "<pre>";var_dump($newRecordData);echo "</pre>";echo "<br />";
 			$results = \REDCap::saveData($projectId,"array",[$recordId => ["repeat_instances" => [$eventId => $newRecordData]]]);
@@ -306,7 +314,7 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
 				echo "<pre>";var_dump($results);echo "</pre>";echo "<br />";
 			}
 
-			$this->updateUnacceptableAntigenList($projectId,$recordId);
+			$this->updateUnacceptableAntigenList($projectId,$recordId,array_keys($updatedTests));
 
 			## Remove record caches so that the new table is up to date after these changes
 			unset(self::$recordData[$projectId][$recordId]);
@@ -425,54 +433,79 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
 
 		return $combinedJson;
 	}
+	
+	public function getMatchingValue($project_id, $record, $instrument, $repeatInstance) {
+		$formsToCheck = $this->getProjectSetting("input-forms",$project_id);
+		$fieldList = $this->getProjectSetting("input-matching-fields",$project_id);
+		
+		$outputFields = [];
+		foreach($formsToCheck as $thisKey => $thisForm) {
+			if($thisForm == $instrument) {
+				$outputFields = $fieldList[$thisKey];
+			}
+		}
 
-	public function redcap_save_record( $project_id, $record, $instrument, $event_id, $group_id, $survey_hash = NULL, $response_id = NULL, $repeat_instance = 1 ) {
-		$this->updateUnacceptableAntigenList($project_id,$record,$instrument,$event_id,$repeat_instance);
+		if(count($outputFields) == 0) {
+			return false;
+		}
+		
+		$recordData = \REDCap::getData([
+			"project_id" => $project_id,
+			"records" => $record,
+			"fields" => $outputFields,
+			"return_format" => "json"
+		]);
+
+		$recordData = json_decode($recordData);
+
+		if($repeatInstance == "") {
+			$repeatInstance = 1;
+		}
+
+		$matchingValues = [];
+		$instance = 1;
+		foreach($recordData as $instanceData) {
+			if($instance == $repeatInstance) {
+				foreach($outputFields as $thisField) {
+					$matchingValues[] = $instanceData[$thisField];
+				}
+			}
+			$instance++;
+		}
+
+		return implode("~",$matchingValues);
 	}
 
-	public function updateUnacceptableAntigenList($project_id,$record,$instrument = false,$event_id = false,$repeat_instance = false) {
+	public function redcap_save_record( $project_id, $record, $instrument, $event_id, $group_id, $survey_hash = NULL, $response_id = NULL, $repeat_instance = 1 ) {
+		$matchingValue = $this->getMatchingValue($project_id,$record,$instrument,$repeat_instance);
+
+		if($matchingValue) {
+			$this->updateUnacceptableAntigenList($project_id,$record,[$matchingValue]);
+		}
+	}
+
+	public function updateUnacceptableAntigenList($project_id,$record,$matchingValues) {
+		## Don't run hook without specific matching values to check
+		if(!$matchingValues) {
+			return;
+		}
+
 		$formsToCheck = $this->getProjectSetting("input-forms",$project_id);
 		$formTypes = $this->getProjectSetting("input-types",$project_id);
 		$fieldList = $this->getProjectSetting("input-fields",$project_id);
 
 
 		## TODO - Only add antigens from current instance
-		$thisType = false;
 		$outputFields = [];
 		foreach($formsToCheck as $thisKey => $thisForm) {
-			if($thisForm == $instrument) {
-				$thisType = $formTypes[$thisKey];
-			}
-
 			if($formTypes[$thisKey] == self::$outputType) {
 				$outputFields = $fieldList[$thisKey];
 			}
 		}
-		$recordIdFieldName = $this->framework->getRecordIdField();
 
-		$fields = $this->framework->getFieldNames($instrument);
-		$instanceData = \REDCap::getData($this->getProjectId(), 'json', [$record], array_merge([$recordIdFieldName],$fields));
-//		error_log("TIN: ".var_export($recordData,true));
-
-		if($instrument) {
-			foreach($instanceData as $instanceDetails) {
-				if($instanceDetails["redcap_repeat_instance"] == $repeat_instance) {
-					## Code to only check changes from this instance
-				}
-			}
-		}
-		else if(!$event_id) {
-			$event_id = $this->getFirstEventId($project_id);
-		}
-
-		## Only run the comparison save hook if on an input form
-		if($thisType != self::$inputType && $instrument) {
-			return;
-		}
-
-		$combinedData = $this->getComparisonData($project_id,$record);
+		$combinedData = $this->getComparisonData($project_id,$record,$matchingValues);
 		$newData = [];
-//		echo "<br /><pre>";var_dump($combinedData);echo "</pre><br />";
+
 		## Comparison data function already incorporates confirmed tests
 		foreach($combinedData["confirmed"] as $rawValue => $checked) {
 			## Don't worry about "None" or "Pending" as they get set/unset later
