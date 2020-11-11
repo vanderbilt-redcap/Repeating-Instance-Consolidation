@@ -161,8 +161,6 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
 			}
 		}
 
-		## TODO What to do with records with only one data entry for a given test date?
-
 		## Parse the comparison data to find new confirmed antibodies
 		foreach($antibodiesPresent as $rawValue => $alwaysTrue) {
 			## Previously confirmed
@@ -304,8 +302,7 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
 				}
 			}
 		}
-		## TODO Need to track which tests had updates saved to pass into unacceptable update list
-		## TODO This isn't working right now
+
 		if(count($newRecordData) > 0) {
 //		echo "<pre>";var_dump($newRecordData);echo "</pre>";echo "<br />";
 			$results = \REDCap::saveData($projectId,"array",[$recordId => ["repeat_instances" => [$eventId => $newRecordData]]]);
@@ -496,8 +493,6 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
 		$formTypes = $this->getProjectSetting("input-types",$project_id);
 		$fieldList = $this->getProjectSetting("input-fields",$project_id);
 
-
-		## TODO - Only add antigens from current instance
 		$outputFields = [];
 		foreach($formsToCheck as $thisKey => $thisForm) {
 			if($formTypes[$thisKey] == self::$outputType) {
