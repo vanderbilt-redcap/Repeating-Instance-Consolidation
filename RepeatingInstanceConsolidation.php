@@ -313,6 +313,8 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
 			if(count($results["errors"]) > 0) {
 				echo "<pre>";var_dump($results);echo "</pre>";echo "<br />";
 			}
+			## Unset cached data so unacceptable list updates correctly
+			unset(self::$recordData[$projectId][$recordId]);
 
 			$this->updateUnacceptableAntigenList($projectId,$recordId,array_keys($updatedTests));
 
@@ -456,7 +458,7 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
 			"return_format" => "json"
 		]);
 
-		$recordData = json_decode($recordData);
+		$recordData = json_decode($recordData,true);
 
 		if($repeatInstance == "") {
 			$repeatInstance = 1;
