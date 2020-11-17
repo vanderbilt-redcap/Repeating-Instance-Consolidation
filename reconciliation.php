@@ -142,7 +142,7 @@ foreach($combinedData[$module::$outputType] as $formName => $formDetails) {
 }
 
 $reportUrl = $module->getUrl("report.php");
-
+$logUrl = APP_PATH_WEBROOT_FULL . APP_PATH_WEBROOT . 'Logging/index.php?pid='.$projectId.'&record='.$recordId;
 $twigLoader = new Twig_Loader_Filesystem(__DIR__."/templates");
 $twig = new Twig_Environment($twigLoader);
 
@@ -152,7 +152,8 @@ $renderVars = [
 	"outputData" => $outputDetails,
 	"unacceptableList" => $unacceptableList,
 	"reportUrl" => $reportUrl,
-	"displayName" => $displayString
+	"displayName" => $displayString,
+	"logUrl" => $logUrl
 ];
 
 $html = $twig->render("reconciliation.twig",$renderVars);
