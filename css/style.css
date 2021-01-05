@@ -54,9 +54,9 @@ tr.toprow .bordercol, tr.initrow .bordercol, tr.tableRow .bordercol, thead tr th
 }
 .initrow td.ca:nth-child(even) div.thead {background: #0000000a;}
 .initrow td.ca:nth-child(odd) div.thead {background: unset;}
-tr.toprow td{background:#f3f3f3;}
+tr.toprow {background:#eeeeee;}
 
-tbody td.ca.changed {background: #0000ff1c;}
+td.ca.changed {background: #0000ff1c;}
 /* Alternate coloring on columns */
 /*tr.toprow td:nth-child(odd){background:#dddddd;}*/
 /*tr.toprow td:nth-child(even){background:#eeeeee;}*/

@@ -229,8 +229,9 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
 		$dataMapping = self::getDataMapping($projectId);
 		$eventId = $this->getFirstEventId($projectId);
 		$recordData = $this->getData($projectId,$recordId);
-		$recordData = $recordData[$recordId]["repeat_instances"][$eventId];
-		$newRecordData = [];
+		$recordDataRepeating = $recordData[$recordId]["repeat_instances"][$eventId];
+		$newRepeatingData = [];
+		$newData = [];
 		$matchedValues = [];
 		$updatedTests = [];
 		$newInstance = [];
@@ -255,11 +256,11 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
 						$matchingValues = explode("~",$matchingValue);
 
 						## Add the matched instance data
-						$newRecordData[$formName][$newInstance[$formName]] = $this->findMatchedInputData($projectId,$recordId,$matchingValue,true);
+						$newRepeatingData[$formName][$newInstance[$formName]] = $this->findMatchedInputData($projectId,$recordId,$matchingValue,true);
 
 						## Add the matching data fields too
 						foreach($formDetails[self::$matchedFields] as $fieldKey => $thisField) {
-							$newRecordData[$formName][$newInstance[$formName]][$thisField] = $matchingValues[$fieldKey];
+							$newRepeatingData[$formName][$newInstance[$formName]][$thisField] = $matchingValues[$fieldKey];
 						}
 
 						## Increment the new instance for the next matching value
@@ -300,7 +301,7 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
 							$matchedValues[$matchingValue][$formName] = $matchedInstances[$formName];
 
 							foreach($matchedInstances as $thisInstance) {
-								$newRecordData[$formName][$thisInstance] = $recordData[$formName][$thisInstance];
+								$newRepeatingData[$formName][$thisInstance] = $recordDataRepeating[$formName][$thisInstance];
 							}
 						}
 						## If instances don't exist, find a new instance and copy the matching data, while ignoring the unconfirmed data
@@ -311,11 +312,11 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
 							$matchedValues[$matchingValue][$formName] = [$newInstance[$formName]];
 
 							## Add the matched instance data
-							$newRecordData[$formName][$matchedValues[$matchingValue][$formName][0]] = $this->findMatchedInputData($projectId,$recordId,$matchingValue,true);
+							$newRepeatingData[$formName][$matchedValues[$matchingValue][$formName][0]] = $this->findMatchedInputData($projectId,$recordId,$matchingValue,true);
 
 							## Add the matching data fields too
 							foreach($formDetails[self::$matchedFields] as $fieldKey => $thisField) {
-								$newRecordData[$formName][$matchedValues[$matchingValue][$formName][0]][$thisField] = $matchingValues[$fieldKey];
+								$newRepeatingData[$formName][$matchedValues[$matchingValue][$formName][0]][$thisField] = $matchingValues[$fieldKey];
 							}
 
 							## Increment the new instance for the next matching value
@@ -332,7 +333,24 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
 
 						if(array_key_exists($rawValue,$enum)) {
 							foreach($matchedValues[$matchingValue][$formName] as $thisInstance) {
-								$newRecordData[$formName][$thisInstance][$thisField][$rawValue] = $postValue;
+								$newRepeatingData[$formName][$thisInstance][$thisField][$rawValue] = $postValue;
+							}
+						}
+					}
+				}
+			}
+			else if(substr($postField,0,13) == "unacceptable-") {
+				list($matchingValue,$rawValue) = explode("-",$postField);
+				$formsToCheck = $this->getProjectSetting("input-forms",$projectId);
+				$formTypes = $this->getProjectSetting("input-types",$projectId);
+				$fieldList = $this->getProjectSetting("input-fields",$projectId);
+
+				foreach($formsToCheck as $thisKey => $thisForm) {
+					if($formTypes[$thisKey] == self::$outputType) {
+						foreach ($fieldList[$thisKey] as $field) {
+							$options = $this->getChoiceLabels($field,$projectId);
+							if (array_key_exists($rawValue, $options)) {
+								$newData[$field][$rawValue] = $postValue;
 							}
 						}
 					}
@@ -340,9 +358,8 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
 			}
 		}
 
-		if(count($newRecordData) > 0) {
-//		echo "<pre>";var_dump($newRecordData);echo "</pre>";echo "<br />";
-			$results = \REDCap::saveData($projectId,"array",[$recordId => ["repeat_instances" => [$eventId => $newRecordData]]]);
+		if(count($newRepeatingData) > 0) {
+			$results = \REDCap::saveData($projectId,"array", [$recordId => ["repeat_instances" => [$eventId => $newRepeatingData]]]);
 
 			if(count($results["errors"]) > 0) {
 				echo "<pre>";var_dump($results);echo "</pre>";echo "<br />";
@@ -353,6 +370,16 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
 			$this->updateUnacceptableAntigenList($projectId,$recordId,$eventId,array_keys($updatedTests));
 
 			## Remove record caches so that the new table is up to date after these changes
+			unset(self::$recordData[$projectId][$recordId]);
+		}
+		//update the non repeating data after updating antigens
+		if(count($newData) > 0) {
+			$results = \REDCap::saveData($projectId,"array", [$recordId => [$eventId => $newData]]);
+
+			if(count($results["errors"]) > 0) {
+				echo "<pre>";var_dump($results);echo "</pre>";echo "<br />";
+			}
+			## Unset cached data so unacceptable list updates correctly
 			unset(self::$recordData[$projectId][$recordId]);
 		}
 	}
