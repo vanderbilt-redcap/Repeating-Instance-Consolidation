@@ -80,8 +80,8 @@
 			{% endif %}
 				{% for fieldKey,fieldData in rowDetails["data"] %}
 					{% for rawValue,rawData in fieldData %}
-						<td class="bordercol ca ca_{{ rawValue }}{{ rawValue == 0 ? fieldKey : "" }}{{ rawData["issue"] ? " bgred" : "" }}{{ rawData["unmatched"] ? " bggreen" : "" }}">
-							<div class="{{ rawData["value"] ? "x" : "o" }} match_{{ rowDetails["matched-value"] }}" onclick="toggleAntigen($(this),'.match_{{ rowDetails["matched-value"] }}','.ca_{{ rawValue }}{{ rawValue == 0 ? fieldKey : "" }}','{{ rawData["issue"] }}');">
+						<td class="bordercol ca ca_{{ rawValue }}{{ fieldKey }}{{ rawData["issue"] ? " bgred" : "" }}{{ rawData["unmatched"] ? " bggreen" : "" }}">
+							<div class="{{ rawData["value"] ? "x" : "o" }} match_{{ rowDetails["matched-value"] }}" onclick="toggleAntigen($(this),'.match_{{ rowDetails["matched-value"] }}','.ca_{{ rawValue }}{{ fieldKey }}','{{ rawData["issue"] }}');">
 								<input type="hidden" name="{{ rowDetails["matched-value"] }}|{{ rawValue }}[]" />
 							</div>
 						</td>
