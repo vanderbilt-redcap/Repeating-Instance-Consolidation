@@ -66,7 +66,8 @@ $matchedKeys = array_merge(array_keys($combinedData[$module::$inputType]),(array
 $matchedKeys = array_unique($matchedKeys);
 sort($matchedKeys);
 $outputDetails = [];
-
+$crossMatches = [];
+$existingCrossMatches = [];
 ## Pull data for
 foreach($matchedKeys as $matchingValue) {
 	$matchedData = explode("~",$matchingValue);
@@ -87,6 +88,9 @@ foreach($matchedKeys as $matchingValue) {
 		if($thisType == $module::$inputType) {
 			$mismatchedValues = $module->getMismatchedValues($matchedDataDetails);
 		}
+		if ($wasReconciled && !in_array($matchingValue, $existingCrossMatches)) {
+            $existingCrossMatches[] = $matchingValue;
+        }
 
 		foreach($matchedDataDetails as $formName => $formDetails) {
 			$cleanFormName = str_replace("_"," ",$formName);
@@ -106,7 +110,21 @@ foreach($matchedKeys as $matchingValue) {
 					"matched-value" => $matchingValue,
 					"data" => []
 				];
-
+                $preMatch = !in_array($matchingValue, $crossMatches) && $thisType == $module::$inputType && !in_array($matchingValue, $existingCrossMatches);
+                
+                if($preMatch) {
+                    $crossMatch = [
+                        "type" => 'pre-match',
+                        "form" => 'cross matching',
+                        "record" => $recordId,
+                        "pid" => $projectId,
+                        "event" => $eventId,
+                        "reconciled" => $wasReconciled,
+                        "matched-string" => $matchingString,
+                        "matched-value" => $matchingValue,
+                        "data" => []
+                    ];
+                }
 				$fieldKey = 0;
 				foreach($outputLabelList as $fieldName => $fieldDetails) {
 					foreach($fieldDetails as $rawValue => $label) {
@@ -115,10 +133,23 @@ foreach($matchedKeys as $matchingValue) {
 							"value" => $instanceDetails[$fieldKey][$rawValue],
 							"unmatched" => array_sum($comparisonData[$matchingValue][$fieldKey][$rawValue]) <= 1
 						];
+						
+						if ($preMatch) {
+                            $crossMatch['data'][$fieldKey][$rawValue] = [
+                                "issue" => ($mismatchedValues && $mismatchedValues[$fieldKey][$rawValue]),
+                                "value"     => ($mismatchedValues && $mismatchedValues[$fieldKey][$rawValue]) ? "0" : $instanceDetails[$fieldKey][$rawValue],
+                                "unmatched" => array_sum($comparisonData[$matchingValue][$fieldKey][$rawValue]) <= 1
+                            ];
+                        }
+						
 					}
 					$fieldKey++;
 				}
-
+    
+				if ($preMatch) {
+                    $outputDetails[] = $crossMatch;
+                    $crossMatches[] = $matchingValue;
+                }
 				$outputDetails[] = $outputRow;
 			}
 		}

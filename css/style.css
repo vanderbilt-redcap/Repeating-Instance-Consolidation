@@ -65,12 +65,13 @@ td.ca.changed {background: #0000ff1c;}
 table *{font-family: proxima-nova, sans-serif;}
 
 .x{height: 19px;width: 19px;background-color: #083fbb;margin: auto;    margin-top: 2px; margin-bottom: 2px;}
+/*.x-sub{height: 19px;width: 19px;background-color: #083fbb;margin: auto;    margin-top: 2px; margin-bottom: 2px;}*/
 .o{height: 19px;width: 19px;margin: auto;    margin-top: 2px; margin-bottom: 2px;}
 .table-bordered td, .table-bordered th {border: unset !important;}
 td.bgred{background-color: #ff00008c !important;}
 td.bgred.changed{background-color: #0000cc8c !important;}
-.bgred .x{ background-color: #000000 !important;}
-.bgred .x:hover{cursor:hand;}
+.bgred .x, .bgred .x-sub{ background-color: #000000 !important;}
+.bgred .x:hover, .bgred .x-sub:hover{cursor:hand;}
 .bgred .o:hover{cursor:hand;}
 thead{    border-bottom: 1px solid #00000073;}
 thead th{    font-weight: 700;}
