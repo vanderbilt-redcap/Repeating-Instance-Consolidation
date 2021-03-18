@@ -86,13 +86,13 @@
 			{% for fieldKey,fieldData in rowDetails["data"] %}
 				{% for rawValue,rawData in fieldData %}
 					{% if rowDetails['type'] == 'pre-match' or (rowDetails["reconciled"] and not rowDetails["start-hidden"]) %}
-					<td class="bordercol ca ca_{{ rawValue }}{{ rawData["issue"] ? " bgred" : "" }}{{ rawData["unmatched"] ? " bggreen" : "" }}">
+					<td class="bordercol ca ca_{{ rawValue }}{{ fieldKey }}{{ rawData["issue"] ? " bgred" : "" }}{{ rawData["unmatched"] ? " bggreen" : "" }}">
 						<div class="{{ rawData["value"] ? "x" : "o" }} match_{{ rowDetails["matched-value"] }}" onclick="toggleAntigen($(this),'.match_{{ rowDetails["matched-value"] }}','.ca_{{ rawValue }}','{{ rawData["issue"] }}');">
 							<input type="hidden" name="{{ rowDetails["matched-value"] }}|{{ rawValue }}[]" />
 						</div>
 					</td>
 					{% else %}
-					<td class="bordercol ca ca_{{ rawValue }}{{ rawData["issue"] ? " bgred" : "" }}{{ rawData["unmatched"] ? " bggreen" : "" }}">
+					<td class="bordercol ca ca_{{ rawValue }}{{ fieldKey }}{{ rawData["issue"] ? " bgred" : "" }}{{ rawData["unmatched"] ? " bggreen" : "" }}">
 						<div class="{{ rawData["value"] ? "x" : "o" }} match_{{ rowDetails["matched-value"] }}" style="cursor:default;">
 						</div>
 					</td>

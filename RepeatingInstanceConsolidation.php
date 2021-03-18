@@ -99,6 +99,11 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
 
 						foreach($formDetails[self::$dataFields] as $fieldKey => $fieldName) {
 							foreach($instanceDetails[$fieldName] as $rawValue => $checked) {
+								## Skip comparing "0" (None) as it's set automatically
+								if($rawValue == "0") {
+									continue;
+								}
+
 								## Add data to the combined array for display later
 								$combinedData[$dataType][$matchingValue][$formName][$instanceId][$fieldKey][$rawValue] = $checked;
 
@@ -134,6 +139,38 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
 								## Track tests that have been reconciled
 								if($dataType == self::$reconciledType) {
 									$reconciledTests[$matchingValue] = 1;
+								}
+							}
+
+							## Add None to comparison data manually
+							$foundChecked = false;
+							foreach($combinedData[$dataType][$matchingValue][$formName][$instanceId][$fieldKey] as $rawValue => $checkedValue) {
+								if($checkedValue == 1) {
+									$foundChecked = true;
+									break;
+								}
+							}
+
+							if(!array_key_exists(0,$comparisonData[$matchingValue][$fieldKey])) {
+								$comparisonData[$matchingValue][$fieldKey][0] = [];
+							}
+
+							if(!$foundChecked) {
+								$combinedData[$dataType][$matchingValue][$formName][$instanceId][$fieldKey][0] = 1;
+								if(!array_key_exists(1,$comparisonData[$matchingValue][$fieldKey][0])) {
+									$comparisonData[$matchingValue][$fieldKey][0][1] = ($dataType == self::$reconciledType ? 2 : 1);
+								}
+								else {
+									$comparisonData[$matchingValue][$fieldKey][0][1]++;
+								}
+							}
+							else {
+								$combinedData[$dataType][$matchingValue][$formName][$instanceId][$fieldKey][0] = 0;
+								if(!array_key_exists(0,$comparisonData[$matchingValue][$fieldKey][0])) {
+									$comparisonData[$matchingValue][$fieldKey][0][0] = ($dataType == self::$reconciledType ? 2 : 1);
+								}
+								else {
+									$comparisonData[$matchingValue][$fieldKey][0][0]++;
 								}
 							}
 						}
@@ -330,7 +367,7 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
 			## Unset cached data so unacceptable list updates correctly
 			unset(self::$recordData[$projectId][$recordId]);
 
-			$this->updateUnacceptableAntigenList($projectId,$recordId,array_keys($updatedTests));
+			$this->updateUnacceptableAntigenList($projectId,$recordId,$eventId,array_keys($updatedTests));
 
 			## Remove record caches so that the new table is up to date after these changes
 			unset(self::$recordData[$projectId][$recordId]);
@@ -506,11 +543,11 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
 		$matchingValue = $this->getMatchingValue($project_id,$record,$instrument,$repeat_instance);
 
 		if($matchingValue) {
-			$this->updateUnacceptableAntigenList($project_id,$record,[$matchingValue]);
+			$this->updateUnacceptableAntigenList($project_id,$record,$event_id,[$matchingValue]);
 		}
 	}
 
-	public function updateUnacceptableAntigenList($project_id,$record,$matchingValues) {
+	public function updateUnacceptableAntigenList($project_id,$record,$event_id,$matchingValues) {
 		## Don't run hook without specific matching values to check
 		if(!$matchingValues) {
 			return;
