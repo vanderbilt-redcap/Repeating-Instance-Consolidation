@@ -181,21 +181,29 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
 
 		## Add non-instanced data to $combinedData
 		foreach($recordData[$recordId] as $eventId => $eventDetails) {
-			foreach($dataMapping[self::$outputType] as $formName => $formDetails) {
-				foreach($formDetails[self::$dataFields] as $fieldKey => $fieldName) {
-
-					## Also mark raw values from the output form to be displayed
-					foreach($eventDetails[$fieldName] as $rawValue => $checked) {
-						## Add the non-repeating data from the output to the combined data to be displayed
-						$combinedData[self::$outputType][$formName][$fieldKey][$rawValue] = $checked;
-
-						if($checked == 1) {
-							$antibodiesPresent[$rawValue] = true;
-							$antibodiesConfirmed[$rawValue] = true;
-						}
-					}
-				}
-			}
+		    if ($eventId != 'repeat_instances') {
+                foreach ($dataMapping[self::$outputType] as $formName => $formDetails) {
+                    foreach ($formDetails[self::$dataFields] as $fieldKey => $fieldName) {
+                        $foundChecked = false;
+                        ## Also mark raw values from the output form to be displayed
+                        foreach ($eventDetails[$fieldName] as $rawValue => $checked) {
+                            if ($rawValue == "0") {
+                                continue;
+                            }
+                            ## Add the non-repeating data from the output to the combined data to be displayed
+                            $combinedData[self::$outputType][$formName][$fieldKey][$rawValue] = $checked;
+                        
+                            if ($checked == 1) {
+                                $foundChecked                   = true;
+                                $antibodiesPresent[$rawValue]   = true;
+                                $antibodiesConfirmed[$rawValue] = true;
+                            }
+                        }
+                        ## Add None to comparison data manually
+                        $combinedData[self::$outputType][$formName][$fieldKey]["0"] = $foundChecked ? 0 : 1;
+                    }
+                }
+            }
 		}
 
 		## Parse the comparison data to find new confirmed antibodies
@@ -344,7 +352,8 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
 				$formsToCheck = $this->getProjectSetting("input-forms",$projectId);
 				$formTypes = $this->getProjectSetting("input-types",$projectId);
 				$fieldList = $this->getProjectSetting("input-fields",$projectId);
-
+                ## Don't do anything with "0" => None and "P" => Pending values
+                if($rawValue == "0" || $rawValue == "P") continue;
 				foreach($formsToCheck as $thisKey => $thisForm) {
 					if($formTypes[$thisKey] == self::$outputType) {
 						foreach ($fieldList[$thisKey] as $field) {
