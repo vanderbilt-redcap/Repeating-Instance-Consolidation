@@ -92,12 +92,14 @@
 				{% endfor %}
 			{% endfor %}
 			{% if rowDetails['type'] == 'pre-match' or rowDetails["type"] == "unreconciled" %}
-				<td class="bordercol">
+				<td class="bordercol bordertop">
 					<input type="checkbox" onclick="acceptAction($(this));"
 						   class="accept_{{ rowDetails["matched-value"] }}"
 						   name="accept_{{ rowDetails["matched-value"] }}"
 						   value="{{ rowDetails["matched-value"] }}"/>
 				</td>
+			{% elseif rowDetails["reconciled"] and not rowDetails["start-hidden"]  %}
+				<td class="bordercol bordertop"></td>
 			{% else %}
 				<td class="bordercol"></td>
 			{% endif %}
