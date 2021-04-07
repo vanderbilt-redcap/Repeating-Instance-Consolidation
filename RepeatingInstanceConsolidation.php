@@ -4,6 +4,7 @@ namespace Vanderbilt\RepeatingInstanceConsolidation;
 class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalModule {
 	public static $inputType = "input";
 	public static $reconciledType = "reconciled";
+    public static $unreconciledType = "unreconciled";
 	public static $outputType = "output";
 	public static $matchedFields = "matching";
 	public static $dataFields = "fields";
@@ -96,16 +97,25 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
 							$matchingValue[] = str_replace("~","",$instanceDetails[$fieldName]);
 						}
 						$matchingValue = implode("~",$matchingValue);
-
+						$acceptedReconciliation = $dataType == self::$reconciledType && $instanceDetails['cross_matching_complete'] == 2;
+                        $unAcceptedReconciliation = $dataType == self::$reconciledType && $instanceDetails['cross_matching_complete'] != 2;
 						foreach($formDetails[self::$dataFields] as $fieldKey => $fieldName) {
 							foreach($instanceDetails[$fieldName] as $rawValue => $checked) {
 								## Skip comparing "0" (None) as it's set automatically
 								if($rawValue == "0") {
 									continue;
 								}
-
-								## Add data to the combined array for display later
-								$combinedData[$dataType][$matchingValue][$formName][$instanceId][$fieldKey][$rawValue] = $checked;
+                                ## Add data to the combined array for display later if it was accepted as done
+                                
+								if ($acceptedReconciliation) {
+                                    $combinedData[$dataType][$matchingValue][$formName][$instanceId][$fieldKey][$rawValue] = $checked;
+                                    unset($combinedData[self::$unreconciledType][$matchingValue][$formName][$instanceId][$fieldKey][$rawValue]);
+                                } else if ($unAcceptedReconciliation) {
+                                    $combinedData[self::$unreconciledType][$matchingValue][$formName][$instanceId][$fieldKey][$rawValue] = $checked;
+                                    unset($combinedData[$dataType][$matchingValue][$formName][$instanceId][$fieldKey][$rawValue]);
+                                } else {
+                                    $combinedData[$dataType][$matchingValue][$formName][$instanceId][$fieldKey][$rawValue] = $checked;
+                                }
 
 								## For raw input data, only add to comparison data if no reconciled data exists
 								## All reconciled data should be added however
@@ -137,7 +147,7 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
 								}
 
 								## Track tests that have been reconciled
-								if($dataType == self::$reconciledType) {
+								if($dataType == self::$reconciledType && $acceptedReconciliation) {
 									$reconciledTests[$matchingValue] = 1;
 								}
 							}
@@ -156,7 +166,9 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
 							}
 
 							if(!$foundChecked) {
-								$combinedData[$dataType][$matchingValue][$formName][$instanceId][$fieldKey][0] = 1;
+							    if (!empty($combinedData[$dataType][$matchingValue][$formName][$instanceId][$fieldKey])) {
+                                    $combinedData[$dataType][$matchingValue][$formName][$instanceId][$fieldKey][0] = 1;
+                                }
 								if(!array_key_exists(1,$comparisonData[$matchingValue][$fieldKey][0])) {
 									$comparisonData[$matchingValue][$fieldKey][0][1] = ($dataType == self::$reconciledType ? 2 : 1);
 								}
@@ -165,7 +177,9 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
 								}
 							}
 							else {
-								$combinedData[$dataType][$matchingValue][$formName][$instanceId][$fieldKey][0] = 0;
+                                if (!empty($combinedData[$dataType][$matchingValue][$formName][$instanceId][$fieldKey])) {
+                                    $combinedData[$dataType][$matchingValue][$formName][$instanceId][$fieldKey][0] = 0;
+                                }
 								if(!array_key_exists(0,$comparisonData[$matchingValue][$fieldKey][0])) {
 									$comparisonData[$matchingValue][$fieldKey][0][0] = ($dataType == self::$reconciledType ? 2 : 1);
 								}
@@ -243,7 +257,7 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
 		$matchedValues = [];
 		$updatedTests = [];
 		$newInstance = [];
-
+		
 		## $_POST data from reconciliation form is passed in matchValue|rawValue => [postedValues] form
 		foreach($_POST as $postField => $postValue) {
 			if(substr($postField,0,7) == "accept_") {
@@ -253,14 +267,12 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
 				$updatedTests[$matchingValue] = 1;
 
 				$matchedInstances = $this->findMatchingInstances($projectId,$recordId,$matchingValue,self::$reconciledType);
-
 				foreach($dataMapping[self::$reconciledType] as $formName => $formDetails) {
-					## Only take action if this reconciled instance doesn't exist yet
+					## Only add all data if this reconciled instance doesn't exist yet
 					if(!array_key_exists($formName,$matchedInstances)) {
 						if(!array_key_exists($formName,$newInstance)) {
 							$newInstance[$formName] = $this->findNextInstance($projectId,$recordId,$formName);
 						}
-
 						$matchingValues = explode("~",$matchingValue);
 
 						## Add the matched instance data
@@ -270,10 +282,15 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
 						foreach($formDetails[self::$matchedFields] as $fieldKey => $thisField) {
 							$newRepeatingData[$formName][$newInstance[$formName]][$thisField] = $matchingValues[$fieldKey];
 						}
+                        $newRepeatingData[$formName][$newInstance[$formName]]['cross_matching_complete'] = 2;
 
 						## Increment the new instance for the next matching value
 						$newInstance[$formName]++;
-					}
+					} else { ##Otherwise just set cross_matching_complete to 2
+                        $matchedInstances = $this->findMatchingInstances($projectId,$recordId,$matchingValue,self::$reconciledType);
+                        $thisInstance = $matchedInstances[$formName][0];
+                        $newRepeatingData[$formName][$thisInstance]['cross_matching_complete'] = 2;
+                    }
 				}
 			}
 			else if(strpos($postField,"|") !== false) {

@@ -80,18 +80,22 @@ foreach($matchedKeys as $matchingValue) {
 	}
 
 	$wasReconciled = array_key_exists($matchingValue,$combinedData[$module::$reconciledType]);
-
-	foreach([$module::$reconciledType,$module::$inputType] as $thisType) {
+    $notReconciled = array_key_exists($matchingValue,$combinedData[$module::$unreconciledType]);
+    if ($wasReconciled || $notReconciled && !in_array($matchingValue, $existingCrossMatches)) {
+        $existingCrossMatches[] = $matchingValue;
+    }
+    $inputMatchedDataDetails = $combinedData[$module::$inputType][$matchingValue];
+    
+    
+    
+	foreach([$module::$unreconciledType, $module::$reconciledType,$module::$inputType] as $thisType) {
 		$matchedDataDetails = $combinedData[$thisType][$matchingValue];
-
-		$mismatchedValues = false;
-		if($thisType == $module::$inputType) {
-			$mismatchedValues = $module->getMismatchedValues($matchedDataDetails);
-		}
-		if ($wasReconciled && !in_array($matchingValue, $existingCrossMatches)) {
-            $existingCrossMatches[] = $matchingValue;
+		
+        $mismatchedValues = false;
+		if ($thisType != $module::$reconciledType) {
+            $mismatchedValues = $module->getMismatchedValues($inputMatchedDataDetails);
         }
-
+		
 		foreach($matchedDataDetails as $formName => $formDetails) {
 			$cleanFormName = str_replace("_"," ",$formName);
 
@@ -104,14 +108,14 @@ foreach($matchedKeys as $matchingValue) {
 					"record" => $recordId,
 					"pid" => $projectId,
 					"event" => $eventId,
-					"reconciled" => $wasReconciled,
+					"reconciled" => $wasReconciled && !$notReconciled,
 					"start-hidden" => ($wasReconciled && $thisType == $module::$inputType),
 					"matched-string" => $matchingString,
 					"matched-value" => $matchingValue,
 					"data" => []
 				];
+				
                 $preMatch = !in_array($matchingValue, $crossMatches) && $thisType == $module::$inputType && !in_array($matchingValue, $existingCrossMatches);
-                
                 if($preMatch) {
                     $crossMatch = [
                         "type" => 'pre-match',
@@ -119,7 +123,6 @@ foreach($matchedKeys as $matchingValue) {
                         "record" => $recordId,
                         "pid" => $projectId,
                         "event" => $eventId,
-                        "reconciled" => $wasReconciled,
                         "matched-string" => $matchingString,
                         "matched-value" => $matchingValue,
                         "data" => []
@@ -155,7 +158,6 @@ foreach($matchedKeys as $matchingValue) {
 		}
 	}
 }
-
 $unacceptableList = [];
 
 ## Pull unacceptable antigen list

@@ -23,10 +23,6 @@
 			{% endfor %}
             </tr>
             <tr class="initrow">
-	            <td class="head bordercol ca">
-		            <div class="thead"></div>
-		            <div class="ca_val">Accept_Test</div>
-	            </td>
                 {% for col,fieldName in fieldList %}
                     {% for checkLabel in fieldDetails[col] %}
                         <td class="head bordercol ca ca_{{ col }}">
@@ -35,10 +31,13 @@
                         </td>
                     {% endfor %}
                 {% endfor %}
+				<td class="head bordercol ca leftBorder">
+					<div class="thead"></div>
+					<div class="ca_val">Accept Test</div>
+				</td>
             </tr>
 			<tr class="toprow">
 				<td class="firstcol bordercol">Unacceptable List</td>
-				<td class="bordercol"></td>
 				{% for fieldKey,fieldData in unacceptableList %}
 					{% for rawValue,isChecked in fieldData %}
 						<td class="bordercol ca">
@@ -48,6 +47,7 @@
 						</td>
 					{% endfor %}
 				{% endfor %}
+				<td class="bordercol"></td>
 			</tr>
 		</thead>
 		<tbody>
@@ -59,21 +59,14 @@
 						<b>-{{ rowDetails["form"] }} Instance {{ rowDetails["instance"] }}: {{ rowDetails["matched-string"] }}</b>
 					</td>
 				{% else %}
-					<td class="firstcol bordercol">
+					<td class="firstcol bordercol bordertop">
 						<b>{{ rowDetails["form"] }} Instance {{ rowDetails["instance"] }}: {{ rowDetails["matched-string"] }}</b>
 						<button onclick="toggleHiddenRows('matched_{{ rowDetails["matched-value"] }}',$(this));return false;">+</button>
 					</td>
 				{% endif %}
-				<td class="bordercol"></td>
-			{% elseif rowDetails["type"] == "pre-match" %}
-				<td class="firstcol bordercol">
-					<b>{{ rowDetails["form"] }} NOT SAVED: {{ rowDetails["matched-string"] }}</b>
-				</td>
-				<td class="bordercol">
-					<input type="checkbox" onclick="acceptAction($(this),'{{ rowDetails["matched-value"] }}');"
-						   class="accept_{{ rowDetails["matched-value"] }}"
-						   name="accept_{{ rowDetails["matched-value"] }}"
-						   value="{{ rowDetails["matched-value"] }}"/>
+			{% elseif rowDetails["type"] == "pre-match" or rowDetails["type"] == "unreconciled" %}
+				<td class="firstcol bordercol bordertop">
+					<b>{{ rowDetails["form"] }} UNRECONCILED : {{ rowDetails["matched-string"] }}</b>
 				</td>
 			{% else %}
 				<td class="firstcol bordercol">
@@ -81,12 +74,11 @@
 						{{ rowDetails["form"] }} Instance {{ rowDetails["instance"] }}: {{ rowDetails["matched-string"] }}
 					</a>
 				</td>
-				<td class="bordercol"></td>
 			{% endif %}
 			{% for fieldKey,fieldData in rowDetails["data"] %}
 				{% for rawValue,rawData in fieldData %}
-					{% if rowDetails['type'] == 'pre-match' or (rowDetails["reconciled"] and not rowDetails["start-hidden"]) %}
-					<td class="bordercol ca ca_{{ rawValue }}{{ fieldKey }}{{ rawData["issue"] ? " bgred" : "" }}{{ rawData["unmatched"] ? " bggreen" : "" }}">
+					{% if rowDetails['type'] == 'pre-match' or rowDetails["type"] == "unreconciled" or (rowDetails["reconciled"] and not rowDetails["start-hidden"]) %}
+					<td class="bordercol bordertop ca ca_{{ rawValue }}{{ fieldKey }}{{ rawData["issue"] ? " bgred" : "" }}{{ rawData["unmatched"] ? " bggreen" : "" }}">
 						<div class="{{ rawData["value"] ? "x" : "o" }} match_{{ rowDetails["matched-value"] }}" onclick="toggleAntigen($(this),'.match_{{ rowDetails["matched-value"] }}','.ca_{{ rawValue }}','{{ rawData["issue"] }}');">
 							<input type="hidden" name="{{ rowDetails["matched-value"] }}|{{ rawValue }}[]" />
 						</div>
@@ -99,6 +91,16 @@
 					{% endif %}
 				{% endfor %}
 			{% endfor %}
+			{% if rowDetails['type'] == 'pre-match' or rowDetails["type"] == "unreconciled" %}
+				<td class="bordercol">
+					<input type="checkbox" onclick="acceptAction($(this));"
+						   class="accept_{{ rowDetails["matched-value"] }}"
+						   name="accept_{{ rowDetails["matched-value"] }}"
+						   value="{{ rowDetails["matched-value"] }}"/>
+				</td>
+			{% else %}
+				<td class="bordercol"></td>
+			{% endif %}
 			</tr>
 		{% endfor %}
 		</tbody>
@@ -116,7 +118,7 @@
 		var unmatchedRows = $(".bgred").parent();
 
 		unmatchedRows.addClass("bgred");
-		unmatchedRows.find("input[type='checkbox']").hide();
+		// unmatchedRows.find("input[type='checkbox']").hide();
 
 		$(".bggreen").parent().addClass("bggreen");
 
@@ -235,10 +237,6 @@
 		if(checkedBox.parent().hasClass("changed")) {
 			curChange = true;
 		}
-		var checkedValue = checkedBox.prop("checked");
-		$(".accept_" + matchedValue).each(function() {
-			$(this).prop("checked",checkedValue);
-		});
 		if(curChange) {
 			checkedBox.parent().removeClass("changed");
 		}
