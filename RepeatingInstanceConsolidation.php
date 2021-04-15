@@ -256,7 +256,7 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
 		$newData = [];
 		$matchedValues = [];
 		$updatedTests = [];
-		$newInstance = [];
+		$newInstanceForDate = [];
 		
 		## $_POST data from reconciliation form is passed in matchValue|rawValue => [postedValues] form
 		foreach($_POST as $postField => $postValue) {
@@ -270,22 +270,26 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
 				foreach($dataMapping[self::$reconciledType] as $formName => $formDetails) {
 					## Only add all data if this reconciled instance doesn't exist yet
 					if(!array_key_exists($formName,$matchedInstances)) {
-						if(!array_key_exists($formName,$newInstance)) {
-							$newInstance[$formName] = $this->findNextInstance($projectId,$recordId,$formName);
-						}
+                        if (array_key_exists($matchingValue, $newInstanceForDate)) {
+                            $thisInstance = $newInstanceForDate[$matchingValue];
+                        } else if (empty($newInstanceForDate)){
+                            $thisInstance = $this->findNextInstance($projectId,$recordId,$formName);
+						} else {
+                            $thisInstance = max($newInstanceForDate)+1;
+                        }
 						$matchingValues = explode("~",$matchingValue);
 
 						## Add the matched instance data
-						$newRepeatingData[$formName][$newInstance[$formName]] = $this->findMatchedInputData($projectId,$recordId,$matchingValue,true);
+                        if (empty($newRepeatingData[$formName][$thisInstance])) {
+                            $newRepeatingData[$formName][$thisInstance] = $this->findMatchedInputData($projectId, $recordId, $matchingValue, true);
+                        }
 
 						## Add the matching data fields too
 						foreach($formDetails[self::$matchedFields] as $fieldKey => $thisField) {
-							$newRepeatingData[$formName][$newInstance[$formName]][$thisField] = $matchingValues[$fieldKey];
+							$newRepeatingData[$formName][$thisInstance][$thisField] = $matchingValues[$fieldKey];
 						}
-                        $newRepeatingData[$formName][$newInstance[$formName]]['cross_matching_complete'] = 2;
-
-						## Increment the new instance for the next matching value
-						$newInstance[$formName]++;
+                        $newRepeatingData[$formName][$thisInstance]['cross_matching_complete'] = 2;
+                        $newInstanceForDate[$matchingValue] = $thisInstance;
 					} else { ##Otherwise just set cross_matching_complete to 2
                         $matchedInstances = $this->findMatchingInstances($projectId,$recordId,$matchingValue,self::$reconciledType);
                         $thisInstance = $matchedInstances[$formName][0];
@@ -331,10 +335,15 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
 						}
 						## If instances don't exist, find a new instance and copy the matching data, while ignoring the unconfirmed data
 						else {
-							if(!array_key_exists($formName,$newInstance)) {
-								$newInstance[$formName] = $this->findNextInstance($projectId,$recordId,$formName);
-							}
-							$matchedValues[$matchingValue][$formName] = [$newInstance[$formName]];
+                            if (array_key_exists($matchingValue, $newInstanceForDate)) {
+                                $thisInstance = $newInstanceForDate[$matchingValue];
+                            } else if (empty($newInstanceForDate)){
+                                $thisInstance = $this->findNextInstance($projectId,$recordId,$formName);
+                            } else {
+                                $thisInstance = max($newInstanceForDate)+1;
+                            }
+                            
+							$matchedValues[$matchingValue][$formName] = [$thisInstance];
 
 							## Add the matched instance data
 							$newRepeatingData[$formName][$matchedValues[$matchingValue][$formName][0]] = $this->findMatchedInputData($projectId,$recordId,$matchingValue,true);
@@ -343,9 +352,7 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
 							foreach($formDetails[self::$matchedFields] as $fieldKey => $thisField) {
 								$newRepeatingData[$formName][$matchedValues[$matchingValue][$formName][0]][$thisField] = $matchingValues[$fieldKey];
 							}
-
-							## Increment the new instance for the next matching value
-							$newInstance[$formName]++;
+                            $newInstanceForDate[$matchingValue] = $thisInstance;
 						}
 					}
 				}

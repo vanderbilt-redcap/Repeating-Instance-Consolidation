@@ -70,7 +70,6 @@ foreach($records as $thisRecord) {
 		}
 	}
 
-
 	foreach($comparisonData["combined"]["input"] as $matchingValue => $matchedData) {
 		if(count($matchedData) <= 1 && count(reset($matchedData)) <= 1) {
 			$unmatchedRecords[] = $thisRecord;
