@@ -67,15 +67,41 @@ table *{font-family: proxima-nova, sans-serif;}
 .x{height: 19px;width: 19px;background-color: #083fbb;margin: auto;    margin-top: 2px; margin-bottom: 2px;}
 /*.x-sub{height: 19px;width: 19px;background-color: #083fbb;margin: auto;    margin-top: 2px; margin-bottom: 2px;}*/
 .o{height: 19px;width: 19px;margin: auto;    margin-top: 2px; margin-bottom: 2px;}
+.o, .x {
+    filter: drop-shadow(1px 1px 2px grey);
+}
+.bgred .o,.bgred .x {
+    filter: drop-shadow(1px 1px 2px #606060);
+}
+input {
+    filter: drop-shadow(1px 1px 2px #606060);
+}
 .table-bordered td, .table-bordered th {border: unset}
 .table-bordered td.bordertop {
     border-top: 1px solid #b5b5b5;
 }
+.table-bordered td.borderbot {
+    border-bottom: 1px solid #d0d0d0;
+}
 td.bgred{background-color: #ff00008c !important;}
 td.bgred.changed{background-color: #0000cc8c !important;}
 .bgred .x, .bgred .x-sub{ background-color: #000000 !important;}
-.bgred .x:hover, .bgred .x-sub:hover{cursor:hand;}
-.bgred .o:hover{cursor:hand;}
+/*.bgred .x:hover, .bgred .x-sub:hover{cursor:hand;}*/
+/*.bgred .o:hover{cursor:hand;}*/
+.o:hover, .x:hover{cursor:pointer;}
+.input .o, .input .x{
+    cursor: not-allowed;
+}
+.input{
+    cursor: not-allowed;
+}
+table:not(.DTFC_Cloned) tr.output {
+    /*filter: drop-shadow(1px 1px 0px grey);*/
+}
+table:not(.DTFC_Cloned) tr.input{
+    /*filter: drop-shadow(1px 1px 1px black);*/
+    filter: blur(.5px);
+}
 thead{    border-bottom: 1px solid #00000073;}
 thead th{    font-weight: 700;}
 .table-bordered {border: 0px solid #dee2e6;}
