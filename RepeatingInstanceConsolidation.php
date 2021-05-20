@@ -575,11 +575,12 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
 	}
 
 	public function redcap_save_record( $project_id, $record, $instrument, $event_id, $group_id, $survey_hash = NULL, $response_id = NULL, $repeat_instance = 1 ) {
-		$matchingValue = $this->getMatchingValue($project_id,$record,$instrument,$repeat_instance);
-
-		if($matchingValue) {
-			$this->updateUnacceptableAntigenList($project_id,$record,$event_id,[$matchingValue]);
-		}
+        //This shouldn't happen anymore, but leaving commented out for now
+//		$matchingValue = $this->getMatchingValue($project_id,$record,$instrument,$repeat_instance);
+//
+//		if($matchingValue) {
+//			$this->updateUnacceptableAntigenList($project_id,$record,$event_id,[$matchingValue]);
+//		}
 	}
 
 	public function updateUnacceptableAntigenList($project_id,$record,$event_id,$matchingValues) {
