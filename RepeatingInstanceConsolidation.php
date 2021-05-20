@@ -255,7 +255,7 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
 		$newRepeatingData = [];
 		$newData = [];
 		$matchedValues = [];
-		$updatedTests = [];
+		$acceptedTests = [];
 		$newInstanceForDate = [];
 		
 		## $_POST data from reconciliation form is passed in matchValue|rawValue => [postedValues] form
@@ -264,7 +264,7 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
 				## Create reconciled instances for accepted matching tests
 				$matchingValue = $postValue;
 
-				$updatedTests[$matchingValue] = 1;
+				$acceptedTests[$matchingValue] = 1;
 
 				$matchedInstances = $this->findMatchingInstances($projectId,$recordId,$matchingValue,self::$reconciledType);
 				foreach($dataMapping[self::$reconciledType] as $formName => $formDetails) {
@@ -311,8 +311,6 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
 
 				list($matchingValue,$rawValue) = explode("|",$postField);
 
-				$updatedTests[$matchingValue] = 1;
-
 				## Don't do anything with "0" => None and "P" => Pending values
 				if($rawValue == "0" || $rawValue == "P") continue;
 
@@ -329,8 +327,12 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
 						if(array_key_exists($formName,$matchedInstances)) {
 							$matchedValues[$matchingValue][$formName] = $matchedInstances[$formName];
 
-							foreach($matchedInstances as $thisInstance) {
+							foreach($matchedInstances[$formName] as $thisInstance) {
 								$newRepeatingData[$formName][$thisInstance] = $recordDataRepeating[$formName][$thisInstance];
+								//Add test to accepted list if the instance already exists and is complete (it'll get added in the accept section of this loop if it's newly accepted)
+								if ($newRepeatingData[$formName][$thisInstance]['cross_matching_complete'] == 2) {
+								    $acceptedTests[$matchingValue] = 1;
+                                }
 							}
 						}
 						## If instances don't exist, find a new instance and copy the matching data, while ignoring the unconfirmed data
@@ -400,7 +402,7 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
 			## Unset cached data so unacceptable list updates correctly
 			unset(self::$recordData[$projectId][$recordId]);
 
-			$this->updateUnacceptableAntigenList($projectId,$recordId,$eventId,array_keys($updatedTests));
+			$this->updateUnacceptableAntigenList($projectId,$recordId,$eventId,array_keys($acceptedTests));
 
 			## Remove record caches so that the new table is up to date after these changes
 			unset(self::$recordData[$projectId][$recordId]);
