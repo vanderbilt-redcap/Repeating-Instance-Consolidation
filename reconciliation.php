@@ -140,7 +140,7 @@ foreach($matchedKeys as $matchingValue) {
 						if ($preMatch) {
                             $crossMatch['data'][$fieldKey][$rawValue] = [
                                 "issue" => ($mismatchedValues && $mismatchedValues[$fieldKey][$rawValue]),
-                                "value"     => ($mismatchedValues && $mismatchedValues[$fieldKey][$rawValue]) ? "0" : $instanceDetails[$fieldKey][$rawValue],
+                                "value"     => ($mismatchedValues && $mismatchedValues[$fieldKey][$rawValue]) ? "1" : $instanceDetails[$fieldKey][$rawValue],
                                 "unmatched" => array_sum($comparisonData[$matchingValue][$fieldKey][$rawValue]) <= 1
                             ];
                         }
