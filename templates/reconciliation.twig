@@ -83,9 +83,9 @@
 			{% for fieldKey,fieldData in rowDetails["data"] %}
 				{% for rawValue,rawData in fieldData %}
 					{% if rowDetails['type'] == 'pre-match' or rowDetails["type"] == "unreconciled" or (rowDetails["reconciled"] and not rowDetails["start-hidden"]) %}
-					<td class="bordercol bordertop ca ca_{{ rawValue }}{{ fieldKey }}{{ rawData["issue"] ? " bgred" : "" }}{{ rawData["unmatched"] ? " bggreen" : "" }}">
+					<td class="bordercol bordertop ca ca_{{ rawValue }}{{ fieldKey }}{{ rawData["issue"] ? " bgred" : "" }}{{ (rowDetails['type'] == "pre-match" and rawData["issue"]) ? " changed pre-match" : "" }}{{ rawData["unmatched"] ? " bggreen" : "" }}">
 						<div class="{{ rawData["value"] ? "x" : "o" }} match_{{ rowDetails["matched-value"] }}" onclick="toggleAntigen($(this),'.match_{{ rowDetails["matched-value"] }}','.ca_{{ rawValue }}','{{ rawData["issue"] }}');">
-							<input type="hidden" name="{{ rowDetails["matched-value"] }}|{{ rawValue }}[]" />
+							<input type="hidden" name="{{ rowDetails["matched-value"] }}|{{ rawValue }}[]" value="{{ rawData["issue"] ? 1 : 0 }}"/>
 						</div>
 					</td>
 					{% else %}
@@ -170,30 +170,33 @@
 			curChange = true;
 		}
 
+		if (clickedCell.parent().hasClass("pre-match")) {
+			clickedCell.parent().removeClass("pre-match");
+		}
 		// $(columnClass).each(function() {
 		// 	let matchedCell = $(this).find(matchingClass);
 
-			if(clickedCell.length > 0) {
-				if(curClass) {
-					clickedCell.removeClass("x");
-					clickedCell.addClass("o");
-					clickedCell.find("input").val("0");
-				}
-				else {
-					clickedCell.removeClass("o");
-					clickedCell.addClass("x");
-					clickedCell.find("input").val("1");
-				}
-
-				if(curChange) {
-					clickedCell.parent().removeClass("changed");
-					$(columnClass).find(matchingClass).parent().removeClass("changed");
-				}
-				else {
-					clickedCell.parent().addClass("changed");
-					$(columnClass).find(matchingClass).parent().addClass("changed");
-				}
+		if(clickedCell.length > 0) {
+			if(curClass) {
+				clickedCell.removeClass("x");
+				clickedCell.addClass("o");
+				clickedCell.find("input").val("0");
 			}
+			else {
+				clickedCell.removeClass("o");
+				clickedCell.addClass("x");
+				clickedCell.find("input").val("1");
+			}
+
+			if(curChange) {
+				clickedCell.parent().removeClass("changed");
+				$(columnClass).find(matchingClass).parent().removeClass("changed");
+			}
+			else {
+				clickedCell.parent().addClass("changed");
+				$(columnClass).find(matchingClass).parent().addClass("changed");
+			}
+		}
 		// });
 	}
 

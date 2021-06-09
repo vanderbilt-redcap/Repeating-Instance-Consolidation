@@ -83,9 +83,9 @@ input {
 .table-bordered td.borderbot {
     border-bottom: 1px solid #d0d0d0;
 }
-td.bgred{background-color: #ff00008c !important;}
-td.bgred.changed{background-color: #0000cc8c !important;}
-.bgred .x, .bgred .x-sub{ background-color: #000000 !important;}
+td.bgred{background-color: #ff00008c}
+td.bgred.changed{background-color: #0000cc8c}
+.bgred .x, .bgred .x-sub{ background-color: #000000}
 /*.bgred .x:hover, .bgred .x-sub:hover{cursor:hand;}*/
 /*.bgred .o:hover{cursor:hand;}*/
 .o:hover, .x:hover{cursor:pointer;}
@@ -111,4 +111,8 @@ button {
     border-radius:3px;
     padding: 2px 7px;
     border-color: grey;
+}
+
+td.bgred.changed.pre-match {
+background-color: #ff00008c;
 }
