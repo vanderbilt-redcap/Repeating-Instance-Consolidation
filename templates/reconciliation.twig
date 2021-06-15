@@ -69,9 +69,13 @@
 						<button onclick="toggleHiddenRows('matched_{{ rowDetails["matched-value"] }}',$(this));return false;">+</button>
 					</td>
 				{% endif %}
-			{% elseif rowDetails["type"] == "pre-match" or rowDetails["type"] == "unreconciled" %}
+			{% elseif rowDetails["type"] == "pre-match" %}
 				<td class="firstcol bordercol bordertop">
 					<b>{{ rowDetails["form"] }} UNRECONCILED : {{ rowDetails["matched-string"] }}</b>
+				</td>
+			{% elseif rowDetails["type"] == "unreconciled" %}
+				<td class="firstcol bordercol bordertop">
+					<b>{{ rowDetails["form"] }} UNRECONCILED - MODIFIED: {{ rowDetails["matched-string"] }}</b>
 				</td>
 			{% else %}
 				<td class="firstcol bordercol">
