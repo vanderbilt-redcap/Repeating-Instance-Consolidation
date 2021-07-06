@@ -38,11 +38,11 @@
             </tr>
 			<tr class="toprow">
 				<td class="firstcol bordercol">Unacceptable List</td>
-				{% for fieldKey,fieldData in unacceptableList %}
+				{% for fieldName,fieldData in unacceptableList %}
 					{% for rawValue,isChecked in fieldData %}
 						<td class="bordercol ca">
 							<div class="{{ isChecked == 1 ? "x" : "o" }}" onclick="toggleUnacceptable($(this))">
-								<input type="hidden" name="unacceptable-{{ rawValue }}" />
+								<input type="hidden" name="unacceptable-{{ fieldName }}-{{ rawValue }}" />
 							</div>
 						</td>
 					{% endfor %}
@@ -84,16 +84,16 @@
 					</a>
 				</td>
 			{% endif %}
-			{% for fieldKey,fieldData in rowDetails["data"] %}
+			{% for fieldName,fieldData in rowDetails["data"] %}
 				{% for rawValue,rawData in fieldData %}
 					{% if rowDetails['type'] == 'pre-match' or rowDetails["type"] == "unreconciled" or (rowDetails["reconciled"] and not rowDetails["start-hidden"]) %}
-					<td class="bordercol bordertop ca ca_{{ rawValue }}{{ fieldKey }}{{ rawData["issue"] ? " bgred" : "" }}{{ (rowDetails['type'] == "pre-match" and rawData["issue"]) ? " changed pre-match" : "" }}{{ rawData["unmatched"] ? " bggreen" : "" }}">
-						<div class="{{ rawData["value"] ? "x" : "o" }} match_{{ rowDetails["matched-value"] }}" onclick="toggleAntigen($(this),'.match_{{ rowDetails["matched-value"] }}','.ca_{{ rawValue }}','{{ rawData["issue"] }}');">
-							<input type="hidden" name="{{ rowDetails["matched-value"] }}|{{ rawValue }}[]" value="{{ rawData["issue"] ? 1 : 0 }}"/>
+					<td class="bordercol bordertop ca ca_{{ rawValue }}{{ fieldName }}{{ rawData["issue"] ? " bgred" : "" }}{{ (rowDetails['type'] == "pre-match" and rawData["issue"]) ? " changed pre-match" : "" }}{{ rawData["unmatched"] ? " bggreen" : "" }}">
+						<div class="{{ rawData["value"] ? "x" : "o" }} match_{{ rowDetails["matched-value"] }}" onclick="toggleAntigen($(this),'.match_{{ rowDetails["matched-value"] }}','.ca_{{ rawValue }}{{ fieldName }}','{{ rawData["issue"] }}');">
+							<input type="hidden" name="{{ rowDetails["matched-value"] }}|{{ fieldName }}|{{ rawValue }}[]" value="{{ rawData["issue"] ? 1 : 0 }}"/>
 						</div>
 					</td>
 					{% else %}
-					<td class="bordercol ca ca_{{ rawValue }}{{ fieldKey }}{{ rawData["issue"] ? " bgred" : "" }}{{ rawData["unmatched"] ? " bggreen" : "" }}">
+					<td class="bordercol ca ca_{{ rawValue }}{{ fieldName }}{{ rawData["issue"] ? " bgred" : "" }}{{ rawData["unmatched"] ? " bggreen" : "" }}">
 						<div class="{{ rawData["value"] ? "x" : "o" }} match_{{ rowDetails["matched-value"] }}">
 						</div>
 					</td>

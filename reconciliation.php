@@ -29,11 +29,13 @@ $metadata = $module->getMetadata($projectId);
 $outputLabelList = [];
 
 $labelList = [];
-foreach($fieldList as $fieldName) {
+foreach($fieldList[$module::$inputType] as $fieldName) {
 	if($metadata[$fieldName]["field_type"] == "checkbox") {
 		$labelList[$fieldName] = $module->getChoiceLabels($fieldName,$projectId);
 	}
 }
+//unreconciled type doesn't exist in settings so copy fields from actual reconciled fields
+$fieldList[$module::$unreconciledType] = $fieldList[$module::$reconciledType];
 
 $outputHeaders = [];
 $outputHeadersCheckboxes = [];
@@ -128,25 +130,25 @@ foreach($matchedKeys as $matchingValue) {
                         "data" => []
                     ];
                 }
-				$fieldKey = 0;
+                $fieldKey = 0;
 				foreach($outputLabelList as $fieldName => $fieldDetails) {
+				    $actualFieldName = $fieldList[$thisType][$fieldKey];
 					foreach($fieldDetails as $rawValue => $label) {
-						$outputRow["data"][$fieldKey][$rawValue] = [
+						$outputRow["data"][$actualFieldName][$rawValue] = [
 							"issue" => ($mismatchedValues && $mismatchedValues[$fieldKey][$rawValue]),
 							"value" => $instanceDetails[$fieldKey][$rawValue],
 							"unmatched" => array_sum($comparisonData[$matchingValue][$fieldKey][$rawValue]) <= 1
 						];
-						
+
 						if ($preMatch) {
-                            $crossMatch['data'][$fieldKey][$rawValue] = [
+                            $crossMatch['data'][$actualFieldName][$rawValue] = [
                                 "issue" => ($mismatchedValues && $mismatchedValues[$fieldKey][$rawValue]),
-                                "value"     => ($mismatchedValues && $mismatchedValues[$fieldKey][$rawValue]) ? "1" : $instanceDetails[$fieldKey][$rawValue],
+                                "value"     => ($mismatchedValues && $mismatchedValues[$fieldKey][$rawValue]) ? "1" : $instanceDetails[$fieldName][$rawValue],
                                 "unmatched" => array_sum($comparisonData[$matchingValue][$fieldKey][$rawValue]) <= 1
                             ];
                         }
-						
 					}
-					$fieldKey++;
+                    $fieldKey++;
 				}
     
 				if ($preMatch) {
@@ -164,10 +166,11 @@ $unacceptableList = [];
 foreach($combinedData[$module::$outputType] as $formName => $formDetails) {
 	$fieldKey = 0;
 	foreach($outputLabelList as $fieldName => $fieldDetails) {
+	    $actualFieldName = $fieldList[$module::$outputType][$fieldKey];
 		foreach($fieldDetails as $rawValue => $label) {
-			$unacceptableList[$fieldKey][$rawValue] = 0;
+			$unacceptableList[$actualFieldName][$rawValue] = 0;
 			if($formDetails[$fieldKey][$rawValue]) {
-				$unacceptableList[$fieldKey][$rawValue] = 1;
+				$unacceptableList[$actualFieldName][$rawValue] = 1;
 			}
 		}
 		$fieldKey++;

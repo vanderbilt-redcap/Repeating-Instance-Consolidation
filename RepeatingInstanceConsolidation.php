@@ -69,8 +69,10 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
 
 		$recordData = $this->getData($projectId,$recordId);
 
-		$fieldList = reset($dataMapping[self::$inputType])[self::$dataFields];
-
+        $fieldList = [];
+        foreach ($dataMapping as $dataType => $item) {
+            $fieldList[$dataType] = reset($item)[self::$dataFields];
+        }
 		## Manually set order so that reconciliation can be set first for comparison data
 		$dataTypeOrder = [self::$reconciledType,self::$inputType];
 
@@ -101,10 +103,6 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
                         $unAcceptedReconciliation = $dataType == self::$reconciledType && $instanceDetails['cross_matching_complete'] != 2;
 						foreach($formDetails[self::$dataFields] as $fieldKey => $fieldName) {
 							foreach($instanceDetails[$fieldName] as $rawValue => $checked) {
-								## Skip comparing "0" (None) as it's set automatically
-								if($rawValue == "0") {
-									continue;
-								}
                                 ## Add data to the combined array for display later if it was accepted as done
                                 
 								if ($acceptedReconciliation) {
@@ -201,9 +199,6 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
                         $foundChecked = false;
                         ## Also mark raw values from the output form to be displayed
                         foreach ($eventDetails[$fieldName] as $rawValue => $checked) {
-                            if ($rawValue == "0") {
-                                continue;
-                            }
                             ## Add the non-repeating data from the output to the combined data to be displayed
                             $combinedData[self::$outputType][$formName][$fieldKey][$rawValue] = $checked;
                         
@@ -213,8 +208,6 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
                                 $antibodiesConfirmed[$rawValue] = true;
                             }
                         }
-                        ## Add None to comparison data manually
-                        $combinedData[self::$outputType][$formName][$fieldKey]["0"] = $foundChecked ? 0 : 1;
                     }
                 }
             }
@@ -257,7 +250,7 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
 		$matchedValues = [];
 		$acceptedTests = [];
 		$newInstanceForDate = [];
-		
+
 		## $_POST data from reconciliation form is passed in matchValue|rawValue => [postedValues] form
 		foreach($_POST as $postField => $postValue) {
 			if(substr($postField,0,7) == "accept_") {
@@ -309,17 +302,13 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
 				## Only try to map data that has actually been reconciled by clicking a value
 				if($nonBlankValue === false) continue;
 
-				list($matchingValue,$rawValue) = explode("|",$postField);
-
-				## Don't do anything with "0" => None and "P" => Pending values
-				if($rawValue == "0" || $rawValue == "P") continue;
-
+                list($matchingValue,$fieldName,$rawValue) = explode("|",$postField);
 				$matchingValues = explode("~",$matchingValue);
-
-				## Just check the first $postValue, they should all match anyways
-				$postValue = reset($postValue);
-
-				if(!array_key_exists($matchingValue,$matchedValues)) {
+                
+                ## Just check the first $postValue, they should all match anyways
+                $postValue = reset($postValue);
+                
+                if(!array_key_exists($matchingValue,$matchedValues)) {
 					$matchedInstances = $this->findMatchingInstances($projectId,$recordId,$matchingValue,self::$reconciledType);
 
 					foreach($dataMapping[self::$reconciledType] as $formName => $formDetails) {
@@ -358,41 +347,82 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
 						}
 					}
 				}
-
 				## Foreach form in reconciled type, find the field that has the given raw value
 				## Then update the $newRecordData with the $postValue
 				foreach($dataMapping[self::$reconciledType] as $formName => $formDetails) {
 					foreach($formDetails[self::$dataFields] as $thisField) {
 						$enum = $this->getChoiceLabels($thisField,$projectId);
-
 						if(array_key_exists($rawValue,$enum)) {
 							foreach($matchedValues[$matchingValue][$formName] as $thisInstance) {
-								$newRepeatingData[$formName][$thisInstance][$thisField][$rawValue] = $postValue;
+                                if ($thisField == $fieldName) {
+                                    $newRepeatingData[$formName][$thisInstance][$thisField][$rawValue] = $postValue;
+                                }
 							}
 						}
 					}
 				}
 			}
 			else if(substr($postField,0,13) == "unacceptable-") {
-				list($matchingValue,$rawValue) = explode("-",$postField);
+				list($matchingValue,$fieldName,$rawValue) = explode("-",$postField);
 				$formsToCheck = $this->getProjectSetting("input-forms",$projectId);
 				$formTypes = $this->getProjectSetting("input-types",$projectId);
 				$fieldList = $this->getProjectSetting("input-fields",$projectId);
-                ## Don't do anything with "0" => None and "P" => Pending values
-                if($rawValue == "0" || $rawValue == "P") continue;
 				foreach($formsToCheck as $thisKey => $thisForm) {
 					if($formTypes[$thisKey] == self::$outputType) {
 						foreach ($fieldList[$thisKey] as $field) {
-							$options = $this->getChoiceLabels($field,$projectId);
-							if (array_key_exists($rawValue, $options)) {
-								$newData[$field][$rawValue] = $postValue;
-							}
+						    if ($field == $fieldName) {
+                                $options = $this->getChoiceLabels($field, $projectId);
+                                if (array_key_exists($rawValue, $options)) {
+                                    $newData[$field][$rawValue] = $postValue;
+                                }
+                            }
 						}
 					}
 				}
 			}
 		}
-
+        //check if any values other than '0' exist in old+new data for non-repeating data
+        foreach ($newData as $fieldName=>$newValues) {
+            $setNone = false;
+            $existingValues = $recordData[$recordId][$eventId][$fieldName];
+            if (array_key_exists(0, $newValues)) {
+                $setNone = true;
+            }
+            unset($newValues[0]);
+            unset($existingValues[0]);
+            $existingValues = array_filter($existingValues); //Remove all existing values that are set to 0 for comparison
+            if (array_search('1', $newValues) !== false) { //If any values are changing to 1 then don't set none to 1
+                $newData[$fieldName][0] = '0';
+            } else if (!empty($newValues) && !empty($existingValues)) {
+                if ($setNone) {
+                    foreach ($existingValues as $key=>$value) {
+                        //check if every existing value in this section is being overwritten with a 0
+                        if (!array_key_exists($key, $newValues) || $newValues[$key] == '1') {
+                            $setNone = false;
+                        }
+                    }
+                }
+                if (!$setNone) {
+                    $newData[$fieldName][0] = '0';
+                }
+            } else if (array_search('1', $existingValues) !== false) {
+                $newData[$fieldName][0] = '0';
+            }//TODO determine if 'none' should ever be set to '1' automatically, if so, do it here in an else            
+		}
+        foreach ($dataMapping[self::$reconciledType] as $formName => $mappings) {
+            foreach ($newRepeatingData[$formName] as $instance => $fields) {
+                foreach ($mappings[self::$dataFields] as $field) {
+                    if ($fields[$field]['0'] == 1) {
+                        unset($fields[$field]['0']);
+                        //If any value is found in this field other than 'none', then set 'none' to 0
+                        if (array_search(1, $fields[$field]) !== false) {
+                            $newRepeatingData[$formName][$instance][$field]['0'] = 0;
+                        }
+                    }
+                }
+            }            
+        }
+        
 		if(count($newRepeatingData) > 0) {
 			$results = \REDCap::saveData($projectId,"array", [$recordId => ["repeat_instances" => [$eventId => $newRepeatingData]]]);
 
