@@ -153,7 +153,7 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
 							## Add None to comparison data manually
 							$foundChecked = false;
 							foreach($combinedData[$dataType][$matchingValue][$formName][$instanceId][$fieldKey] as $rawValue => $checkedValue) {
-								if($checkedValue == 1) {
+							    if($rawValue !== 0 && $checkedValue == 1) {
 									$foundChecked = true;
 									break;
 								}
@@ -162,11 +162,7 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
 							if(!array_key_exists(0,$comparisonData[$matchingValue][$fieldKey])) {
 								$comparisonData[$matchingValue][$fieldKey][0] = [];
 							}
-
 							if(!$foundChecked) {
-							    if (!empty($combinedData[$dataType][$matchingValue][$formName][$instanceId][$fieldKey])) {
-                                    $combinedData[$dataType][$matchingValue][$formName][$instanceId][$fieldKey][0] = 1;
-                                }
 								if(!array_key_exists(1,$comparisonData[$matchingValue][$fieldKey][0])) {
 									$comparisonData[$matchingValue][$fieldKey][0][1] = ($dataType == self::$reconciledType ? 2 : 1);
 								}
@@ -175,9 +171,6 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
 								}
 							}
 							else {
-                                if (!empty($combinedData[$dataType][$matchingValue][$formName][$instanceId][$fieldKey])) {
-                                    $combinedData[$dataType][$matchingValue][$formName][$instanceId][$fieldKey][0] = 0;
-                                }
 								if(!array_key_exists(0,$comparisonData[$matchingValue][$fieldKey][0])) {
 									$comparisonData[$matchingValue][$fieldKey][0][0] = ($dataType == self::$reconciledType ? 2 : 1);
 								}
@@ -407,18 +400,19 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
                 }
             } else if (array_search('1', $existingValues) !== false) {
                 $newData[$fieldName][0] = '0';
-            }//TODO determine if 'none' should ever be set to '1' automatically, if so, do it here in an else            
+            }      
 		}
+        
         foreach ($dataMapping[self::$reconciledType] as $formName => $mappings) {
             foreach ($newRepeatingData[$formName] as $instance => $fields) {
                 foreach ($mappings[self::$dataFields] as $field) {
-                    if ($fields[$field]['0'] == 1) {
                         unset($fields[$field]['0']);
                         //If any value is found in this field other than 'none', then set 'none' to 0
                         if (array_search(1, $fields[$field]) !== false) {
                             $newRepeatingData[$formName][$instance][$field]['0'] = 0;
+                        } else if (array_key_exists($fields[$mappings[self::$matchedFields][0]], $acceptedTests)) {
+                            $newRepeatingData[$formName][$instance][$field]['0'] = 1;
                         }
-                    }
                 }
             }            
         }
