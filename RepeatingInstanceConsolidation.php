@@ -650,7 +650,7 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
 			}
 			else {
 				## Check "None" if no data being added to this field
-				$newData[$thisField]["0"] = 1;
+//				$newData[$thisField]["0"] = 1;
 			}
 		}
 
