@@ -144,7 +144,7 @@ foreach($matchedKeys as $matchingValue) {
 						    $crossMatchFieldName = $fieldList[$module::$unreconciledType][$fieldKey];
                             $crossMatch['data'][$crossMatchFieldName][$rawValue] = [
                                 "issue" => ($mismatchedValues && $mismatchedValues[$fieldKey][$rawValue]),
-                                "value"     => ($mismatchedValues && $mismatchedValues[$fieldKey][$rawValue]) ? "1" : $instanceDetails[$fieldName][$rawValue],
+                                "value"     => ($mismatchedValues && $mismatchedValues[$fieldKey][$rawValue]) ? "1" : $instanceDetails[$fieldKey][$rawValue],
                                 "unmatched" => array_sum($comparisonData[$matchingValue][$fieldKey][$rawValue]) <= 1
                             ];
                         }
