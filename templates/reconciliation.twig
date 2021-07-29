@@ -10,7 +10,7 @@
 		<thead>
 			<tr>
 				<th rowspan='2' class="bordercol">
-					<h3>{{ displayName }}</h3>
+					<h4 id="recordDisplay">{{ displayName }}</h4>
 					Form/Instance<br />
 					<a target="_blank" href="{{ logUrl }}">record log history</a> <br /><br />
 					<div style="font-weight:normal">* <b>bold</b> indicates already reconciled data</div>
@@ -118,7 +118,7 @@
 		<tfoot>
 		</tfoot>
 	</table>
-	<div style="margin-left:10px;margin-top:35px">
+	<div id="buttonWrapper" style="margin-left:10px">
 		<input type='submit' value='Save Reconciliation' />
 		<button type="button" style="margin-left:20px" onclick="window.location='{{ reportUrl }}';return false;">Return to Report</button>
 	</div>
@@ -143,13 +143,16 @@
 			//$(this).before("<div class='hdrback "+addtclass+"' style='position:absolute; left:" + (offset.left) + "px; top:0px; height:"+$(".wdgmctable").height()+"px; width:"+$(this).width()+"px; z-index: -1;'></div>");
 		});
 
+		let recordDisplayBox = document.getElementById('recordDisplay');
+		let heightOffset = 232 + recordDisplayBox.offsetHeight + (recordDisplayBox.offsetHeight/1.5); // Hacky way to make sure the record name won't shove the buttons off screen or into the scrollbar. Works for up to 4 or 5 lines of record name
+		$('#buttonWrapper').css('margin-top', recordDisplayBox.offsetHeight);
 		$(".wdgmctable").DataTable({
 			fixedColumns: {
 				leftColumns: 1
 			},
 			fixedHeader: true,
 			scrollX: true,
-			scrollY: window.innerHeight - 260,
+			scrollY: window.innerHeight - heightOffset, //TODO 260 can change if record name is too long
 			fixedFooter: true,
 			paging:   false,
 			ordering: false,
