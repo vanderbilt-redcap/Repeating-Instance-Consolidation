@@ -151,39 +151,43 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
 							}
 
 							## Add None to comparison data manually
-							$foundChecked = false;
-							foreach($combinedData[$dataType][$matchingValue][$formName][$instanceId][$fieldKey] as $rawValue => $checkedValue) {
-							    if($rawValue !== 0 && $checkedValue == 1) {
-									$foundChecked = true;
-									break;
-								}
-							}
+//							$foundChecked = false;
+//							foreach($combinedData[$dataType][$matchingValue][$formName][$instanceId][$fieldKey] as $rawValue => $checkedValue) {
+//							    if($rawValue !== 0 && $checkedValue == 1) {
+//									$foundChecked = true;
+//									break;
+//								}
+//							}
 
-							if(!array_key_exists(0,$comparisonData[$matchingValue][$fieldKey])) {
-								$comparisonData[$matchingValue][$fieldKey][0] = [];
-							}
-							if(!$foundChecked) {
-								if(!array_key_exists(1,$comparisonData[$matchingValue][$fieldKey][0])) {
-									$comparisonData[$matchingValue][$fieldKey][0][1] = ($dataType == self::$reconciledType ? 2 : 1);
-								}
-								else {
-									$comparisonData[$matchingValue][$fieldKey][0][1]++;
-								}
-							}
-							else {
-								if(!array_key_exists(0,$comparisonData[$matchingValue][$fieldKey][0])) {
-									$comparisonData[$matchingValue][$fieldKey][0][0] = ($dataType == self::$reconciledType ? 2 : 1);
-								}
-								else {
-									$comparisonData[$matchingValue][$fieldKey][0][0]++;
-								}
-							}
+//							$debug->compare([$matchingValue, $fieldKey, $fieldName, $comparisonData[$matchingValue][$fieldKey][0]], []);
+//							if(!array_key_exists(0,$comparisonData[$matchingValue][$fieldKey])) {
+//								$comparisonData[$matchingValue][$fieldKey][0] = [];
+//							}
+//							if(!$foundChecked) {
+//								if(!array_key_exists(1,$comparisonData[$matchingValue][$fieldKey][0])) {
+//									$comparisonData[$matchingValue][$fieldKey][0][1] = ($dataType == self::$reconciledType ? 2 : 1);
+//								}
+//								else {
+//								    $debug->compare(['increasing none (1)'], []);
+//									$comparisonData[$matchingValue][$fieldKey][0][1]++;
+//								}
+//							}
+//							else {
+//								if(!array_key_exists(0,$comparisonData[$matchingValue][$fieldKey][0])) {
+//									$comparisonData[$matchingValue][$fieldKey][0][0] = ($dataType == self::$reconciledType ? 2 : 1);
+//								}
+//								else {
+//                                    $debug->compare(['increasing none (0)'], []);
+//									$comparisonData[$matchingValue][$fieldKey][0][0]++;
+//								}
+//							}
+//							$debug->compare([$comparisonData[$matchingValue][$fieldKey][0]], []);
 						}
 					}
 				}
 			}
 		}
-
+		
 		## Add non-instanced data to $combinedData
 		foreach($recordData[$recordId] as $eventId => $eventDetails) {
 		    if ($eventId != 'repeat_instances') {
@@ -277,8 +281,11 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
                         $newRepeatingData[$formName][$thisInstance]['cross_matching_complete'] = 2;
                         $newInstanceForDate[$matchingValue] = $thisInstance;
 					} else { ##Otherwise just set cross_matching_complete to 2
-                        $matchedInstances = $this->findMatchingInstances($projectId,$recordId,$matchingValue,self::$reconciledType);
                         $thisInstance = $matchedInstances[$formName][0];
+                        //In case this was already populated, don't overwrite it
+                        if (empty($newRepeatingData[$formName][$thisInstance])) {
+                            $newRepeatingData[$formName][$thisInstance] = $recordDataRepeating[$formName][$thisInstance];
+                        }
                         $newRepeatingData[$formName][$thisInstance]['cross_matching_complete'] = 2;
                     }
 				}
