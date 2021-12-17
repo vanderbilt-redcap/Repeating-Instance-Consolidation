@@ -11,7 +11,7 @@
 require_once \ExternalModules\ExternalModules::getProjectHeaderPath();
 
 $startTime = microtime(true);
-$recordData = REDCap::getData(["project_id" => $module->getProjectId(),"fields" => [REDCap::getRecordIdField(),"rec_name","rec_dob","rec_id"]]);
+$recordData = REDCap::getData(["project_id" => $module->getProjectId(),"fields" => [REDCap::getRecordIdField(),"rec_name","rec_dob","rec_id", "rec_listing_status"]]);
 
 $records = array_keys($recordData);
 
@@ -24,17 +24,20 @@ $unmatchedRecords = [];
 $recordDisplay = [];
 
 ## TODO What to do with records that have only one entry for a given test date?
-
-foreach($records as $thisRecord) {
-	$recordDisplay[$thisRecord] = reset($recordData[$thisRecord])["rec_id"].": ".reset($recordData[$thisRecord])["rec_name"]." - ".
-			reset($recordData[$thisRecord])["rec_dob"];
-
-	$comparisonData = $module->getComparisonData($module->getProjectId(),$thisRecord);
+foreach($records as $thisRecordId) {
+    $thisRecord = reset($recordData[$thisRecordId]);
+    $recordDisplay[$thisRecordId] = $thisRecord["rec_id"].": ".$thisRecord["rec_name"]." - ".
+        $thisRecord["rec_dob"];
+    if ($thisRecord['rec_listing_status'] == 7) {
+        continue;
+    }
+    
+    $comparisonData = $module->getComparisonData($module->getProjectId(),$thisRecordId);
 	$confirmedAntibodies = [];
 	$questionableAntibodies = [];
 
 	if(count($comparisonData["comparison"]) == 0) {
-		$noDataRecords[] = $thisRecord;
+		$noDataRecords[] = $thisRecordId;
 		continue;
 	}
 
@@ -72,56 +75,56 @@ foreach($records as $thisRecord) {
 
 	foreach($comparisonData["combined"]["input"] as $matchingValue => $matchedData) {
 		if(count($matchedData) <= 1 && count(reset($matchedData)) <= 1) {
-			$unmatchedRecords[] = $thisRecord;
+			$unmatchedRecords[] = $thisRecordId;
 			break;
 		}
 	}
 
 	if($hasQuestionableAntibodies) {
-		$questionableRecords[] = $thisRecord;
+		$questionableRecords[] = $thisRecordId;
 	}
 	else if($hasUnreconciledIssues) {
-		$needsReconciliationRecords[] = $thisRecord;
+		$needsReconciliationRecords[] = $thisRecordId;
 	}
 	else if($hasUnreconciledTests){
-		$unreconciledRecords[] = $thisRecord;
+		$unreconciledRecords[] = $thisRecordId;
 	}
 	else {
-		$reviewedRecords[] = $thisRecord;
+		$reviewedRecords[] = $thisRecordId;
 	}
 }
 
 echo "<h3>Records with questionable antibodies</h3>";
-foreach($questionableRecords as $thisRecord) {
-	echo "<a href='".$module->getUrl("reconciliation.php?id=".$thisRecord)."'>".$recordDisplay[$thisRecord]."</a><br />";
+foreach($questionableRecords as $thisRecordId) {
+	echo "<a href='".$module->getUrl("reconciliation.php?id=".$thisRecordId)."'>".$recordDisplay[$thisRecordId]."</a><br />";
 }
 
 echo "<br /><br />";
 echo "<h3>Records with conflicts</h3>";
-foreach($needsReconciliationRecords as $thisRecord) {
-	echo "<a href='".$module->getUrl("reconciliation.php?id=".$thisRecord)."'>".$recordDisplay[$thisRecord]."</a><br />";
+foreach($needsReconciliationRecords as $thisRecordId) {
+	echo "<a href='".$module->getUrl("reconciliation.php?id=".$thisRecordId)."'>".$recordDisplay[$thisRecordId]."</a><br />";
 }
 
 echo "<br /><br />";
 echo "<h3>Records with un-reviewed tests</h3>";
-foreach($unreconciledRecords as $thisRecord) {
-	echo "<a href='".$module->getUrl("reconciliation.php?id=".$thisRecord)."'>".$recordDisplay[$thisRecord]."</a><br />";
+foreach($unreconciledRecords as $thisRecordId) {
+	echo "<a href='".$module->getUrl("reconciliation.php?id=".$thisRecordId)."'>".$recordDisplay[$thisRecordId]."</a><br />";
 }
 
 echo "<br /><br />";
 echo "<h3>Records with un-matching test dates</h3>";
-foreach($unmatchedRecords as $thisRecord) {
-	echo "<a href='".$module->getUrl("reconciliation.php?id=".$thisRecord)."'>".$recordDisplay[$thisRecord]."</a><br />";
+foreach($unmatchedRecords as $thisRecordId) {
+	echo "<a href='".$module->getUrl("reconciliation.php?id=".$thisRecordId)."'>".$recordDisplay[$thisRecordId]."</a><br />";
 }
 
 echo "<br /><br />";
 echo "<h3>Records with no data</h3>";
-foreach($noDataRecords as $thisRecord) {
-	echo "<a href='".$module->getUrl("reconciliation.php?id=".$thisRecord)."'>".$recordDisplay[$thisRecord]."</a><br />";
+foreach($noDataRecords as $thisRecordId) {
+	echo "<a href='".$module->getUrl("reconciliation.php?id=".$thisRecordId)."'>".$recordDisplay[$thisRecordId]."</a><br />";
 }
 
 echo "<br /><br />";
 echo "<h3>Fully Reviewed Records</h3>";
-foreach($reviewedRecords as $thisRecord) {
-	echo "<a href='".$module->getUrl("reconciliation.php?id=".$thisRecord)."'>".$recordDisplay[$thisRecord]."</a><br />";
+foreach($reviewedRecords as $thisRecordId) {
+	echo "<a href='".$module->getUrl("reconciliation.php?id=".$thisRecordId)."'>".$recordDisplay[$thisRecordId]."</a><br />";
 }
