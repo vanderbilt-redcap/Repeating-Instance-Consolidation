@@ -19,7 +19,7 @@ $combinedData = $tableData["combined"];
 $comparisonData = $tableData["comparison"];
 $antibodiesPresent = $tableData["antibodies"];
 $fieldList = $tableData["fields"];
-
+$notesField = $tableData['notesField'];
 $displayData = reset(reset($module->getData($projectId,$recordId)));
 
 $displayString = $displayData["rec_id"].": ".$displayData["rec_name"]." - ".$displayData["rec_dob"];
@@ -93,8 +93,6 @@ foreach($matchedKeys as $matchingValue) {
     }
     $inputMatchedDataDetails = $combinedData[$module::$inputType][$matchingValue];
     
-    
-    
 	foreach([$module::$unreconciledType, $module::$reconciledType,$module::$inputType] as $thisType) {
 		$matchedDataDetails = $combinedData[$thisType][$matchingValue];
 		
@@ -132,7 +130,8 @@ foreach($matchedKeys as $matchingValue) {
                         "event" => $eventId,
                         "matched-string" => $matchingString,
                         "matched-value" => $matchingValue,
-                        "data" => []
+                        "data" => [],
+                        "notes" => $instanceDetails[$notesField]
                     ];
                 }
                 $fieldKey = 0;
@@ -175,6 +174,9 @@ foreach($matchedKeys as $matchingValue) {
 				if ($preMatch) {
                     $outputDetails[] = $crossMatch;
                     $crossMatches[] = $matchingValue;
+                }
+                if (in_array($thisType,[$module::$reconciledType,$module::$unreconciledType])) {
+                    $outputRow['notes'] = $instanceDetails[$notesField];
                 }
 				$outputDetails[] = $outputRow;
 			}

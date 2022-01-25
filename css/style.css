@@ -87,13 +87,6 @@ input[type="text"] {
     max-width: 30px;
 }
 
-tr:nth-child(odd) input[type="text"] {
-    /*background: #eeeeee;*/
-}
-
-tr:nth-child(even) input[type="text"] {
-    background: #eeeeee;
-}
 .table-bordered td, .table-bordered th {border: unset}
 .table-bordered td.bordertop {
     border-top: 1px solid #b5b5b5;
@@ -133,4 +126,21 @@ button {
 
 td.bgred.changed.pre-match {
 background-color: #ff00008c;
+}
+
+table.dataTable tbody td.notesCell {
+    min-width: 250px;
+    padding: 2px 2px;
+}
+
+table td.notesCell div {
+    max-height: 35px;
+}
+table td.notesCell div textarea{
+    border-top-style: hidden;
+    border-right-style: hidden;
+    border-left-style: hidden;
+    border-bottom-style: hidden;
+    filter: drop-shadow(1px 1px 1px #606060);
+    width: 100%;
 }

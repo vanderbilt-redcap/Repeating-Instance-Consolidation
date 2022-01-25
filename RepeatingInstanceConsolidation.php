@@ -8,6 +8,7 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
 	public static $outputType = "output";
 	public static $matchedFields = "matching";
 	public static $dataFields = "fields";
+    public static $noteField = "note_field";
 
 	public static $dataMapping = [];
 	public static $recordData = [];
@@ -73,6 +74,7 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
         foreach ($dataMapping as $dataType => $item) {
             $fieldList[$dataType] = reset($item)[self::$dataFields];
         }
+        $notesField = reset($dataMapping[self::$reconciledType])[self::$noteField];
 		## Manually set order so that reconciliation can be set first for comparison data
 		$dataTypeOrder = [self::$reconciledType,self::$inputType];
 
@@ -189,6 +191,16 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
 //								}
 //							}
 						}
+                        $value = $instanceDetails[$notesField];
+                        if ($acceptedReconciliation) {
+                            $combinedData[$dataType][$matchingValue][$formName][$instanceId][$notesField] = $value;
+                            unset($combinedData[self::$unreconciledType][$matchingValue][$formName][$instanceId][$notesField]);
+                        } else if ($unAcceptedReconciliation) {
+                            $combinedData[self::$unreconciledType][$matchingValue][$formName][$instanceId][$notesField] = $value;
+                            unset($combinedData[$dataType][$matchingValue][$formName][$instanceId][$notesField]);
+                        } else {
+                            $combinedData[$dataType][$matchingValue][$formName][$instanceId][$notesField] = $value;
+                        }
 					}
 				}
 			}
@@ -233,7 +245,7 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
 			}
 		}
 
-		return ["combined" => $combinedData, "comparison" => $comparisonData, "antibodies" => $antibodiesPresent, "confirmed" => $antibodiesConfirmed, "fields" => $fieldList];
+		return ["combined" => $combinedData, "comparison" => $comparisonData, "antibodies" => $antibodiesPresent, "confirmed" => $antibodiesConfirmed, "fields" => $fieldList, 'notesField' => $notesField];
 	}
 
 
@@ -379,6 +391,13 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
                         }
 					}
 				}
+                if ($fieldName == 'notes') {
+                    foreach($dataMapping[self::$reconciledType] as $formName => $formDetails) {
+                        foreach ($matchedValues[$matchingValue][$formName] as $thisInstance) {
+                            $newRepeatingData[$formName][$thisInstance]['notes'] = $postValue;
+                        }
+                    }
+                }
 			}
 			else if(substr($postField,0,13) == "unacceptable-") {
 				list($matchingValue,$fieldName,$rawValue) = explode("-",$postField);
@@ -552,7 +571,7 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
 		return $matchedData;
 	}
 
-	public function refactorDropdownsToJson($newForms,$newTypes,$newFields,$newMatchingFields) {
+	public function refactorDropdownsToJson($newForms,$newTypes,$newFields,$newMatchingFields, $newNoteFields) {
 		$combinedJson = [
 			self::$inputType => [],
 			self::$reconciledType => [],
@@ -564,7 +583,13 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
 			$type = $newTypes[$inputKey];
 			$newRow = [];
 
-			if(in_array($type,[self::$inputType,self::$reconciledType])) {
+            if ($type == self::$reconciledType) {
+                $newRow = [
+                    self::$matchedFields => $newMatchingFields[$inputKey],
+                    self::$dataFields => $newFields[$inputKey],
+                    self::$noteField => $newNoteFields[$inputKey]];
+            }
+			else if($type == self::$inputType) {
 				$newRow = [
 					self::$matchedFields => $newMatchingFields[$inputKey],
 					self::$dataFields => $newFields[$inputKey]];
@@ -578,7 +603,6 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
 
 			$combinedJson[$type][$formName] = $newRow;
 		}
-
 		$combinedJson = json_encode($combinedJson);
 
 		return $combinedJson;
@@ -692,9 +716,9 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
 		$newForms = $this->getProjectSetting('input-forms');
 		$newTypes = $this->getProjectSetting('input-types');
 		$newFields = $this->getProjectSetting('input-fields');
+        $newNoteFields = $this->getProjectSetting('notes_fields');
 		$newMatchingFields = $this->getProjectSetting('input-matching-fields');
-
-		$combinedJson = $this->refactorDropdownsToJson($newForms,$newTypes,$newFields,$newMatchingFields);
+		$combinedJson = $this->refactorDropdownsToJson($newForms,$newTypes,$newFields,$newMatchingFields, $newNoteFields);
 		$tempJson = json_decode($newJson, true);
 
 		$updateFromCombined = $combinedJson != $oldJson;
@@ -710,6 +734,7 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
 				$updatedForms = [];
 				$updatedTypes = [];
 				$updatedFields = [];
+                $updatedNotesFields = [];
 				$updatedMatchingFields = [];
 
 				foreach($tempJson as $type => $typeDetails) {
@@ -720,10 +745,14 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
 						if(count($formDetails[self::$matchedFields]) == 0) {
 							$formDetails[self::$matchedFields] = [null];
 						}
+                        if(count($formDetails[self::$noteField]) == 0) {
+                            $formDetails[self::$noteField] = [null];
+                        }
 
 						$updatedForms[] = $formName;
 						$updatedTypes[] = $type;
 						$updatedFields[] = $formDetails[self::$dataFields];
+                        $updatedNotesFields[] = $formDetails[self::$noteField];
 						$updatedMatchingFields[] = $formDetails[self::$matchedFields];
 					}
 				}
@@ -731,11 +760,12 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
 				$this->setProjectSetting('input-forms',$updatedForms);
 				$this->setProjectSetting('input-types',$updatedTypes);
 				$this->setProjectSetting('input-fields',$updatedFields);
+				$this->setProjectSetting('notes_fields',$updatedNotesFields);    
 				$this->setProjectSetting('input-matching-fields',$updatedMatchingFields);
 				$this->setProjectSetting('form-settings',array_fill(0,count($updatedForms),"true"));
 
 				## Refactor JSON so it matches the next time it's re-saved
-				$newJson = $this->refactorDropdownsToJson($updatedForms,$updatedTypes,$updatedFields,$updatedMatchingFields);
+				$newJson = $this->refactorDropdownsToJson($updatedForms,$updatedTypes,$updatedFields,$updatedMatchingFields, $updatedNotesFields);
 
 				$this->setProjectSetting("input-json",$newJson);
 				$this->setProjectSetting("existing-json",$newJson);

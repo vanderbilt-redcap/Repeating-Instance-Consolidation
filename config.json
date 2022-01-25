@@ -93,6 +93,11 @@
 					"name": "Fields to Compare",
 					"type": "field-list",
 					"repeatable": true
+				},
+				{
+					"key": "notes_fields",
+					"name": "Field to store notes (*Reconciled Input Form Only)",
+					"type": "field-list"
 				}
 			]
 		}

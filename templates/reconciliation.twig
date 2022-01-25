@@ -35,6 +35,10 @@
 					<div class="thead"></div>
 					<div class="ca_val">Accept Test</div>
 				</td>
+				<td class="head bordercol ca leftBorder">
+					<div class="thead"></div>
+					<div class="ca_val">Notes</div>
+				</td>
             </tr>
 			<tr class="toprow">
 				<td class="firstcol bordercol">Unacceptable List</td>
@@ -51,6 +55,7 @@
 						{% endfor %}
 					{% endif %}
 				{% endfor %}
+				<td class="bordercol"></td>
 				<td class="bordercol"></td>
 			</tr>
 		</thead>
@@ -132,6 +137,15 @@
 				<td class="bordercol bordertop"></td>
 			{% else %}
 				<td class="bordercol"></td>
+			{% endif %}
+			{% if rowDetails['type'] == 'reconciled' or rowDetails['type'] == 'unreconciled' or rowDetails["type"] == "pre-match"%}
+				<td class="notesCell">
+					<div class="match_{{ rowDetails["matched-value"] }}" style="max-height: 35px">
+						<textarea name="{{ rowDetails["matched-value"] }}|notes" style="height: 33px">{{ rowDetails.notes }}</textarea>
+					</div>
+				</td>
+			{% else %}
+				<td class="bordercol" style="display: none"></td>
 			{% endif %}
 			</tr>
 		{% endfor %}
@@ -231,7 +245,33 @@
 	$('input[type="text"]').change(function () {
 		let clickedCell = $(this).parent();
 		let matchingClass = clickedCell.prop('class');
-		console.log(matchingClass)
+		let columnClass = '';
+		let curChange = false;
+		if(clickedCell.parent().hasClass("changed")) {
+			curChange = true;
+		}
+
+		if (clickedCell.parent().hasClass("pre-match")) {
+			clickedCell.parent().removeClass("pre-match");
+
+		}
+		// $(columnClass).each(function() {
+		// 	let matchedCell = $(this).find(matchingClass);
+
+		if(curChange) {
+			console.log(clickedCell.parent());
+			clickedCell.parent().removeClass("changed");
+			$(columnClass).find(matchingClass).parent().removeClass("changed");
+		}
+		else {
+			console.log(clickedCell.parent());
+			clickedCell.parent().addClass("changed");
+			$(columnClass).find(matchingClass).parent().addClass("changed");
+		}
+	});
+	$('textarea').change(function () {
+		let clickedCell = $(this).parent();
+		let matchingClass = clickedCell.prop('class');
 		let columnClass = '';
 		let curChange = false;
 		if(clickedCell.parent().hasClass("changed")) {
@@ -289,12 +329,21 @@
 
 	function toggleHiddenRows(matchedClass,button) {
 		var rowsToToggle = $("."+ matchedClass + ".start-hidden");
+		var notesSection = $('.'+matchedClass).find('.notesCell');
+		var notesDiv = notesSection.find('div');
+		var notesTA = notesSection.find('textarea');
 		if(rowsToToggle.hasClass("hidden")) {
 			rowsToToggle.removeClass("hidden");
+			notesSection.prop('rowspan', 3);
+			notesDiv.css('max-height', '105px');
+			notesTA.css('height', '105px');
 			button.html("-");
 		}
 		else {
 			rowsToToggle.addClass("hidden");
+			notesSection.prop('rowspan', 1);
+			notesDiv.css('max-height', '35px');
+			notesTA.css('height', '33px');
 			button.html("+");
 		}
 	}
@@ -314,6 +363,7 @@
 
 	$('form').submit(function () {
 		$(this).find('td:not(.changed)').find('input').remove();
+		$(this).find('td:not(.changed)').find('textarea').remove();
 	});
 </script>
 {% endblock %}
