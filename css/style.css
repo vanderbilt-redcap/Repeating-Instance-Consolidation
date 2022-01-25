@@ -20,13 +20,14 @@ td.head div.ca_val {
     transform: rotate(-90deg);
     width:35px;
 }
-td.head div.thead {
-    position:absolute;
-    top:0px;
-    left:0px;
-    height:100px;
-    width:35px;
-}
+td.head:nth-child(2n+3) {background: #eeeeee}
+/*td.head div.thead {*/
+/*    position:absolute;*/
+/*    top:0px;*/
+/*    left:0px;*/
+/*    height:100px;*/
+/*    width:35px;*/
+/*}*/
 td.firstcol {
     min-width:400px;
 }
@@ -75,6 +76,23 @@ table *{font-family: proxima-nova, sans-serif;}
 }
 input {
     filter: drop-shadow(1px 1px 2px #606060);
+}
+input[type="text"] {
+    text-align: right;
+    border-top-style: hidden;
+    border-right-style: hidden;
+    border-left-style: hidden;
+    border-bottom-style: hidden;
+    filter: drop-shadow(1px 1px 1px #606060);
+    max-width: 30px;
+}
+
+tr:nth-child(odd) input[type="text"] {
+    /*background: #eeeeee;*/
+}
+
+tr:nth-child(even) input[type="text"] {
+    background: #eeeeee;
 }
 .table-bordered td, .table-bordered th {border: unset}
 .table-bordered td.bordertop {

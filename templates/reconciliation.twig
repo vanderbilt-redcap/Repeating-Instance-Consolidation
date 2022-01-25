@@ -39,13 +39,17 @@
 			<tr class="toprow">
 				<td class="firstcol bordercol">Unacceptable List</td>
 				{% for fieldName,fieldData in unacceptableList %}
-					{% for rawValue,isChecked in fieldData %}
-						<td class="bordercol ca">
-							<div class="{{ isChecked == 1 ? "x" : "o" }}" onclick="toggleUnacceptable($(this))">
-								<input type="hidden" name="unacceptable-{{ fieldName }}-{{ rawValue }}" />
-							</div>
-						</td>
-					{% endfor %}
+					{% if fieldData is not iterable %}
+						<td class="bordercol"></td>
+					{% else %}
+						{% for rawValue,isChecked in fieldData %}
+							<td class="bordercol ca">
+								<div class="{{ isChecked == 1 ? "x" : "o" }}" onclick="toggleUnacceptable($(this))">
+									<input type="hidden" name="unacceptable-{{ fieldName }}-{{ rawValue }}" />
+								</div>
+							</td>
+						{% endfor %}
+					{% endif %}
 				{% endfor %}
 				<td class="bordercol"></td>
 			</tr>
@@ -85,20 +89,37 @@
 				</td>
 			{% endif %}
 			{% for fieldName,fieldData in rowDetails["data"] %}
-				{% for rawValue,rawData in fieldData %}
+				{% if fieldData['issue'] is defined %}
 					{% if rowDetails['type'] == 'pre-match' or rowDetails["type"] == "unreconciled" or (rowDetails["reconciled"] and not rowDetails["start-hidden"]) %}
-					<td class="bordercol bordertop ca ca_{{ rawValue }}{{ fieldName }}{{ rawData["issue"] ? " bgred" : "" }}{{ (rowDetails['type'] == "pre-match" and rawData["issue"]) ? " changed pre-match" : "" }}{{ rawData["unmatched"] ? " bggreen" : "" }}">
-						<div class="{{ rawData["value"] ? "x" : "o" }} match_{{ rowDetails["matched-value"] }}" onclick="toggleAntigen($(this),'.match_{{ rowDetails["matched-value"] }}','.ca_{{ rawValue }}{{ fieldName }}','{{ rawData["issue"] }}');">
-							<input type="hidden" name="{{ rowDetails["matched-value"] }}|{{ fieldName }}|{{ rawValue }}[]" value="{{ rawData["issue"] ? 1 : 0 }}"/>
-						</div>
-					</td>
+						<td class="{{ loop.index == 1 ? 'startField' : ''}} bordercol bordertop ca ca_{{ fieldName }} {{ fieldData["issue"] ? "bgred" : "" }} {{ (rowDetails['type'] == "pre-match" and fieldData["issue"]) ? " pre-match" : "" }}">
+							<div class="match_{{ rowDetails["matched-value"] }}" style="text-align: center">
+								<input type="text" name="{{ rowDetails["matched-value"] }}|{{ fieldName }}" {%  if fieldData['value'] is empty %} placeholder="0"{% else %} value="{{ fieldData['value']}}" {% endif %}/> %
+							</div>
+						</td>
 					{% else %}
-					<td class="bordercol ca ca_{{ rawValue }}{{ fieldName }}{{ rawData["issue"] ? " bgred" : "" }}{{ rawData["unmatched"] ? " bggreen" : "" }}">
-						<div class="{{ rawData["value"] ? "x" : "o" }} match_{{ rowDetails["matched-value"] }}">
-						</div>
-					</td>
+						<td class="{{ loop.index == 1 ? 'startField' : ''}} bordercol ca ca_{{ fieldName }}">
+							<div class=" match_{{ rowDetails["matched-value"] }}">
+								{{ fieldData['value'] is empty ? 'N/A' : fieldData['value']~'%' }}
+							</div>
+						</td>
 					{% endif %}
-				{% endfor %}
+				{% else %}
+					{% for rawValue,rawData in fieldData %}
+
+						{% if rowDetails['type'] == 'pre-match' or rowDetails["type"] == "unreconciled" or (rowDetails["reconciled"] and not rowDetails["start-hidden"]) %}
+							<td class="{{ loop.index == 1 ? 'startField' : ''}} bordercol bordertop ca ca_{{ rawValue }}{{ fieldName }}{{ rawData["issue"] ? " bgred" : "" }}{{ (rowDetails['type'] == "pre-match" and rawData["issue"]) ? " changed pre-match" : "" }}{{ rawData["unmatched"] ? " bggreen" : "" }}">
+								<div class="{{ rawData["value"] ? "x" : "o" }} match_{{ rowDetails["matched-value"] }}" onclick="toggleAntigen($(this),'.match_{{ rowDetails["matched-value"] }}','.ca_{{ rawValue }}{{ fieldName }}','{{ rawData["issue"] }}');">
+									<input type="hidden" name="{{ rowDetails["matched-value"] }}|{{ fieldName }}|{{ rawValue }}[]" value="{{ rawData["issue"] ? 1 : 0 }}"/>
+								</div>
+							</td>
+						{% else %}
+							<td class="{{ loop.index == 1 ? 'startField' : ''}} bordercol ca ca_{{ rawValue }}{{ fieldName }}{{ rawData["issue"] ? " bgred" : "" }}{{ rawData["unmatched"] ? " bggreen" : "" }}">
+								<div class="{{ rawData["value"] ? "x" : "o" }} match_{{ rowDetails["matched-value"] }}">
+								</div>
+							</td>
+						{% endif %}
+					{% endfor %}
+				{% endif %}
 			{% endfor %}
 			{% if rowDetails['type'] == 'pre-match' or rowDetails["type"] == "unreconciled" %}
 				<td class="bordercol bordertop">
@@ -206,6 +227,35 @@
 		}
 		// });
 	}
+
+	$('input[type="text"]').change(function () {
+		let clickedCell = $(this).parent();
+		let matchingClass = clickedCell.prop('class');
+		console.log(matchingClass)
+		let columnClass = '';
+		let curChange = false;
+		if(clickedCell.parent().hasClass("changed")) {
+			curChange = true;
+		}
+
+		if (clickedCell.parent().hasClass("pre-match")) {
+			clickedCell.parent().removeClass("pre-match");
+
+		}
+		// $(columnClass).each(function() {
+		// 	let matchedCell = $(this).find(matchingClass);
+
+		if(curChange) {
+			console.log(clickedCell.parent());
+			clickedCell.parent().removeClass("changed");
+			$(columnClass).find(matchingClass).parent().removeClass("changed");
+		}
+		else {
+			console.log(clickedCell.parent());
+			clickedCell.parent().addClass("changed");
+			$(columnClass).find(matchingClass).parent().addClass("changed");
+		}
+	});
 
 	function toggleUnacceptable(clickedCell) {
 		let curClass = false;

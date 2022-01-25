@@ -102,53 +102,64 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
 						$acceptedReconciliation = $dataType == self::$reconciledType && $instanceDetails['cross_matching_complete'] == 2;
                         $unAcceptedReconciliation = $dataType == self::$reconciledType && $instanceDetails['cross_matching_complete'] != 2;
 						foreach($formDetails[self::$dataFields] as $fieldKey => $fieldName) {
-							foreach($instanceDetails[$fieldName] as $rawValue => $checked) {
-                                ## Add data to the combined array for display later if it was accepted as done
-                                
-								if ($acceptedReconciliation) {
-                                    $combinedData[$dataType][$matchingValue][$formName][$instanceId][$fieldKey][$rawValue] = $checked;
-                                    unset($combinedData[self::$unreconciledType][$matchingValue][$formName][$instanceId][$fieldKey][$rawValue]);
-                                } else if ($unAcceptedReconciliation) {
-                                    $combinedData[self::$unreconciledType][$matchingValue][$formName][$instanceId][$fieldKey][$rawValue] = $checked;
-                                    unset($combinedData[$dataType][$matchingValue][$formName][$instanceId][$fieldKey][$rawValue]);
-                                } else {
-                                    $combinedData[$dataType][$matchingValue][$formName][$instanceId][$fieldKey][$rawValue] = $checked;
+                            if (is_array($instanceDetails[$fieldName])) {
+                                foreach ($instanceDetails[$fieldName] as $rawValue => $checked) {
+                                    ## Add data to the combined array for display later if it was accepted as done        
+                                    if ($acceptedReconciliation) {
+                                        $combinedData[$dataType][$matchingValue][$formName][$instanceId][$fieldKey][$rawValue] = $checked;
+                                        unset($combinedData[self::$unreconciledType][$matchingValue][$formName][$instanceId][$fieldKey][$rawValue]);
+                                    } else if ($unAcceptedReconciliation) {
+                                        $combinedData[self::$unreconciledType][$matchingValue][$formName][$instanceId][$fieldKey][$rawValue] = $checked;
+                                        unset($combinedData[$dataType][$matchingValue][$formName][$instanceId][$fieldKey][$rawValue]);
+                                    } else {
+                                        $combinedData[$dataType][$matchingValue][$formName][$instanceId][$fieldKey][$rawValue] = $checked;
+                                    }
+        
+                                    ## For raw input data, only add to comparison data if no reconciled data exists
+                                    ## All reconciled data should be added however
+                                    if (($dataType == self::$inputType
+                                            && !array_key_exists($matchingValue, $reconciledTests))
+                                        || $dataType == self::$reconciledType) {
+                                        ## Also add to comparison data, so unmatched data can be found later
+                                        if (!is_array($comparisonData[$matchingValue][$fieldKey][$rawValue])) {
+                                            $comparisonData[$matchingValue][$fieldKey][$rawValue] = [];
+                                        }
+            
+                                        if (array_key_exists($checked, $comparisonData[$matchingValue][$fieldKey][$rawValue])) {
+                                            $comparisonData[$matchingValue][$fieldKey][$rawValue][$checked]++;
+                                        } else {
+                                            $comparisonData[$matchingValue][$fieldKey][$rawValue][$checked] = ($dataType == self::$reconciledType ? 2 : 1);
+                                        }
+            
+                                        ## Also mark every antibody present, so that non-present antibodies don't have to be displayed
+                                        if ($checked == 1) {
+                                            $antibodiesPresent[$rawValue] = true;
+                
+                                            ## If test is reconciled, and matching value is included in the list
+                                            ## any antibodies count as confirmed
+                                            if ($dataType == self::$reconciledType && (!$matchingValues || in_array($matchingValue, $matchingValues))) {
+                                                $antibodiesConfirmed[$rawValue] = true;
+                                            }
+                                        }
+                                    }
+        
+                                    ## Track tests that have been reconciled
+                                    if ($dataType == self::$reconciledType && $acceptedReconciliation) {
+                                        $reconciledTests[$matchingValue] = 1;
+                                    }
                                 }
-
-								## For raw input data, only add to comparison data if no reconciled data exists
-								## All reconciled data should be added however
-								if(($dataType == self::$inputType
-										&& !array_key_exists($matchingValue,$reconciledTests))
-										|| $dataType == self::$reconciledType) {
-									## Also add to comparison data, so unmatched data can be found later
-									if(!is_array($comparisonData[$matchingValue][$fieldKey][$rawValue])) {
-										$comparisonData[$matchingValue][$fieldKey][$rawValue] = [];
-									}
-
-									if(array_key_exists($checked,$comparisonData[$matchingValue][$fieldKey][$rawValue])) {
-										$comparisonData[$matchingValue][$fieldKey][$rawValue][$checked]++;
-									}
-									else {
-										$comparisonData[$matchingValue][$fieldKey][$rawValue][$checked] = ($dataType == self::$reconciledType ? 2 : 1);
-									}
-
-									## Also mark every antibody present, so that non-present antibodies don't have to be displayed
-									if($checked == 1) {
-										$antibodiesPresent[$rawValue] = true;
-
-										## If test is reconciled, and matching value is included in the list
-										## any antibodies count as confirmed
-										if($dataType == self::$reconciledType && (!$matchingValues || in_array($matchingValue,$matchingValues))) {
-											$antibodiesConfirmed[$rawValue] = true;
-										}
-									}
-								}
-
-								## Track tests that have been reconciled
-								if($dataType == self::$reconciledType && $acceptedReconciliation) {
-									$reconciledTests[$matchingValue] = 1;
-								}
-							}
+                            } else {
+                                $value = $instanceDetails[$fieldName];
+                                if ($acceptedReconciliation) {
+                                    $combinedData[$dataType][$matchingValue][$formName][$instanceId][$fieldKey] = $value;
+                                    unset($combinedData[self::$unreconciledType][$matchingValue][$formName][$instanceId][$fieldKey]);
+                                } else if ($unAcceptedReconciliation) {
+                                    $combinedData[self::$unreconciledType][$matchingValue][$formName][$instanceId][$fieldKey] = $value;
+                                    unset($combinedData[$dataType][$matchingValue][$formName][$instanceId][$fieldKey]);
+                                } else {
+                                    $combinedData[$dataType][$matchingValue][$formName][$instanceId][$fieldKey] = $value;
+                                }
+                            }
 
 							## Add None to comparison data manually
 //							$foundChecked = false;
@@ -158,8 +169,6 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
 //									break;
 //								}
 //							}
-
-//							$debug->compare([$matchingValue, $fieldKey, $fieldName, $comparisonData[$matchingValue][$fieldKey][0]], []);
 //							if(!array_key_exists(0,$comparisonData[$matchingValue][$fieldKey])) {
 //								$comparisonData[$matchingValue][$fieldKey][0] = [];
 //							}
@@ -168,7 +177,6 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
 //									$comparisonData[$matchingValue][$fieldKey][0][1] = ($dataType == self::$reconciledType ? 2 : 1);
 //								}
 //								else {
-//								    $debug->compare(['increasing none (1)'], []);
 //									$comparisonData[$matchingValue][$fieldKey][0][1]++;
 //								}
 //							}
@@ -177,11 +185,9 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
 //									$comparisonData[$matchingValue][$fieldKey][0][0] = ($dataType == self::$reconciledType ? 2 : 1);
 //								}
 //								else {
-//                                    $debug->compare(['increasing none (0)'], []);
 //									$comparisonData[$matchingValue][$fieldKey][0][0]++;
 //								}
 //							}
-//							$debug->compare([$comparisonData[$matchingValue][$fieldKey][0]], []);
 						}
 					}
 				}
@@ -292,21 +298,25 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
 			}
 			else if(strpos($postField,"|") !== false) {
 				$nonBlankValue = false;
-				foreach($postValue as $thisValue) {
-					if($thisValue !== "") {
-						$nonBlankValue = true;
-						break;
-					}
-				}
-
-				## Only try to map data that has actually been reconciled by clicking a value
-				if($nonBlankValue === false) continue;
-
+                $isCheckbox = is_array($postValue);
+                if ($isCheckbox) {
+                    foreach($postValue as $thisValue) {
+                        if($thisValue !== "") {
+                            $nonBlankValue = true;
+                            break;
+                        }
+                    }
+                    ## Only try to map data that has actually been reconciled by clicking a value
+                    if($nonBlankValue === false) continue;
+                }
+                
                 list($matchingValue,$fieldName,$rawValue) = explode("|",$postField);
 				$matchingValues = explode("~",$matchingValue);
                 
                 ## Just check the first $postValue, they should all match anyways
-                $postValue = reset($postValue);
+                if ($isCheckbox) {
+                    $postValue = reset($postValue);
+                }
                 
                 if(!array_key_exists($matchingValue,$matchedValues)) {
 					$matchedInstances = $this->findMatchingInstances($projectId,$recordId,$matchingValue,self::$reconciledType);
@@ -351,14 +361,22 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
 				## Then update the $newRecordData with the $postValue
 				foreach($dataMapping[self::$reconciledType] as $formName => $formDetails) {
 					foreach($formDetails[self::$dataFields] as $thisField) {
-						$enum = $this->getChoiceLabels($thisField,$projectId);
-						if(array_key_exists($rawValue,$enum)) {
-							foreach($matchedValues[$matchingValue][$formName] as $thisInstance) {
+                        $enum = $this->getChoiceLabels($thisField,$projectId);
+                        if (empty(array_filter($enum))) {
+                            foreach ($matchedValues[$matchingValue][$formName] as $thisInstance) {
                                 if ($thisField == $fieldName) {
-                                    $newRepeatingData[$formName][$thisInstance][$thisField][$rawValue] = $postValue;
+                                    $newRepeatingData[$formName][$thisInstance][$thisField] = $postValue;
                                 }
-							}
-						}
+                            }
+                        } else {
+                            if (array_key_exists($rawValue, $enum)) {
+                                foreach ($matchedValues[$matchingValue][$formName] as $thisInstance) {
+                                    if ($thisField == $fieldName) {
+                                        $newRepeatingData[$formName][$thisInstance][$thisField][$rawValue] = $postValue;
+                                    }
+                                }
+                            }
+                        }
 					}
 				}
 			}
@@ -413,6 +431,8 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
         foreach ($dataMapping[self::$reconciledType] as $formName => $mappings) {
             foreach ($newRepeatingData[$formName] as $instance => $fields) {
                 foreach ($mappings[self::$dataFields] as $field) {
+                    $isCheckbox = is_array($fields[$field]);
+                    if ($isCheckbox) {
                         unset($fields[$field]['0']);
                         //If any value is found in this field other than 'none', then set 'none' to 0
                         if (array_search(1, $fields[$field]) !== false) {
@@ -420,6 +440,7 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
                         } else if (array_key_exists($fields[$mappings[self::$matchedFields][0]], $acceptedTests)) {
                             $newRepeatingData[$formName][$instance][$field]['0'] = 1;
                         }
+                    }
                 }
             }            
         }
