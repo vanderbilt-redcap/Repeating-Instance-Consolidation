@@ -142,10 +142,16 @@
 			{% else %}
 				<td class="bordercol"></td>
 			{% endif %}
-			{% if notesField and (rowDetails['type'] == 'reconciled' or rowDetails['type'] == 'unreconciled' or rowDetails["type"] == "pre-match")%}
+			{% if notesField and rowDetails['type'] == 'reconciled' %}
 				<td class="notesCell">
 					<div class="match_{{ rowDetails["matched-value"] }}" style="max-height: 35px">
 						<textarea name="{{ rowDetails["matched-value"] }}|{{ notesField }}" style="height: 33px">{{ rowDetails.notes }}</textarea>
+					</div>
+				</td>
+			{% elseif notesField and (rowDetails['type'] == 'unreconciled' or rowDetails["type"] == "pre-match") %}
+				<td class="notesCell" rowspan="3">
+					<div class="match_{{ rowDetails["matched-value"] }}" style="max-height: 105px">
+						<textarea name="{{ rowDetails["matched-value"] }}|{{ notesField }}" style="height: 105px">{{ rowDetails.notes }}</textarea>
 					</div>
 				</td>
 			{% elseif notesField %}
