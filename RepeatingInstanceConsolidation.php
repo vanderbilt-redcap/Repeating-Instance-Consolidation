@@ -259,6 +259,7 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
 		$dataMapping = self::getDataMapping($projectId);
 		$eventId = $this->getFirstEventId($projectId);
 		$recordData = $this->getData($projectId,$recordId);
+        $notesField = reset($dataMapping[self::$reconciledType])[self::$noteField];
 		$recordDataRepeating = $recordData[$recordId]["repeat_instances"][$eventId];
 		$newRepeatingData = [];
 		$newData = [];
@@ -391,10 +392,10 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
                         }
 					}
 				}
-                if ($fieldName == 'notes') {
+                if ($fieldName == $notesField) {
                     foreach($dataMapping[self::$reconciledType] as $formName => $formDetails) {
                         foreach ($matchedValues[$matchingValue][$formName] as $thisInstance) {
-                            $newRepeatingData[$formName][$thisInstance]['notes'] = $postValue;
+                            $newRepeatingData[$formName][$thisInstance][$notesField] = $postValue;
                         }
                     }
                 }

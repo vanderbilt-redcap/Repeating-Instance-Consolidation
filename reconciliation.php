@@ -217,7 +217,8 @@ $renderVars = [
 	"unacceptableList" => $unacceptableList,
 	"reportUrl" => $reportUrl,
 	"displayName" => $displayString,
-	"logUrl" => $logUrl
+	"logUrl" => $logUrl,
+    "notesField" => $notesField
 ];
 
 $html = $twig->render("reconciliation.twig",$renderVars);
