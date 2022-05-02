@@ -144,14 +144,14 @@
 			{% endif %}
 			{% if notesField and rowDetails['type'] == 'reconciled' %}
 				<td class="notesCell">
-					<div class="match_{{ rowDetails["matched-value"] }}" style="max-height: 35px">
+					<div class="match_{{ rowDetails["matched-value"] }}" style="max-height: 33px">
 						<textarea name="{{ rowDetails["matched-value"] }}|{{ notesField }}" style="height: 33px">{{ rowDetails.notes }}</textarea>
 					</div>
 				</td>
 			{% elseif notesField and (rowDetails['type'] == 'unreconciled' or rowDetails["type"] == "pre-match") %}
-				<td class="notesCell" rowspan="3">
-					<div class="match_{{ rowDetails["matched-value"] }}" style="max-height: 105px">
-						<textarea name="{{ rowDetails["matched-value"] }}|{{ notesField }}" style="height: 105px">{{ rowDetails.notes }}</textarea>
+				<td class="notesCell" rowspan="{{ matchedValueCounts[rowDetails["matched-value"]] }}">
+					<div class="match_{{ rowDetails["matched-value"] }}" style="max-height: {{ matchedValueCounts[rowDetails["matched-value"]]* 33 }}px">
+						<textarea name="{{ rowDetails["matched-value"] }}|{{ notesField }}" style="height: {{ matchedValueCounts[rowDetails["matched-value"]]* 33 }}px">{{ rowDetails.notes }}</textarea>
 					</div>
 				</td>
 			{% elseif notesField %}
@@ -170,6 +170,7 @@
 </form>
 
 <script type="text/javascript">
+	var rowSpans = {{ matchedValueCounts|json_encode|raw }};
 	$(document).ready(function() {
 		var unmatchedRows = $(".bgred").parent();
 
@@ -337,22 +338,25 @@
 		}
 	}
 
-	function toggleHiddenRows(matchedClass,button) {
+	function toggleHiddenRows(matchedClass, button) {
+		var matchedValue = matchedClass.split('matched_')[1];
 		var rowsToToggle = $("."+ matchedClass + ".start-hidden");
 		var notesSection = $('.'+matchedClass).find('.notesCell');
+		var rows = rowSpans[matchedValue];
+		var spanHeight = 33*parseInt(rows);
 		var notesDiv = notesSection.find('div');
 		var notesTA = notesSection.find('textarea');
 		if(rowsToToggle.hasClass("hidden")) {
 			rowsToToggle.removeClass("hidden");
-			notesSection.prop('rowspan', 3);
-			notesDiv.css('max-height', '105px');
-			notesTA.css('height', '105px');
+			notesSection.prop('rowspan', rows);
+			notesDiv.css('max-height', spanHeight + 'px');
+			notesTA.css('height', spanHeight + 'px');
 			button.html("-");
 		}
 		else {
 			rowsToToggle.addClass("hidden");
 			notesSection.prop('rowspan', 1);
-			notesDiv.css('max-height', '35px');
+			notesDiv.css('max-height', '33px');
 			notesTA.css('height', '33px');
 			button.html("+");
 		}

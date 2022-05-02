@@ -75,6 +75,7 @@ sort($matchedKeys);
 $outputDetails = [];
 $crossMatches = [];
 $existingCrossMatches = [];
+$matchingValueCounts = [];
 ## Pull data for
 foreach($matchedKeys as $matchingValue) {
 	$matchedData = explode("~",$matchingValue);
@@ -170,11 +171,16 @@ foreach($matchedKeys as $matchingValue) {
                     }
                     $fieldKey++;
 				}
-    
+                if (!array_key_exists($outputRow['matched-value'], $matchingValueCounts)) {
+                    $matchingValueCounts[$outputRow['matched-value']] = 0;
+                }
+                
+                $matchingValueCounts[$outputRow['matched-value']]++;
 				if ($preMatch) {
                     $outputDetails[] = $crossMatch;
                     $crossMatches[] = $matchingValue;
-                }
+                    $matchingValueCounts[$outputRow['matched-value']]++;
+                }                
                 if (in_array($thisType,[$module::$reconciledType,$module::$unreconciledType])) {
                     $outputRow['notes'] = $instanceDetails[$notesField];
                 }
@@ -218,7 +224,8 @@ $renderVars = [
 	"reportUrl" => $reportUrl,
 	"displayName" => $displayString,
 	"logUrl" => $logUrl,
-    "notesField" => $notesField
+    "notesField" => $notesField,
+    "matchedValueCounts" => $matchingValueCounts
 ];
 
 $html = $twig->render("reconciliation.twig",$renderVars);

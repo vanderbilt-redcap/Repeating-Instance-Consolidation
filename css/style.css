@@ -130,11 +130,11 @@ background-color: #ff00008c;
 
 table.dataTable tbody td.notesCell {
     min-width: 250px;
-    padding: 2px 2px;
+    padding: 1px 1px;
 }
 
 table td.notesCell div {
-    max-height: 35px;
+    max-height: 33px;
 }
 table td.notesCell div textarea{
     border-top-style: hidden;
