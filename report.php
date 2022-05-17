@@ -58,7 +58,7 @@ foreach($records as $thisRecordId) {
 	$hasUnreconciledIssues = (count($questionableAntibodies) > 0);
 	foreach($questionableAntibodies as $fieldKey => $fieldValues) {
 		foreach($fieldValues as $rawValue => $confirmed) {
-			if(!array_key_exists($rawValue,$confirmedAntibodies[$fieldKey])) {
+			if(empty($confirmedAntibodies[$fieldKey]) || !array_key_exists($rawValue,$confirmedAntibodies[$fieldKey])) {
 				$hasQuestionableAntibodies = true;
 				break 2;
 			}
@@ -67,7 +67,7 @@ foreach($records as $thisRecordId) {
 
 	$hasUnreconciledTests = false;
 	foreach($comparisonData["combined"]["input"] as $matchingValue => $matchedData) {
-		if(!array_key_exists($matchingValue,$comparisonData["combined"]["reconciled"])) {
+		if(empty($comparisonData["combined"]["reconciled"]) || !array_key_exists($matchingValue,$comparisonData["combined"]["reconciled"])) {
 			$hasUnreconciledTests = true;
 			break;
 		}

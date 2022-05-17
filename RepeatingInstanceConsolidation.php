@@ -22,7 +22,7 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
 
 	## Cache the pulling and decoding of the data mapping
 	public function getDataMapping($projectId) {
-		if(!array_key_exists($projectId,self::$dataMapping)) {
+		if(empty(self::$dataMapping) || !array_key_exists($projectId,self::$dataMapping)) {
 			self::$dataMapping[$projectId] = $this->getProjectSetting("existing-json",$projectId);
 			self::$dataMapping[$projectId] = json_decode(self::$dataMapping[$projectId],true);
 		}
@@ -32,8 +32,8 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
 
 	## Cache the record data that comes back because we'll be making a lot of
 	## getData requests for the same record's data within different functions
-	public function getData($projectId,$record) {
-		if(!array_key_exists($record,self::$recordData[$projectId])) {
+	public function getData($projectId=null,$record=null) {
+		if(empty(self::$recordData[$projectId]) || !array_key_exists($record,self::$recordData[$projectId])) {
 			self::$recordData[$projectId][$record] = parent::getData($projectId,$record);
 		}
 		return self::$recordData[$projectId][$record];
@@ -236,7 +236,7 @@ class RepeatingInstanceConsolidation extends \ExternalModules\AbstractExternalMo
 			foreach($comparisonData as $matchingValue => $dateDetails) {
 				foreach($dateDetails as $fieldKey => $fieldDetails) {
 					## Check that no conflicts for this test and that at least 2 entries show the antibody
-					if(count($fieldDetails[$rawValue]) == 1 && $fieldDetails[$rawValue][1] >= 2
+					if((!empty($fieldDetails[$rawValue]) && count($fieldDetails[$rawValue]) == 1) && $fieldDetails[$rawValue][1] >= 2
 							&& (!$matchingValues || in_array($matchingValue,$matchingValues))) {
 						$antibodiesConfirmed[$rawValue] = true;
 						continue 3;

@@ -77,7 +77,7 @@ table *{font-family: proxima-nova, sans-serif;}
 input {
     filter: drop-shadow(1px 1px 2px #606060);
 }
-input[type="text"] {
+input[type="text"], input[type="number"] {
     text-align: right;
     border-top-style: hidden;
     border-right-style: hidden;
@@ -143,4 +143,16 @@ table td.notesCell div textarea{
     border-bottom-style: hidden;
     filter: drop-shadow(1px 1px 1px #606060);
     width: 100%;
+}
+
+/* Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* Firefox */
+input[type=number] {
+    -moz-appearance: textfield;
 }

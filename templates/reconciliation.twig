@@ -105,7 +105,7 @@
 					{% if rowDetails['type'] == 'pre-match' or rowDetails["type"] == "unreconciled" or (rowDetails["reconciled"] and not rowDetails["start-hidden"]) %}
 						<td class="{{ loop.index == 1 ? 'startField' : ''}} bordercol bordertop ca ca_{{ fieldName }} {{ fieldData["issue"] ? "bgred" : "" }} {{ (rowDetails['type'] == "pre-match" and fieldData["issue"]) ? " pre-match" : "" }}">
 							<div class="match_{{ rowDetails["matched-value"] }}" style="text-align: center">
-								<input type="text" name="{{ rowDetails["matched-value"] }}|{{ fieldName }}" {%  if fieldData['value'] is empty %} placeholder="0"{% else %} value="{{ fieldData['value']}}" {% endif %}/> %
+								<input min="0" max="100" type="number" name="{{ rowDetails["matched-value"] }}|{{ fieldName }}" {%  if fieldData['value'] is empty %} placeholder="0"{% else %} value="{{ fieldData['value']}}" {% endif %}/> %
 							</div>
 						</td>
 					{% else %}
@@ -256,7 +256,7 @@
 		// });
 	}
 
-	$('input[type="text"]').change(function () {
+	$('input[type="text"], input[type="number"]').change(function () {
 		let clickedCell = $(this).parent();
 		let matchingClass = clickedCell.prop('class');
 		let columnClass = '';
@@ -273,12 +273,10 @@
 		// 	let matchedCell = $(this).find(matchingClass);
 
 		if(curChange) {
-			console.log(clickedCell.parent());
 			clickedCell.parent().removeClass("changed");
 			$(columnClass).find(matchingClass).parent().removeClass("changed");
 		}
 		else {
-			console.log(clickedCell.parent());
 			clickedCell.parent().addClass("changed");
 			$(columnClass).find(matchingClass).parent().addClass("changed");
 		}
@@ -300,12 +298,10 @@
 		// 	let matchedCell = $(this).find(matchingClass);
 
 		if(curChange) {
-			console.log(clickedCell.parent());
 			clickedCell.parent().removeClass("changed");
 			$(columnClass).find(matchingClass).parent().removeClass("changed");
 		}
 		else {
-			console.log(clickedCell.parent());
 			clickedCell.parent().addClass("changed");
 			$(columnClass).find(matchingClass).parent().addClass("changed");
 		}
@@ -379,8 +375,8 @@
 	}
 
 	$('form').submit(function () {
-		$(this).find('td:not(.changed)').find('input').remove();
-		$(this).find('td:not(.changed)').find('textarea').remove();
+		$(this).find('td:not(.changed)').find('input').prop('disabled', true);
+		$(this).find('td:not(.changed)').find('textarea').prop('disabled', true);
 	});
 </script>
 {% endblock %}
