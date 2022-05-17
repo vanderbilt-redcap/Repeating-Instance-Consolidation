@@ -260,27 +260,16 @@
 		let clickedCell = $(this).parent();
 		let matchingClass = clickedCell.prop('class');
 		let columnClass = '';
-		let curChange = false;
-		if(clickedCell.parent().hasClass("changed")) {
-			curChange = true;
-		}
 
 		if (clickedCell.parent().hasClass("pre-match")) {
 			clickedCell.parent().removeClass("pre-match");
 
 		}
-		// $(columnClass).each(function() {
-		// 	let matchedCell = $(this).find(matchingClass);
-
-		if(curChange) {
-			clickedCell.parent().removeClass("changed");
-			$(columnClass).find(matchingClass).parent().removeClass("changed");
-		}
-		else {
-			clickedCell.parent().addClass("changed");
-			$(columnClass).find(matchingClass).parent().addClass("changed");
-		}
+		//Always set to changed since we're not checking against the original value to verify that
+		clickedCell.parent().addClass("changed");
+		$(columnClass).find(matchingClass).parent().addClass("changed");
 	});
+
 	$('textarea').change(function () {
 		let clickedCell = $(this).parent();
 		let matchingClass = clickedCell.prop('class');
