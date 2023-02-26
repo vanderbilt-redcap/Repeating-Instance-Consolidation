@@ -87,7 +87,7 @@ foreach($matchedKeys as $matchingValue) {
 		$matchingString .= date('m/d/y', $date);
 	}
 
-	$wasReconciled = array_key_exists($matchingValue,$combinedData[$module::$reconciledType]);
+	$wasReconciled = is_array($combinedData[$module::$reconciledType]) ? array_key_exists($matchingValue,$combinedData[$module::$reconciledType]) : false;
     $notReconciled = array_key_exists($matchingValue,$combinedData[$module::$unreconciledType]);
     if ($wasReconciled || $notReconciled && !in_array($matchingValue, $existingCrossMatches)) {
         $existingCrossMatches[] = $matchingValue;
@@ -140,6 +140,9 @@ foreach($matchedKeys as $matchingValue) {
 				    $actualFieldName = $fieldList[$thisType][$fieldKey];
                     if (is_array($fieldDetails)) {
                         foreach ($fieldDetails as $rawValue => $label) {
+                            if(!is_array($comparisonData[$matchingValue][$fieldKey][$rawValue])) {
+                                $comparisonData[$matchingValue][$fieldKey][$rawValue] = array();
+                            }
                             $outputRow["data"][$actualFieldName][$rawValue] = [
                                 "issue"     => ($mismatchedValues && $mismatchedValues[$fieldKey][$rawValue]),
                                 "value"     => $instanceDetails[$fieldKey][$rawValue],
